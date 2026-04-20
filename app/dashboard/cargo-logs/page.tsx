@@ -9,7 +9,7 @@ export default function CargoLogsPage() {
   const [selectedDate, setSelectedDate] = useState("");
   const [showExportNotif, setShowExportNotif] = useState(false);
 
-  // DATA MASTER ACTIVITY LOGS (Sesuai Gambar)
+  // DATA MASTER ACTIVITY LOGS
   const [logs] = useState([
     { flight: "GA-888", airline: "Garuda Indonesia", route: "CGK ✈ DPS", scheduled: "17:15", actual: "17:20", gate: "A12", items: "45 items", status: "Departed" },
     { flight: "SJ-555", airline: "Sriwijaya Air", route: "CGK ✈ SUB", scheduled: "18:30", actual: "18:30", gate: "B08", items: "32 items", status: "On-Time" },
@@ -33,7 +33,8 @@ export default function CargoLogsPage() {
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
+    // TAMBAHKAN STYLE INLINE FONT FAMILY DISINI
+    <div className="space-y-6 animate-in fade-in duration-500" style={{ fontFamily: 'Arial, Helvetica, sans-serif' }}>
       
       {/* NOTIFIKASI EXPORT */}
       {showExportNotif && (
@@ -72,7 +73,7 @@ export default function CargoLogsPage() {
            <h3 className="font-black text-xl uppercase tracking-tighter italic">Activity Logs</h3>
            
            <div className="flex flex-wrap items-center gap-3">
-              {/* SEARCH BAR (FUNGSI OTOMATIS) */}
+              {/* SEARCH BAR */}
               <div className="relative group">
                 <input 
                   type="text" 
@@ -84,7 +85,7 @@ export default function CargoLogsPage() {
                 <span className="absolute left-4 top-2.5 text-blue-400">🔍</span>
               </div>
 
-              {/* FILTER STATUS (FUNGSI DROP-DOWN) */}
+              {/* FILTER STATUS */}
               <select 
                 onChange={(e) => setFilterStatus(e.target.value)}
                 className="px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-xs font-black shadow-sm outline-none cursor-pointer hover:border-blue-500 transition-all uppercase"
@@ -95,14 +96,14 @@ export default function CargoLogsPage() {
                 <option value="Delayed">Delayed</option>
               </select>
 
-              {/* DATE RANGE (FUNGSI KALENDER) */}
+              {/* DATE RANGE */}
               <input 
                 type="date" 
                 onChange={(e) => setSelectedDate(e.target.value)}
                 className="px-4 py-2 bg-white border border-gray-200 rounded-xl text-xs font-black shadow-sm outline-none cursor-pointer"
               />
 
-              {/* EXPORT BUTTON (FUNGSI CLICK) */}
+              {/* EXPORT BUTTON */}
               <button 
                 onClick={handleExport}
                 className="bg-[#0a2a66] text-white px-6 py-2.5 rounded-xl text-xs font-black shadow-lg hover:bg-blue-800 transition-all active:scale-95 flex items-center gap-2 uppercase"

@@ -1,7 +1,8 @@
 // app/dashboard/flight_status/page.tsx
 export default function FlightStatusPage() {
   return (
-    <div className="w-full">
+    // Tambahkan style inline fontFamily: 'Arial' di container paling luar
+    <div className="w-full" style={{ fontFamily: 'Arial, Helvetica, sans-serif' }}>
       
       {/* Header Halaman Spesifik */}
       <div className="mb-8">
@@ -106,7 +107,6 @@ export default function FlightStatusPage() {
           </tbody>
         </table>
       </div>
-
     </div>
   );
 }
