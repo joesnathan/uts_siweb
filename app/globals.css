@@ -1,0 +1,10 @@
+/* app/globals.css */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Tambahan opsional jika ingin background default halaman agak abu-abu seperti di desain */
+body {
+  @apply bg-gray-50;
+}
