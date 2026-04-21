@@ -6,24 +6,26 @@ export default function CargoLogsPage() {
   // 1. STATE MANAGEMENT
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("All");
-  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedDate, setSelectedDate] = useState(""); // State untuk filter tanggal
   const [showExportNotif, setShowExportNotif] = useState(false);
 
-  // DATA MASTER ACTIVITY LOGS
+  // DATA MASTER ACTIVITY LOGS (Ditambah kolom 'date' supaya filter jalan)
   const [logs] = useState([
-    { flight: "GA-888", airline: "Garuda Indonesia", route: "CGK ✈ DPS", scheduled: "17:15", actual: "17:20", gate: "A12", items: "45 items", status: "Departed" },
-    { flight: "SJ-555", airline: "Sriwijaya Air", route: "CGK ✈ SUB", scheduled: "18:30", actual: "18:30", gate: "B08", items: "32 items", status: "On-Time" },
-    { flight: "JT-100", airline: "Lion Air", route: "CGK ✈ KNO", scheduled: "19:00", actual: "19:15", gate: "C05", items: "28 items", status: "Delayed" },
-    { flight: "GA-450", airline: "Garuda Indonesia", route: "CGK ✈ UPG", scheduled: "19:45", actual: "19:45", gate: "A15", items: "38 items", status: "On-Time" },
-    { flight: "ID-7890", airline: "Batik Air", route: "CGK ✈ JOG", scheduled: "20:00", actual: "20:00", gate: "B12", items: "22 items", status: "On-Time" },
+    { flight: "GA-888", airline: "Garuda Indonesia", date: "2026-04-21", route: "CGK ✈ DPS", scheduled: "17:15", actual: "17:20", gate: "A12", items: "45 items", status: "Departed" },
+    { flight: "SJ-555", airline: "Sriwijaya Air", date: "2026-04-21", route: "CGK ✈ SUB", scheduled: "18:30", actual: "18:30", gate: "B08", items: "32 items", status: "On-Time" },
+    { flight: "JT-100", airline: "Lion Air", date: "2026-04-22", route: "CGK ✈ KNO", scheduled: "19:00", actual: "19:15", gate: "C05", items: "28 items", status: "Delayed" },
+    { flight: "GA-450", airline: "Garuda Indonesia", date: "2026-04-22", route: "CGK ✈ UPG", scheduled: "19:45", actual: "19:45", gate: "A15", items: "38 items", status: "On-Time" },
+    { flight: "ID-7890", airline: "Batik Air", date: "2026-04-23", route: "CGK ✈ JOG", scheduled: "20:00", actual: "20:00", gate: "B12", items: "22 items", status: "On-Time" },
   ]);
 
-  // 2. LOGIKA FILTER & SEARCH
+  // 2. LOGIKA FILTER & SEARCH (ID + STATUS + TANGGAL)
   const filteredLogs = logs.filter((log) => {
     const matchSearch = log.flight.toLowerCase().includes(searchTerm.toLowerCase()) || 
                         log.airline.toLowerCase().includes(searchTerm.toLowerCase());
     const matchStatus = filterStatus === "All" || log.status === filterStatus;
-    return matchSearch && matchStatus;
+    const matchDate = !selectedDate || log.date === selectedDate; // Logika filter tanggal
+    
+    return matchSearch && matchStatus && matchDate;
   });
 
   // 3. FUNGSI EXPORT
@@ -33,21 +35,20 @@ export default function CargoLogsPage() {
   };
 
   return (
-    // TAMBAHKAN STYLE INLINE FONT FAMILY DISINI
-    <div className="space-y-6 animate-in fade-in duration-500" style={{ fontFamily: 'Arial, Helvetica, sans-serif' }}>
+    <div className="w-full relative space-y-6 font-[Arial,sans-serif]">
       
-      {/* NOTIFIKASI EXPORT */}
+      {/* NOTIFIKASI EXPORT BERHASIL (MELAYANG TENGAH ATAS) */}
       {showExportNotif && (
-        <div className="fixed top-10 right-10 z-[100] bg-green-600 text-white px-6 py-3 rounded-2xl shadow-2xl font-black animate-bounce">
-          ✅ LOGS EXPORTED TO PDF!
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[200] animate-in slide-in-from-top duration-300">
+          <div className="bg-green-600 text-white px-8 py-4 rounded-2xl shadow-2xl flex items-center gap-3 border-2 border-green-400">
+            <span className="text-xl">✅</span>
+            <div>
+              <p className="font-black text-xs uppercase tracking-widest">Export Success!</p>
+              <p className="text-[10px] font-bold opacity-90">Manifest data has been downloaded.</p>
+            </div>
+          </div>
         </div>
       )}
-
-      {/* HEADER TITLE */}
-      <div>
-        <h1 className="text-4xl font-black italic uppercase tracking-tighter">Cargo Logs</h1>
-        <p className="text-sm text-gray-400 font-bold uppercase tracking-widest">Activity logs and audit trail for all cargo operations</p>
-      </div>
 
       {/* ROW 1: STATISTIC CARDS */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -70,9 +71,9 @@ export default function CargoLogsPage() {
         
         {/* TOOLBAR */}
         <div className="p-8 border-b border-gray-50 flex flex-col lg:flex-row justify-between items-center gap-4 bg-gray-50/30">
-           <h3 className="font-black text-xl uppercase tracking-tighter italic">Activity Logs</h3>
-           
-           <div className="flex flex-wrap items-center gap-3">
+            <h3 className="font-black text-xl uppercase tracking-tighter italic">Activity Logs</h3>
+            
+            <div className="flex flex-wrap items-center gap-3">
               {/* SEARCH BAR */}
               <div className="relative group">
                 <input 
@@ -82,11 +83,12 @@ export default function CargoLogsPage() {
                   placeholder="Search flight or airline..." 
                   className="pl-12 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-xs font-bold w-64 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
                 />
-                <span className="absolute left-4 top-2.5 text-blue-400">🔍</span>
+                <span className="absolute left-4 top-2.5 text-blue-400 font-bold">🔍</span>
               </div>
 
               {/* FILTER STATUS */}
               <select 
+                value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
                 className="px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-xs font-black shadow-sm outline-none cursor-pointer hover:border-blue-500 transition-all uppercase"
               >
@@ -96,11 +98,12 @@ export default function CargoLogsPage() {
                 <option value="Delayed">Delayed</option>
               </select>
 
-              {/* DATE RANGE */}
+              {/* DATE RANGE FILTER */}
               <input 
                 type="date" 
+                value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
-                className="px-4 py-2 bg-white border border-gray-200 rounded-xl text-xs font-black shadow-sm outline-none cursor-pointer"
+                className="px-4 py-2 bg-white border border-gray-200 rounded-xl text-xs font-black shadow-sm outline-none cursor-pointer uppercase"
               />
 
               {/* EXPORT BUTTON */}
@@ -110,7 +113,17 @@ export default function CargoLogsPage() {
               >
                 ⬇ Export Logs
               </button>
-           </div>
+
+              {/* RESET BUTTON (Optional - muncul kalo ada filter) */}
+              {(searchTerm || selectedDate || filterStatus !== "All") && (
+                <button 
+                  onClick={() => {setSearchTerm(""); setSelectedDate(""); setFilterStatus("All")}}
+                  className="text-[9px] font-black text-red-500 uppercase hover:underline"
+                >
+                  Reset Filter
+                </button>
+              )}
+            </div>
         </div>
 
         {/* TABLE CONTENT */}
@@ -120,26 +133,30 @@ export default function CargoLogsPage() {
               <tr className="text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 bg-gray-50/20">
                 <th className="py-6 px-8">Flight Number</th>
                 <th className="py-6 px-4">Airline</th>
+                <th className="py-6 px-4 text-center">Date</th>
                 <th className="py-6 px-4">Route</th>
-                <th className="py-6 px-4">Scheduled</th>
-                <th className="py-6 px-4">Actual</th>
-                <th className="py-6 px-4">Gate</th>
-                <th className="py-6 px-4">Cargo Items</th>
+                <th className="py-6 px-4 text-center">Sched / Act</th>
+                <th className="py-6 px-4 text-center">Gate</th>
+                <th className="py-6 px-4 text-center">Items</th>
                 <th className="py-6 px-8 text-center">Status</th>
               </tr>
             </thead>
             <tbody className="text-[11px] font-black">
               {filteredLogs.length > 0 ? filteredLogs.map((log, index) => (
                 <tr key={index} className="hover:bg-blue-50/50 transition-all border-b border-gray-50 last:border-0 group">
-                  <td className="py-6 px-8 text-gray-900 uppercase">{log.flight}</td>
+                  <td className="py-6 px-8 text-gray-900 uppercase tracking-tighter">{log.flight}</td>
                   <td className="py-6 px-4 text-gray-500 font-bold uppercase">{log.airline}</td>
+                  <td className="py-6 px-4 text-center text-gray-400 italic">{log.date}</td>
                   <td className="py-6 px-4 text-gray-700">{log.route}</td>
-                  <td className="py-6 px-4 text-gray-500">{log.scheduled}</td>
-                  <td className={`py-6 px-4 ${log.actual > log.scheduled ? 'text-red-500' : 'text-gray-900'}`}>{log.actual}</td>
-                  <td className="py-6 px-4 text-gray-900">{log.gate}</td>
-                  <td className="py-6 px-4 text-gray-500">{log.items}</td>
+                  <td className="py-6 px-4 text-center">
+                    <span className="text-gray-400">{log.scheduled}</span>
+                    <span className="mx-1">/</span>
+                    <span className={`${log.actual > log.scheduled ? 'text-red-500' : 'text-gray-900'}`}>{log.actual}</span>
+                  </td>
+                  <td className="py-6 px-4 text-center text-gray-900">{log.gate}</td>
+                  <td className="py-6 px-4 text-center text-gray-500">{log.items}</td>
                   <td className="py-6 px-8 text-center">
-                    <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase flex items-center justify-center gap-1 ${
+                    <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase flex items-center justify-center gap-1 shadow-sm ${
                       log.status === 'Departed' ? 'bg-blue-100 text-blue-700' : 
                       log.status === 'Delayed' ? 'bg-orange-100 text-orange-700' : 'bg-green-100 text-green-700'
                     }`}>
@@ -152,7 +169,9 @@ export default function CargoLogsPage() {
                 </tr>
               )) : (
                 <tr>
-                  <td colSpan={8} className="py-20 text-center text-gray-400 italic font-bold">Data tidak ditemukan...</td>
+                  <td colSpan={8} className="py-20 text-center text-gray-300 italic font-black uppercase tracking-widest">
+                    Data tidak ditemukan ✈️
+                  </td>
                 </tr>
               )}
             </tbody>

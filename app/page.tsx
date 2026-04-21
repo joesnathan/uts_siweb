@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function LandingPage() {
   return (
-    <div className="w-full font-sans">
+    <div className="w-full font-arial">
       
       {/* HERO SECTION */}
       <section className="text-white px-8 lg:px-24 relative overflow-hidden min-h-[90vh] flex flex-col justify-center py-20">
