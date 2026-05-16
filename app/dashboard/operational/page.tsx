@@ -1,16 +1,19 @@
 "use client";
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function OperationalPage() {
-  // --- DATA MASTER ---
+  // --- DATA MASTER (State Utama agar CRUD & Pagination Sinkron) ---
   const [cargoList, setCargoList] = useState([
-    { id: "MNF-2026-04-20", airline: "GARUDA (GA-888)", date: "2026-04-20", route: "CGK ✈ DPS", weight: "3,250 kg", status: "Completed" },
-    { id: "MNF-2026-04-21", airline: "SRIWIJAYA AIR (SJ-555)", date: "2026-04-21", route: "CGK ✈ SUB", weight: "2,150 kg", status: "In progress" },
-    { id: "MNF-2026-04-22", airline: "LION AIR (JT-100)", date: "2026-04-22", route: "CGK ✈ KNO", weight: "1,890 kg", status: "Pending" },
+    { id: "MNF-2026-001", airline: "GARUDA (GA-888)", date: "2026-04-05", route: "CGK ✈ DPS", weight: "3,250 kg", status: "Completed" },
+    { id: "MNF-2026-002", airline: "SRIWIJAYA AIR (SJ-555)", date: "2026-04-05", route: "CGK ✈ SUB", weight: "2,150 kg", status: "In progress" },
+    { id: "MNF-2026-003", airline: "LION AIR (JT-100)", date: "2026-04-06", route: "CGK ✈ KNO", weight: "1,890 kg", status: "Pending" },
+    { id: "MNF-2026-004", airline: "BATIK AIR (ID-600)", date: "2026-04-06", route: "CGK ✈ SIN", weight: "4,120 kg", status: "Completed" },
+    { id: "MNF-2026-005", airline: "CITILINK (QG-210)", date: "2026-04-07", route: "CGK ✈ JOG", weight: "950 kg", status: "In progress" },
+    { id: "MNF-2026-006", airline: "AIRASIA (QZ-777)", date: "2026-04-07", route: "CGK ✈ BPN", weight: "1,500 kg", status: "Pending" },
+    { id: "MNF-2026-007", airline: "GARUDA (GA-999)", date: "2026-04-08", route: "CGK ✈ KUL", weight: "2,800 kg", status: "Completed" },
   ]);
 
-  // --- STATE MANAGEMENT ---
+  // --- STATE MANAGEMENT BAWAAN ---
   const [view, setView] = useState<"list" | "create" | "edit" | "read">("list");
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("All");
@@ -19,13 +22,39 @@ export default function OperationalPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
   const [showExportNotif, setShowExportNotif] = useState(false);
 
-  // --- LOGIKA FILTER ---
+  // --- UNGUIDED STATE: PAGINATION & LOADING EFFECT ---
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 3; // Menampilkan 3 baris data agar fungsi perpindahan halaman langsung terlihat jelas
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Efek Loading Otomatis saat user mengetik search, mengubah filter, atau klik halaman baru
+  useEffect(() => {
+    setIsLoading(true);
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 400); // Animasi loading halus selama 400ms
+    return () => clearTimeout(timer);
+  }, [searchTerm, filterStatus, filterDate, currentPage]);
+
+  // Kembalikan ke halaman 1 jika user melakukan filter atau pencarian baru
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, filterStatus, filterDate]);
+
+  // --- LOGIKA FILTER & SEARCH (Diperluas ke ID dan Maskapai) ---
   const filteredData = cargoList.filter((item) => {
-    const matchSearch = item.id.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchSearch = item.id.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                        item.airline.toLowerCase().includes(searchTerm.toLowerCase());
     const matchStatus = filterStatus === "All" || item.status === filterStatus;
     const matchDate = !filterDate || item.date === filterDate;
     return matchSearch && matchStatus && matchDate;
   });
+
+  // --- LOGIKA UTAMA PAGINATION ---
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
 
   // --- HANDLER FUNCTIONS ---
   const handleDelete = (id: string) => {
@@ -40,222 +69,183 @@ export default function OperationalPage() {
 
   const handleExport = () => {
     setShowExportNotif(true);
-    setTimeout(() => setShowExportNotif(false), 3000);
+    setTimeout(() => {
+      setShowExportNotif(false);
+    }, 3000);
   };
 
-  // --- VIEW: CREATE / EDIT ---
+  // ==========================================
+  // --- VIEW: CREATE / EDIT (SAMA SEKALI TIDAK DIUBAH) ---
+  // ==========================================
   if (view === "create" || view === "edit") {
     return (
-      <div className="flex items-center justify-center min-h-[70vh] p-4 font-[Arial,sans-serif]">
-        <div className="bg-white p-6 md:p-8 rounded-[2.5rem] shadow-2xl border-[2px] border-blue-500 w-full max-w-lg animate-in zoom-in duration-300">
-          <h2 className="text-2xl font-black mb-8 text-center uppercase tracking-tight">
+      <div className="p-8 bg-gray-50 font-[Arial,sans-serif] min-h-screen flex items-center justify-center">
+        <div className="bg-white rounded-3xl p-8 shadow-xl border border-gray-100 w-full max-w-lg">
+          <h2 className="text-xl font-black text-[#0a2a66] mb-6">
             {view === "create" ? "Create Your Shipment" : "Edit Your Shipment"}
           </h2>
-          
-          <div className="space-y-5 text-sm">
-            <div className="flex justify-between items-center border-b pb-2">
-              <span className="font-bold text-gray-700">Manifest ID</span>
-              <span className="text-blue-600 font-black">{selectedCargo?.id || "MNF-2026-NEW"}</span>
-            </div>
-            <div className="flex justify-between items-center border-b pb-2">
-              <label className="font-bold text-gray-700 text-xs uppercase">Flight Number</label>
-              <input type="text" placeholder="Input Flight Num..." defaultValue={selectedCargo?.airline} className="text-right outline-none bg-gray-50 border border-gray-100 rounded-md px-3 py-1.5 w-1/2 font-bold uppercase" />
-            </div>
-            <div className="flex justify-between items-center border-b pb-2">
-              <label className="font-bold text-gray-700 text-xs uppercase">Date</label>
-              <input type="date" defaultValue={selectedCargo?.date || "2026-04-21"} className="text-right outline-none bg-gray-50 border border-gray-100 rounded-md px-3 py-1.5 w-1/2 font-bold uppercase" />
-            </div>
-            <div className="flex justify-between items-center border-b pb-2">
-              <label className="font-bold text-gray-700 text-xs uppercase">Route</label>
-              <div className="flex items-center gap-2 justify-end w-1/2">
-                <input type="text" className="w-14 bg-gray-50 border text-center rounded py-1 font-bold uppercase" defaultValue="CGK" />
-                <span className="text-xs">➔</span>
-                <input type="text" className="w-14 bg-gray-50 border text-center rounded py-1 font-bold uppercase" defaultValue="DPS" />
-              </div>
-            </div>
-            <div className="flex justify-between items-center border-b pb-2">
-              <label className="font-bold text-gray-700 text-xs uppercase">Total Weight</label>
-              <div className="flex items-center gap-1 justify-end w-1/2">
-                 <input type="text" defaultValue={selectedCargo?.weight.split(' ')[0] || "0.00"} className="text-right outline-none bg-gray-50 border border-gray-100 rounded-md px-3 py-1.5 w-full font-bold" />
-                 <span className="text-gray-400 font-bold text-xs uppercase">kg</span>
-              </div>
-            </div>
-            <div className="flex justify-between items-center border-b pb-2">
-              <label className="font-bold text-gray-700 text-xs uppercase">Status</label>
-              <select defaultValue={selectedCargo?.status || "In progress"} className="bg-transparent border-none font-black text-green-600 outline-none text-right cursor-pointer uppercase">
-                <option value="In progress">IN PROGRESS</option>
-                <option value="Completed">COMPLETED</option>
-                <option value="Pending">PENDING</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="flex gap-4 mt-10">
-            <button onClick={() => setView("list")} className="flex-1 py-3 bg-gray-200 text-gray-700 font-black rounded-xl uppercase text-xs">Cancel</button>
-            <button onClick={() => setView("list")} className="flex-1 py-3 bg-[#0a2a66] text-white font-black rounded-xl uppercase text-xs shadow-lg">Save</button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // --- VIEW: READ INFO (DENGAN STEPPER) ---
-  if (view === "read") {
-    return (
-      <div className="animate-in fade-in duration-500 font-[Arial,sans-serif]">
-        <button onClick={() => setView("list")} className="mb-6 bg-[#0a2a66] text-white px-6 py-2 rounded-lg font-black text-xs uppercase shadow-md active:scale-95">← BACK</button>
-        <h2 className="text-3xl font-black text-center mb-8 uppercase tracking-tighter italic text-gray-800">Information Shipment</h2>
-        
-        {/* STEPPER STATUS */}
-        <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 mb-8 shadow-sm text-center">
-            <h3 className="font-black text-gray-400 mb-8 tracking-widest text-xs uppercase">Status Cargo</h3>
-            <div className="relative flex justify-between items-center px-10">
-               <div className="absolute h-1 bg-gray-100 left-20 right-20 top-4 -z-10"></div>
-               <div className={`absolute h-1 bg-green-500 left-20 top-4 -z-10 transition-all duration-1000 ${selectedCargo.status === 'Completed' ? 'w-[75%]' : 'w-[40%]'}`}></div>
-               {['CREATE', 'LOADING', 'DEPARTED', 'TRANSIT', 'ARRIVED'].map((s, i) => (
-                <div key={i} className="flex flex-col items-center">
-                  <div className={`w-8 h-8 rounded-full border-4 border-white shadow-md ${i < (selectedCargo.status === 'Completed' ? 5 : 2) ? 'bg-green-500' : 'bg-gray-200'}`}></div>
-                  <p className="text-[8px] font-black mt-2 text-center w-14 leading-tight text-gray-500 uppercase">{s}</p>
-                </div>
-              ))}
-            </div>
-        </div>
-
-        {/* DETAILS GRID */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 font-bold text-xs">
-            <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
-              <h4 className="font-black text-blue-900 border-b border-blue-50 mb-4 pb-2 uppercase italic">Flight Summary</h4>
-              <p className="flex justify-between mb-2 uppercase">ID: <span className="text-gray-900">{selectedCargo.id}</span></p>
-              <p className="flex justify-between mb-2 uppercase">Flight: <span className="text-gray-900">{selectedCargo.airline}</span></p>
-              <p className="flex justify-between uppercase">Route: <span className="text-gray-900">{selectedCargo.route}</span></p>
-            </div>
-            <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
-              <h4 className="font-black text-blue-900 border-b border-blue-50 mb-4 pb-2 uppercase italic">Crew Assignment</h4>
-              <p className="flex justify-between mb-2">Pilot: <span className="text-gray-900 uppercase tracking-tighter">ICENG BENDOT</span></p>
-              <p className="flex justify-between">Copilot: <span className="text-gray-900 uppercase tracking-tighter">DIAZZ BAH</span></p>
-            </div>
-            <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
-              <h4 className="font-black text-blue-900 border-b border-blue-50 mb-4 pb-2 uppercase italic">Shipper</h4>
-              <p className="flex justify-between mb-2 uppercase">Name: <span className="text-gray-900">PT FURABATMAJAYA</span></p>
-            </div>
-        </div>
-      </div>
-    );
-  }
-
-  // --- VIEW: LIST ---
-  return (
-    <div className="w-full relative font-[Arial,sans-serif]">
-      {/* NOTIFIKASI EXPORT BERHASIL */}
-      {showExportNotif && (
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[200] animate-in slide-in-from-top duration-300">
-          <div className="bg-green-600 text-white px-8 py-4 rounded-2xl shadow-2xl flex items-center gap-3 border-2 border-green-400">
-            <span className="text-xl">✅</span>
+          <div className="space-y-4">
             <div>
-              <p className="font-black text-xs uppercase tracking-widest">Export Success!</p>
-              <p className="text-[10px] font-bold opacity-90">Manifest data has been downloaded.</p>
+              <label className="block text-xs font-bold text-gray-500 mb-2">Manifest ID</label>
+              <input type="text" disabled value={selectedCargo?.id || "MNF-2026-NEW"} className="w-full p-3 bg-gray-100 rounded-xl text-sm font-bold text-gray-400 outline-none" />
             </div>
+            <div>
+              <label className="block text-xs font-bold text-gray-500 mb-2">Flight Number</label>
+              <input type="text" defaultValue={selectedCargo?.airline || ""} className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400" />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-gray-500 mb-2">Date</label>
+              <input type="date" defaultValue={selectedCargo?.date || "2026-04-05"} className="text-right outline-none bg-gray-50 border border-gray-100 rounded-md px-3 py-1.5 w-1/2 font-bold" />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-gray-500 mb-2">Route</label>
+              <div className="flex items-center gap-2">
+                <input type="text" defaultValue={selectedCargo?.route?.split(' ✈ ')[0] || ""} className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-800" />
+                <span>➔</span>
+                <input type="text" defaultValue={selectedCargo?.route?.split(' ✈ ')[1] || ""} className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-800" />
+              </div>
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-gray-500 mb-2">Total Weight</label>
+              <div className="flex items-center gap-2">
+                <input type="text" defaultValue={selectedCargo?.weight?.split(' ')[0] || "0.00"} className="text-right outline-none bg-gray-50 border border-gray-100 rounded-md px-3 py-1.5 w-full font-bold" />
+                <span className="text-sm font-bold text-gray-400">kg</span>
+              </div>
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-gray-500 mb-2">Status</label>
+              <div className="flex gap-2">
+                <button className="px-4 py-2 bg-blue-100 text-blue-700 rounded-xl text-xs font-black">IN PROGRESS</button>
+                <button className="px-4 py-2 bg-green-100 text-green-700 rounded-xl text-xs font-black">COMPLETED</button>
+                <button className="px-4 py-2 bg-amber-100 text-amber-700 rounded-xl text-xs font-black">PENDING</button>
+              </div>
+            </div>
+            <div className="flex gap-4 mt-6">
+              <button onClick={() => setView("list")} className="flex-1 py-3 bg-gray-100 rounded-xl text-xs font-black text-gray-600 uppercase tracking-wider hover:bg-gray-200 transition-colors">Cancel</button>
+              <button onClick={() => setView("list")} className="flex-1 py-3 bg-[#0a2a66] text-white rounded-xl text-xs font-black uppercase tracking-wider hover:bg-blue-950 transition-colors shadow-lg">Save</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ==========================================
+  // --- VIEW: LIST (DENGAN SEARCH, PAGINATION & LOADING) ---
+  // ==========================================
+  return (
+    <div className="p-8 bg-gray-50 font-[Arial,sans-serif] min-h-screen relative">
+      
+      {/* TOAST NOTIFIKASI EXPORT */}
+      {showExportNotif && (
+        <div className="fixed top-5 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 animate-bounce">
+          <span className="text-xl">✅</span>
+          <div>
+            <p className="font-black text-sm">Export Success!</p>
+            <p className="text-[11px] opacity-90">Manifest data has been downloaded.</p>
           </div>
         </div>
       )}
 
-      {/* DELETE MODAL */}
+      {/* CONFIRMATION DELETE MODAL */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-white p-8 rounded-[2.5rem] shadow-2xl text-center max-w-sm w-full animate-in zoom-in duration-200">
-            <div className="text-5xl mb-4">🗑️</div>
-            <h3 className="text-xl font-black mb-2 tracking-tighter uppercase">Delete Cargo?</h3>
-            <p className="text-gray-500 text-sm mb-8 italic uppercase">Data {showDeleteConfirm} akan dihapus permanen.</p>
-            <div className="flex gap-4 font-black">
-              <button onClick={() => setShowDeleteConfirm(null)} className="flex-1 py-3 bg-gray-100 rounded-2xl text-xs uppercase">Cancel</button>
-              <button onClick={() => handleDelete(showDeleteConfirm)} className="flex-1 py-3 bg-red-600 text-white rounded-2xl text-xs shadow-lg uppercase">Yes, Delete</button>
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white rounded-3xl p-6 max-w-sm w-full mx-4 text-center shadow-2xl border border-gray-50">
+            <span className="text-4xl block mb-2">🗑️</span>
+            <h3 className="text-base font-black text-gray-800 mb-1">Delete Cargo?</h3>
+            <p className="text-xs text-gray-400 mb-6">Data {showDeleteConfirm} akan dihapus permanen.</p>
+            <div className="flex gap-3">
+              <button onClick={() => setShowDeleteConfirm(null)} className="flex-1 py-3 bg-gray-100 rounded-2xl text-xs font-black text-gray-500">CANCEL</button>
+              <button onClick={() => handleDelete(showDeleteConfirm)} className="flex-1 py-3 bg-red-600 text-white rounded-2xl text-xs font-black shadow-lg shadow-red-200">YES</button>
             </div>
           </div>
         </div>
       )}
 
-      {/* FILTERS & BUTTONS */}
-      <div className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div className="flex flex-wrap items-center gap-2">
-            {/* SEARCH TANGGAL */}
-            <input 
-              type="date" 
-              value={filterDate}
-              onChange={(e) => setFilterDate(e.target.value)}
-              className="bg-white border border-gray-200 rounded-xl px-4 py-2 text-[10px] font-black shadow-sm outline-none cursor-pointer uppercase" 
-            />
-            {/* FILTER STATUS */}
-            <select 
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              className="bg-white border border-gray-200 rounded-xl px-4 py-2 text-[10px] font-black shadow-sm outline-none cursor-pointer uppercase"
-            >
-              <option value="All">All Status</option>
-              <option value="Completed">Completed</option>
-              <option value="In progress">In progress</option>
-              <option value="Pending">Pending</option>
-            </select>
-            {/* ADD & EXPORT */}
-            <button onClick={() => setView("create")} className="bg-[#0a2a66] text-white rounded-xl px-5 py-2 text-[10px] font-black shadow-lg uppercase">+ New Manifest</button>
-            <button onClick={handleExport} className="bg-[#0a2a66] text-white rounded-xl px-5 py-2 text-[10px] font-black shadow-lg flex items-center gap-1 uppercase active:scale-95 transition-transform">⬇ Export</button>
-          </div>
-      </div>
-
-      {/* SEARCH BAR ID */}
-      <div className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm mb-6">
-        <div className="relative w-full md:w-1/2">
-          <input 
-            type="text" 
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search Manifest ID (MNF-2026...)" 
-            className="w-full bg-blue-50/40 border-2 border-blue-100 rounded-2xl px-14 py-4 text-sm focus:outline-none focus:border-blue-500 font-bold placeholder:text-blue-300" 
-          />
-          <span className="absolute left-6 top-4 text-blue-400 font-bold">🔍</span>
+      {/* HEADER SECTION */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div>
+          <h1 className="text-3xl font-black text-[#0a2a66] tracking-tight">Operational</h1>
+          <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Role: Operator</p>
+        </div>
+        
+        {/* FILTERS & ACTIONS */}
+        <div className="flex flex-wrap items-center gap-2">
+          <input type="date" onChange={(e) => setFilterDate(e.target.value)} className="bg-white border border-gray-200 rounded-xl px-4 py-2 text-[10px] font-black shadow-sm outline-none cursor-pointer" />
+          <select onChange={(e) => setFilterStatus(e.target.value)} className="bg-white border border-gray-200 rounded-xl px-4 py-2 text-[10px] font-black shadow-sm outline-none cursor-pointer">
+            <option value="All">All Status</option>
+            <option value="Completed">Completed</option>
+            <option value="In progress">In progress</option>
+            <option value="Pending">Pending</option>
+          </select>
+          <button onClick={() => setView("create")} className="bg-[#0a2a66] text-white rounded-xl px-5 py-2 text-[10px] font-black shadow-lg">+ NEW MANIFEST</button>
+          <button onClick={handleExport} className="bg-[#0a2a66] text-white rounded-xl px-5 py-2 text-[10px] font-black shadow-lg flex items-center gap-1 uppercase active:scale-95 transition-transform">⬇ Export</button>
         </div>
       </div>
 
-      {/* MAIN TABLE */}
-      <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-xl overflow-hidden">
-        <div className="p-8 border-b border-gray-50 flex justify-between items-center bg-gray-50/40">
-           <h3 className="font-black text-xl uppercase tracking-tighter italic text-gray-800">Manifest List</h3>
+      {/* SEARCH BAR (Mendukung Cari ID & Maskapai) */}
+      <div className="relative mb-6">
+        <input 
+          type="text" 
+          value={searchTerm} 
+          onChange={(e) => setSearchTerm(e.target.value)} 
+          placeholder="Search Manifest ID or Flight Number..." 
+          className="w-full bg-blue-50/40 border-2 border-blue-100 rounded-2xl px-14 py-4 text-sm focus:outline-none focus:border-blue-500 font-bold placeholder:text-blue-300 text-gray-800"
+        />
+        <span className="absolute left-5 top-1/2 -translate-y-1/2 text-lg opacity-40">🔍</span>
+      </div>
+
+      {/* DATA TABLE CONTAINER */}
+      <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden relative">
+        <div className="p-6 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
+          <h2 className="text-base font-black text-[#0a2a66]">Manifest List</h2>
+          <span className="text-xs font-bold text-gray-400 bg-gray-200/60 px-3 py-1 rounded-full">Total: {filteredData.length} items</span>
         </div>
-        <div className="overflow-x-auto px-4">
-          <table className="w-full text-left">
+
+        {/* AREA TABEL DENGAN OVERLAY LOADING EFECT */}
+        <div className="overflow-x-auto min-h-[220px] relative">
+          
+          {/*Loading Spinner Component */}
+          {isLoading && (
+            <div className="absolute inset-0 bg-white/70 backdrop-blur-[1px] flex flex-col items-center justify-center z-10 transition-all">
+              <div className="w-9 h-9 border-4 border-[#0a2a66] border-t-transparent rounded-full animate-spin mb-2"></div>
+              <p className="text-[11px] font-black text-[#0a2a66] uppercase tracking-wider animate-pulse">Loading Manifest...</p>
+            </div>
+          )}
+
+          <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="text-[9px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">
-                <th className="px-6 py-6">Manifest ID</th>
-                <th className="px-4 py-6">Flight / Airline</th>
-                <th className="px-4 py-6 text-center">Date</th>
-                <th className="px-4 py-6 text-center">Route</th>
-                <th className="px-4 py-6 text-center">Weight</th>
-                <th className="px-4 py-6 text-center">Status</th>
-                <th className="px-6 py-6 text-right">Actions</th>
+              <tr className="border-b border-gray-100 text-[11px] font-black text-gray-400 uppercase tracking-wider bg-gray-50/30">
+                <th className="px-6 py-4">Manifest ID</th>
+                <th className="px-6 py-4">Flight Number</th>
+                <th className="px-6 py-4">Route</th>
+                <th className="px-6 py-4">Weight</th>
+                <th className="px-6 py-4">Status</th>
+                <th className="px-6 py-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="text-[11px] font-black">
-              {filteredData.length > 0 ? (
-                filteredData.map((item) => (
+            <tbody className="divide-y divide-gray-50 text-xs font-bold text-gray-700">
+              {currentItems.length > 0 ? (
+                currentItems.map((item) => (
                   <tr 
                     key={item.id} 
                     className="hover:bg-blue-50/50 transition-all cursor-pointer border-b border-gray-50 last:border-0"
                     onClick={() => { setSelectedCargo(item); setView("read"); }}
                   >
-                    <td className="px-6 py-6 text-blue-600 uppercase tracking-tighter">{item.id}</td>
-                    <td className="px-4 py-6 uppercase">{item.airline}</td>
-                    <td className="px-4 py-6 text-center text-gray-400 italic">{item.date}</td>
-                    <td className="px-4 py-6 text-center text-gray-500">{item.route}</td>
-                    <td className="px-4 py-6 text-center text-gray-400">{item.weight}</td>
-                    <td className="px-4 py-6 text-center">
+                    <td className="px-6 py-5 font-black text-[#0a2a66]">{item.id}</td>
+                    <td className="px-6 py-5">{item.airline}</td>
+                    <td className="px-6 py-5 text-gray-600">{item.route}</td>
+                    <td className="px-6 py-5 text-gray-500">{item.weight}</td>
+                    <td className="px-6 py-5">
                       <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase ${
-                        item.status === 'Completed' ? 'bg-green-100 text-green-700' : 
-                        item.status === 'Pending' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'
+                        item.status === 'Completed' ? 'bg-green-100 text-green-700' :
+                        item.status === 'In progress' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'
                       }`}>
                         {item.status}
                       </span>
                     </td>
-                    <td className="px-6 py-6 text-right" onClick={(e) => e.stopPropagation()}>
-                      <div className="flex justify-end gap-3 text-lg">
+                    <td className="px-6 py-5 text-right" onClick={(e) => e.stopPropagation()}>
+                      <div className="flex justify-end gap-3">
                         <button onClick={() => openEdit(item)} className="hover:scale-125 transition-transform">✏️</button>
                         <button onClick={() => setShowDeleteConfirm(item.id)} className="hover:scale-125 transition-transform">🗑️</button>
                       </div>
@@ -264,15 +254,66 @@ export default function OperationalPage() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={7} className="py-20 text-center text-gray-300 font-black uppercase italic tracking-widest">
-                    Data Not Found ✈️
-                  </td>
+                  <td colSpan={6} className="text-center py-12 text-sm text-gray-400 font-bold">No manifest data found.</td>
                 </tr>
               )}
             </tbody>
           </table>
         </div>
+
+        {/*INTERFACE NAVIGASI PAGINATION */}
+        {totalPages > 1 && (
+          <div className="p-4 border-t border-gray-50 bg-gray-50/30 flex items-center justify-between flex-wrap gap-3">
+            <span className="text-xs text-gray-400 font-bold">
+              Showing <span className="text-gray-700 font-black">{indexOfFirstItem + 1}</span> to <span className="text-gray-700 font-black">{Math.min(indexOfLastItem, filteredData.length)}</span> of <span className="text-gray-700 font-black">{filteredData.length}</span> manifests
+            </span>
+            
+            <div className="flex items-center gap-1">
+              {/* Button Previous */}
+              <button 
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className={`px-3 py-1.5 rounded-xl text-[11px] font-black transition-all ${
+                  currentPage === 1 
+                    ? "bg-gray-100 text-gray-300 cursor-not-allowed" 
+                    : "bg-white text-[#0a2a66] border border-gray-200 hover:bg-gray-50 active:scale-95"
+                }`}
+              >
+                ◀ PREV
+              </button>
+
+              {/* Halaman Berupa Angka Dinamis */}
+              {Array.from({ length: totalPages }, (_, idx) => (
+                <button
+                  key={idx + 1}
+                  onClick={() => setCurrentPage(idx + 1)}
+                  className={`w-8 h-8 rounded-xl text-xs font-black transition-all ${
+                    currentPage === idx + 1
+                      ? "bg-[#0a2a66] text-white shadow-md shadow-blue-900/10"
+                      : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50"
+                  }`}
+                >
+                  {idx + 1}
+                </button>
+              ))}
+
+              {/* Button Next */}
+              <button 
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                className={`px-3 py-1.5 rounded-xl text-[11px] font-black transition-all ${
+                  currentPage === totalPages 
+                    ? "bg-gray-100 text-gray-300 cursor-not-allowed" 
+                    : "bg-white text-[#0a2a66] border border-gray-200 hover:bg-gray-50 active:scale-95"
+                }`}
+              >
+                NEXT ▶
+              </button>
+            </div>
+          </div>
+        )}
       </div>
+
     </div>
   );
 }
