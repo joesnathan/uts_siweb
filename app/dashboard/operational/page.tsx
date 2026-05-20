@@ -22,9 +22,17 @@ export default function OperationalPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
   const [showExportNotif, setShowExportNotif] = useState(false);
 
+  // --- STATE BARU: MEMBAWAKAN DATA INPUT FORM ---
+  const [formAirline, setFormAirline] = useState("");
+  const [formDate, setFormDate] = useState("2026-04-05");
+  const [formOrigin, setFormOrigin] = useState("");
+  const [formDestination, setFormDestination] = useState("");
+  const [formWeight, setFormWeight] = useState("0.00");
+  const [formStatus, setFormStatus] = useState("In progress");
+
   // --- UNGUIDED STATE: PAGINATION & LOADING EFFECT ---
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 3; // Menampilkan 3 baris data agar fungsi perpindahan halaman langsung terlihat jelas
+  const itemsPerPage = 3; 
   const [isLoading, setIsLoading] = useState(false);
 
   // Efek Loading Otomatis saat user mengetik search, mengubah filter, atau klik halaman baru
@@ -32,7 +40,7 @@ export default function OperationalPage() {
     setIsLoading(true);
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 400); // Animasi loading halus selama 400ms
+    }, 400); 
     return () => clearTimeout(timer);
   }, [searchTerm, filterStatus, filterDate, currentPage]);
 
@@ -41,7 +49,26 @@ export default function OperationalPage() {
     setCurrentPage(1);
   }, [searchTerm, filterStatus, filterDate]);
 
-  // --- LOGIKA FILTER & SEARCH (Diperluas ke ID dan Maskapai) ---
+  // Reset form ke default setiap kali pindah ke view "create" atau "edit"
+  useEffect(() => {
+    if (view === "create") {
+      setFormAirline("");
+      setFormDate("2026-04-05");
+      setFormOrigin("");
+      setFormDestination("");
+      setFormWeight("0.00");
+      setFormStatus("In progress");
+    } else if (view === "edit" && selectedCargo) {
+      setFormAirline(selectedCargo.airline);
+      setFormDate(selectedCargo.date);
+      setFormOrigin(selectedCargo.route ? selectedCargo.route.split(' ✈ ')[0] : "");
+      setFormDestination(selectedCargo.route ? selectedCargo.route.split(' ✈ ')[1] : "");
+      setFormWeight(selectedCargo.weight ? selectedCargo.weight.split(' ')[0] : "0.00");
+      setFormStatus(selectedCargo.status);
+    }
+  }, [view, selectedCargo]);
+
+  // --- LOGIKA FILTER & SEARCH ---
   const filteredData = cargoList.filter((item) => {
     const matchSearch = item.id.toLowerCase().includes(searchTerm.toLowerCase()) || 
                         item.airline.toLowerCase().includes(searchTerm.toLowerCase());
@@ -74,8 +101,46 @@ export default function OperationalPage() {
     }, 3000);
   };
 
+  // --- HANDLER BARU: MENYIMPAN DATA (CREATE & EDIT) ---
+  const handleSave = () => {
+    if (!formAirline || !formOrigin || !formDestination) {
+      alert("Harap isi semua field data kargo!");
+      return;
+    }
+
+    if (view === "create") {
+      // Logika Membuat Manifest ID Baru Secara Otomatis
+      const newId = `MNF-2026-00${cargoList.length + 1}`;
+      const newCargo = {
+        id: newId,
+        airline: formAirline.toUpperCase(),
+        date: formDate,
+        route: `${formOrigin.toUpperCase()} ✈ ${formDestination.toUpperCase()}`,
+        weight: `${parseFloat(formWeight).toLocaleString('en-US')} kg`,
+        status: formStatus
+      };
+      setCargoList([newCargo, ...cargoList]); // Taruh data baru di paling atas tabel
+    } else if (view === "edit" && selectedCargo) {
+      // Logika Meng-update Data Lama Berdasarkan ID
+      setCargoList(cargoList.map(item => 
+        item.id === selectedCargo.id 
+          ? {
+              ...item,
+              airline: formAirline.toUpperCase(),
+              date: formDate,
+              route: `${formOrigin.toUpperCase()} ✈ ${formDestination.toUpperCase()}`,
+              weight: `${parseFloat(formWeight).toLocaleString('en-US')} kg`,
+              status: formStatus
+            }
+          : item
+      ));
+    }
+
+    setView("list"); // Kembali ke tabel utama
+  };
+
   // ==========================================
-  // --- VIEW: CREATE / EDIT (SAMA SEKALI TIDAK DIUBAH) ---
+  // --- VIEW: CREATE / EDIT (DIPERBAIKI STRUKTUR INPUTNYA) ---
   // ==========================================
   if (view === "create" || view === "edit") {
     return (
@@ -87,42 +152,42 @@ export default function OperationalPage() {
           <div className="space-y-4">
             <div>
               <label className="block text-xs font-bold text-gray-500 mb-2">Manifest ID</label>
-              <input type="text" disabled value={selectedCargo?.id || "MNF-2026-NEW"} className="w-full p-3 bg-gray-100 rounded-xl text-sm font-bold text-gray-400 outline-none" />
+              <input type="text" disabled value={view === "edit" ? selectedCargo?.id : "MNF-2026-NEW"} className="w-full p-3 bg-gray-100 rounded-xl text-sm font-bold text-gray-400 outline-none" />
             </div>
             <div>
               <label className="block text-xs font-bold text-gray-500 mb-2">Flight Number</label>
-              <input type="text" defaultValue={selectedCargo?.airline || ""} className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400" />
+              <input type="text" value={formAirline} onChange={(e) => setFormAirline(e.target.value)} placeholder="e.g. GARUDA (GA-888)" className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400" />
             </div>
             <div>
               <label className="block text-xs font-bold text-gray-500 mb-2">Date</label>
-              <input type="date" defaultValue={selectedCargo?.date || "2026-04-05"} className="text-right outline-none bg-gray-50 border border-gray-100 rounded-md px-3 py-1.5 w-1/2 font-bold" />
+              <input type="date" value={formDate} onChange={(e) => setFormDate(e.target.value)} className="text-right outline-none bg-gray-50 border border-gray-100 rounded-md px-3 py-1.5 w-1/2 font-bold" />
             </div>
             <div>
               <label className="block text-xs font-bold text-gray-500 mb-2">Route</label>
               <div className="flex items-center gap-2">
-                <input type="text" defaultValue={selectedCargo?.route?.split(' ✈ ')[0] || ""} className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-800" />
+                <input type="text" value={formOrigin} onChange={(e) => setFormOrigin(e.target.value)} placeholder="CGK" className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-800 text-center uppercase" />
                 <span>➔</span>
-                <input type="text" defaultValue={selectedCargo?.route?.split(' ✈ ')[1] || ""} className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-800" />
+                <input type="text" value={formDestination} onChange={(e) => setFormDestination(e.target.value)} placeholder="DPS" className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-800 text-center uppercase" />
               </div>
             </div>
             <div>
               <label className="block text-xs font-bold text-gray-500 mb-2">Total Weight</label>
               <div className="flex items-center gap-2">
-                <input type="text" defaultValue={selectedCargo?.weight?.split(' ')[0] || "0.00"} className="text-right outline-none bg-gray-50 border border-gray-100 rounded-md px-3 py-1.5 w-full font-bold" />
+                <input type="number" value={formWeight} onChange={(e) => setFormWeight(e.target.value)} className="text-right outline-none bg-gray-50 border border-gray-100 rounded-md px-3 py-1.5 w-full font-bold" />
                 <span className="text-sm font-bold text-gray-400">kg</span>
               </div>
             </div>
             <div>
               <label className="block text-xs font-bold text-gray-500 mb-2">Status</label>
               <div className="flex gap-2">
-                <button className="px-4 py-2 bg-blue-100 text-blue-700 rounded-xl text-xs font-black">IN PROGRESS</button>
-                <button className="px-4 py-2 bg-green-100 text-green-700 rounded-xl text-xs font-black">COMPLETED</button>
-                <button className="px-4 py-2 bg-amber-100 text-amber-700 rounded-xl text-xs font-black">PENDING</button>
+                <button type="button" onClick={() => setFormStatus("In progress")} className={`px-4 py-2 rounded-xl text-xs font-black border transition-all ${formStatus === "In progress" ? "bg-blue-100 text-blue-700 border-blue-300 shadow-sm" : "bg-gray-50 text-gray-400 border-gray-200 opacity-60"}`}>IN PROGRESS</button>
+                <button type="button" onClick={() => setFormStatus("Completed")} className={`px-4 py-2 rounded-xl text-xs font-black border transition-all ${formStatus === "Completed" ? "bg-green-100 text-green-700 border-green-300 shadow-sm" : "bg-gray-50 text-gray-400 border-gray-200 opacity-60"}`}>COMPLETED</button>
+                <button type="button" onClick={() => setFormStatus("Pending")} className={`px-4 py-2 rounded-xl text-xs font-black border transition-all ${formStatus === "Pending" ? "bg-amber-100 text-amber-700 border-amber-300 shadow-sm" : "bg-gray-50 text-gray-400 border-gray-200 opacity-60"}`}>PENDING</button>
               </div>
             </div>
             <div className="flex gap-4 mt-6">
-              <button onClick={() => setView("list")} className="flex-1 py-3 bg-gray-100 rounded-xl text-xs font-black text-gray-600 uppercase tracking-wider hover:bg-gray-200 transition-colors">Cancel</button>
-              <button onClick={() => setView("list")} className="flex-1 py-3 bg-[#0a2a66] text-white rounded-xl text-xs font-black uppercase tracking-wider hover:bg-blue-950 transition-colors shadow-lg">Save</button>
+              <button type="button" onClick={() => setView("list")} className="flex-1 py-3 bg-gray-100 rounded-xl text-xs font-black text-gray-600 uppercase tracking-wider hover:bg-gray-200 transition-colors">Cancel</button>
+              <button type="button" onClick={handleSave} className="flex-1 py-3 bg-[#0a2a66] text-white rounded-xl text-xs font-black uppercase tracking-wider hover:bg-blue-950 transition-colors shadow-lg">Save</button>
             </div>
           </div>
         </div>
@@ -183,7 +248,7 @@ export default function OperationalPage() {
         </div>
       </div>
 
-      {/* SEARCH BAR (Mendukung Cari ID & Maskapai) */}
+      {/* SEARCH BAR */}
       <div className="relative mb-6">
         <input 
           type="text" 
