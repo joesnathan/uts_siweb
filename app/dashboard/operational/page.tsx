@@ -11,6 +11,11 @@ export default function OperationalPage() {
     { id: "MNF-2026-005", airline: "CITILINK (QG-210)", date: "2026-04-07", route: "CGK ✈ JOG", weight: "950 kg", status: "In progress" },
     { id: "MNF-2026-006", airline: "AIRASIA (QZ-777)", date: "2026-04-07", route: "CGK ✈ BPN", weight: "1,500 kg", status: "Pending" },
     { id: "MNF-2026-007", airline: "GARUDA (GA-999)", date: "2026-04-08", route: "CGK ✈ KUL", weight: "2,800 kg", status: "Completed" },
+    { id: "MNF-2026-008", airline: "SRIWIJAYA AIR (SJ-333)", date: "2026-04-08", route: "CGK ✈ MNL", weight: "3,600 kg", status: "In progress" },
+    { id: "MNF-2026-009", airline: "LION AIR (JT-200)", date: "2026-04-09", route: "CGK ✈ DPS", weight: "2,450 kg", status: "Pending" },
+    { id: "MNF-2026-010", airline: "BATIK AIR (ID-700)", date: "2026-04-09", route: "CGK ✈ SUB", weight: "1,750 kg", status: "Completed" },
+    { id: "MNF-2026-011", airline: "CITILINK (QG-310)", date: "2026-04-10", route: "CGK ✈ KNO", weight: "2,300 kg", status: "In progress" },
+    { id: "MNF-2026-012", airline: "AIRASIA (QZ-888)", date: "2026-04-10", route: "CGK ✈ SIN", weight: "3,900 kg", status: "Pending" },
   ]);
 
   // --- STATE MANAGEMENT BAWAAN ---
