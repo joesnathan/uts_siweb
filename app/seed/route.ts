@@ -8,7 +8,7 @@ export async function GET() {
     await sql.begin(async (sql) => {
       
       // =========================================================================
-      // 1. DROP TABEL LAMA (Biar tidak bentrok karena perubahan tipe data UUID ke INT)
+      // 1. DROP TABEL LAMA (Mencegah bentrok relasi & tipe data)
       // =========================================================================
       await sql`DROP TABLE IF EXISTS cargo_items CASCADE;`;
       await sql`DROP TABLE IF EXISTS cargo_logs CASCADE;`;
@@ -19,7 +19,7 @@ export async function GET() {
       await sql`DROP TABLE IF EXISTS airlines CASCADE;`;
 
       // =========================================================================
-      // 2. BUAT TABEL MASTER DENGAN ID SERIAL (1, 2, 3, dst)
+      // 2. BUAT TABEL MASTER DENGAN ID SERIAL SIMPLE INTEGER (1, 2, 3, dst)
       // =========================================================================
       await sql`
         CREATE TABLE airlines (
@@ -47,8 +47,9 @@ export async function GET() {
       `;
 
       // =========================================================================
-      // 3. BUAT TABEL TRANSAKSI CARGO (ID SERIAL)
+      // 3. BUAT TABEL TRANSAKSI & OPERASIONAL DENGAN ID INT SIMPLE
       // =========================================================================
+      // Tabel Utama Kargo / Manifest (Dashboard Operational & Flight Status)
       await sql`
         CREATE TABLE cargo (
           id SERIAL PRIMARY KEY,
@@ -67,7 +68,7 @@ export async function GET() {
         );
       `;
 
-      // Relasi 1:N (Dashboard Tracking)
+      // Relasi 1:N (Dashboard Tracking / Riwayat Perjalanan Kargo)
       await sql`
         CREATE TABLE cargo_tracking (
           id SERIAL PRIMARY KEY,
@@ -79,11 +80,11 @@ export async function GET() {
         );
       `;
 
-      // Relasi 1:1 (Dashboard Cargo Logs)
+      // Relasi 1:1 (Dashboard Cargo Logs / Detail Keamanan & Petugas Gudang)
       await sql`
         CREATE TABLE cargo_logs (
           id SERIAL PRIMARY KEY,
-          cargo_id INT NOT NULL UNIQUE, -- UNIQUE mengunci relasi menjadi 1-to-1
+          cargo_id INT NOT NULL UNIQUE,
           operator_name VARCHAR(255) NOT NULL,
           warehouse_gate VARCHAR(50) NOT NULL,
           temperature_control VARCHAR(50),
@@ -92,7 +93,7 @@ export async function GET() {
         );
       `;
 
-      // Relasi M:N Junction Table (Cargo Items)
+      // Relasi M:N Junction Table (Cargo Items / Jenis Barang di dalam Paket Kargo)
       await sql`
         CREATE TABLE cargo_items (
           cargo_id INT NOT NULL,
@@ -105,7 +106,7 @@ export async function GET() {
       `;
 
       // =========================================================================
-      // 4. SEED DATA MASTER DUMMY (ID menggunakan angka simpel)
+      // 4. SEED DATA MASTER DUMMY (Minimal 10 Data per Tabel Master)
       // =========================================================================
       await sql`
         INSERT INTO airlines (id, airline_name, flight_code) VALUES
@@ -150,7 +151,7 @@ export async function GET() {
       `;
 
       // =========================================================================
-      // 5. SEED 10 DATA TRANSAKSI UTAMA (ID Simpel 1 sampai 10)
+      // 5. SEED DATA TRANSAKSI UTAMA (10 Data Kargo Logistik)
       // =========================================================================
       await sql`
         INSERT INTO cargo (id, manifest_id, airline_id, origin_airport_id, destination_airport_id, total_weight, flight_status, operational_status) VALUES
@@ -166,22 +167,46 @@ export async function GET() {
         (10, 'MNF-2026-010', 10, 5, 2, 1750.00, 'Landed', 'Completed');
       `;
 
-      // Seed Data Tracking (Terhubung ke cargo_id 1 sampai 10)
+      // Seed Data Tracking (Satu kargo memiliki beberapa baris log riwayat perjalanan agar linimasa berantai)
       await sql`
-        INSERT INTO cargo_tracking (cargo_id, current_location, description) VALUES 
-        (1, 'DPS Airport Warehouse', 'Cargo has been picked up by customer.'),
-        (2, 'In the Air', 'Aircraft is cruising towards Surabaya.'),
-        (3, 'CGK Cargo Terminal 3', 'Cargo is queued for security screening.'),
-        (4, 'SIN Changi Gate 5', 'Cargo safely arrived and entering custom clearing.'),
-        (5, 'In the Air', 'Departed from Jakarta towards Yogyakarta.'),
-        (6, 'SUB Warehouse Alpha', 'Flight delayed due to bad weather over Balikpapan.'),
-        (7, 'CGK Sorting Area', 'Cargo unloaded and distributed to local courier.'),
-        (8, 'In the Air', 'Cruising altitude 32,000 feet over Java Sea.'),
-        (9, 'DPS Loading Bay 2', 'Manifest document verified by port authority.'),
-        (10, 'SIN Cargo Terminal', 'Handed over to airline agent for documentation.');
+        INSERT INTO cargo_tracking (cargo_id, current_location, description, update_time) VALUES 
+        -- Riwayat Perjalanan Kargo 1
+        (1, 'CGK Sorting Area', 'Shipment manifest documentation created.', '2026-05-20 08:00:00'),
+        (1, 'CGK Cargo Terminal 3', 'Cargo loaded into container and sealed successfully.', '2026-05-20 12:00:00'),
+        (1, 'DPS Airport Warehouse', 'Cargo safely arrived at destination and picked up by customer.', '2026-05-20 17:00:00'),
+        
+        -- Riwayat Perjalanan Kargo 2
+        (2, 'CGK Sorting Area', 'Package checked and weight verified by terminal officer.', '2026-05-21 09:00:00'),
+        (2, 'In the Air', 'Aircraft is airborne, cruising towards Surabaya Juanda Airport.', '2026-05-21 14:00:00'),
+        
+        -- Riwayat Perjalanan Kargo 3
+        (3, 'CGK Cargo Terminal 3', 'Cargo is currently queued for custom security screening.', '2026-05-21 10:00:00'),
+        
+        -- Riwayat Perjalanan Kargo 4
+        (4, 'CGK Sorting Area', 'Manifest document processed and approved.', '2026-05-20 07:00:00'),
+        (4, 'SIN Changi Gate 5', 'Cargo safely arrived at Singapore and entering custom clearing area.', '2026-05-20 15:00:00'),
+        
+        -- Riwayat Perjalanan Kargo 5
+        (5, 'CGK Cargo Terminal 3', 'Cargo passed security screening and moved to apron loading area.', '2026-05-21 11:30:00'),
+        
+        -- Riwayat Perjalanan Kargo 6
+        (6, 'SUB Warehouse Alpha', 'Flight departure delayed due to heavy rain and low visibility.', '2026-05-21 13:00:00'),
+        
+        -- Riwayat Perjalanan Kargo 7
+        (7, 'DPS Sorting Bay', 'Cargo received at origin warehouse.', '2026-05-19 09:00:00'),
+        (7, 'CGK Sorting Area', 'Cargo unloaded from aircraft and distributed to local courier agent.', '2026-05-19 16:30:00'),
+        
+        -- Riwayat Perjalanan Kargo 8
+        (8, 'SUB Cargo Terminal', 'Cargo manifest verified by port authority officers.', '2026-05-21 08:15:00'),
+        
+        -- Riwayat Perjalanan Kargo 9
+        (9, 'DPS Loading Bay 2', 'Manifest and sorting documentation verified.', '2026-05-21 14:45:00'),
+        
+        -- Riwayat Perjalanan Kargo 10
+        (10, 'SIN Cargo Terminal', 'Handed over to airline handling agent for documentation.', '2026-05-20 11:00:00');
       `;
 
-      // Seed Data Cargo Logs (Terhubung ke cargo_id 1 sampai 10 secara 1:1)
+      // Seed Data Cargo Logs (Relasi 1:1 Terhubung ke cargo_id 1 sampai 10)
       await sql`
         INSERT INTO cargo_logs (cargo_id, operator_name, warehouse_gate, temperature_control, seal_number) VALUES 
         (1, 'Alex Supriadi', 'Gate 4B', 'Ambient (24C)', 'SEAL-GA888-091'),
@@ -196,7 +221,7 @@ export async function GET() {
         (10, 'Hendra Wijaya', 'Gate 5C', 'Chilled (2C)', 'SEAL-TR120-229');
       `;
 
-      // Seed Junction Table Items (M:N) menghubungkan cargo 1-10 dengan produk 1-10
+      // 🔥 FIX: cargo_id dipastikan bertipe data INT (1 sampai 10) agar singkron dan tidak menimbulkan syntax error
       await sql`
         INSERT INTO cargo_items (cargo_id, product_id, quantity) VALUES 
         (1, 1, 45),
@@ -217,11 +242,11 @@ export async function GET() {
       await sql`SELECT setval('airports_id_seq', 10);`;
       await sql`SELECT setval('products_id_seq', 10);`;
       await sql`SELECT setval('cargo_id_seq', 10);`;
-      await sql`SELECT setval('cargo_tracking_id_seq', 10);`;
+      await sql`SELECT setval('cargo_tracking_id_seq', 20);`;
       await sql`SELECT setval('cargo_logs_id_seq', 10);`;
     });
 
-    return NextResponse.json({ message: 'Database reset and seeded with SIMPLE INTEGER IDs successfully!' });
+    return NextResponse.json({ message: 'Database reset and seeded with SIMPLE INTEGER IDs and multi-line Tracking history successfully!' });
   } catch (error) {
     console.error('Seeding Error:', error);
     return NextResponse.json({ error: 'Seeding failed' }, { status: 500 });

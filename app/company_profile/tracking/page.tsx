@@ -1,37 +1,62 @@
-"use client"; // Wajib agar bisa pakai useState dan fungsi klik
+"use client";
 
 import { useState } from "react";
 
+interface TrackingStep {
+  current_location: string;
+  update_time: string;
+  description: string;
+}
+
+interface CargoInfo {
+  manifest_id: string;
+  flight_status: string;
+  operational_status: string;
+}
+
 export default function TrackingPage() {
-  // 1. State untuk input, hasil, dan pesan error
   const [cargoId, setCargoId] = useState("");
+  const [cargoInfo, setCargoInfo] = useState<CargoInfo | null>(null);
+  const [trackingSteps, setTrackingSteps] = useState<TrackingStep[]>([]);
   const [searchResult, setSearchResult] = useState<null | "found" | "not_found">(null);
   const [errorNotify, setErrorNotify] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Data Dummy untuk simulasi pengecekan
-  const validId = "CGK-123456789";
-
-  const handleTrack = () => {
-    setErrorNotify(""); // Reset error setiap klik
+  const handleTrack = async () => {
+    setErrorNotify("");
     setSearchResult(null);
+    setCargoInfo(null);
+    setTrackingSteps([]);
 
-    // Validasi: Jika input kosong
     if (!cargoId.trim()) {
       setErrorNotify("Harap isi Cargo ID terlebih dahulu!");
       return;
     }
 
-    // Simulasi: Cek apakah ID sesuai dengan data kita
-    if (cargoId === validId) {
-      setSearchResult("found");
-    } else {
+    setIsLoading(true);
+
+    try {
+      const response = await fetch(`/api/tracking/${cargoId.toUpperCase()}`);
+      
+      if (response.status === 200) {
+        const data = await response.json();
+        setCargoInfo(data.cargo);
+        setTrackingSteps(data.history);
+        setSearchResult("found");
+      } else {
+        setSearchResult("not_found");
+      }
+    } catch (error) {
+      console.error("Fetch tracking error:", error);
       setSearchResult("not_found");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="relative flex-grow flex items-center justify-center min-h-[90vh] p-4 md:p-8 overflow-hidden">
-      {/* 1. Latar Belakang Gambar */}
+      {/* Latar Belakang Gambar */}
       <div 
         className="absolute inset-0 bg-cover bg-center z-0 scale-105"
         style={{ backgroundImage: 'url("/bg.jpeg")' }}
@@ -46,74 +71,96 @@ export default function TrackingPage() {
           <p className="text-blue-200 text-sm md:text-base">Enter your Air Waybill (AWB) or Cargo ID to see real-time status</p>
         </div>
 
-        {/* Input Section */}
+        {/* ========================================================================= */}
+        {/* INPUT SECTION YANG SUDAH BULAT SEMPURNA SECARA MENYELURUH                 */}
+        {/* ========================================================================= */}
         <div className="flex flex-col items-center mb-6">
-          <div className="flex w-full max-w-2xl bg-white rounded-full p-2 shadow-lg hover:shadow-xl transition-shadow duration-300 focus-within:ring-4 focus-within:ring-blue-400/50">
+          <div className="flex w-full max-w-2xl bg-white rounded-full p-1.5 shadow-lg hover:shadow-xl transition-shadow duration-300 focus-within:ring-4 focus-within:ring-blue-400/50 items-center">
             <input 
               type="text" 
               value={cargoId}
               onChange={(e) => setCargoId(e.target.value)}
-              placeholder="e.g. CGK-123456789"
-              className="flex-grow px-6 py-3 rounded-l-full bg-transparent outline-none text-gray-800 font-semibold placeholder-gray-400"
+              placeholder="e.g. MNF-2026-001"
+              // rounded-l-full dipastikan melengkung penuh di kiri, bg-transparent mencegah tabrakan warna
+              className="flex-grow px-6 py-3 rounded-l-full bg-transparent outline-none text-gray-800 font-semibold placeholder-gray-400 w-full border-none"
             />
             <button 
               onClick={handleTrack}
-              className="bg-[#1E3A8A] hover:bg-blue-700 text-white px-8 py-3 rounded-full font-bold flex items-center transition-colors duration-300"
+              disabled={isLoading}
+              // rounded-full dipastikan membungkus tombol di sisi kanan bar secara simetris
+              className="bg-[#1E3A8A] hover:bg-blue-700 text-white px-8 py-3.5 rounded-full font-bold flex items-center gap-2 transition-colors duration-300 disabled:bg-gray-400 shrink-0 shadow-md mr-1"
             >
-              <span className="mr-2">🔍</span> TRACK
+              <img 
+                src="https://img.icons8.com/ios-filled/50/ffffff/search--v1.png" 
+                alt="Search Icon" 
+                className="w-4 h-4 object-contain"
+              />
+              {isLoading ? "LOADING..." : "TRACK"}
             </button>
           </div>
 
           {/* Notifikasi Jika Input Kosong */}
           {errorNotify && (
-            <div className="mt-4 px-4 py-2 bg-yellow-500/90 text-white text-sm font-bold rounded-lg animate-bounce">
-              ⚠️ {errorNotify}
+            <div className="mt-4 px-4 py-2 bg-yellow-500/90 text-white text-sm font-bold rounded-lg animate-bounce flex items-center gap-2">
+              <img 
+                src="https://img.icons8.com/ios-filled/50/ffffff/warning-shield.png" 
+                alt="Warning Icon" 
+                className="w-4 h-4 object-contain"
+              />
+              {errorNotify}
             </div>
           )}
 
           {/* Notifikasi Jika Cargo Tidak Ditemukan */}
           {searchResult === "not_found" && (
-            <div className="mt-4 px-4 py-2 bg-red-600/90 text-white text-sm font-bold rounded-lg">
-              ❌ Cargo tidak ditemukan. Periksa kembali ID Anda.
+            <div className="mt-4 px-4 py-2 bg-red-600/90 text-white text-sm font-bold rounded-lg flex items-center gap-2">
+              <img 
+                src="https://img.icons8.com/ios-filled/50/ffffff/cancel.png" 
+                alt="Error Icon" 
+                className="w-4 h-4 object-contain"
+              />
+              Cargo tidak ditemukan. Periksa kembali ID Anda.
             </div>
           )}
         </div>
+        {/* ========================================================================= */}
 
-        {/* Status Card: Hanya muncul jika ID ditemukan */}
-        {searchResult === "found" ? (
+        {/* Status Card: Muncul jika ID ditemukan */}
+        {searchResult === "found" && cargoInfo ? (
           <div className="bg-white rounded-2xl p-6 md:p-10 shadow-2xl animate-in fade-in slide-in-from-bottom duration-500">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 border-b border-gray-200 pb-6">
               <div>
                 <h3 className="font-bold text-gray-500 text-sm">CARGO ID</h3>
-                <p className="text-2xl font-black text-[#1E3A8A] uppercase">{cargoId}</p>
+                <p className="text-2xl font-black text-[#1E3A8A] uppercase">{cargoInfo.manifest_id}</p>
               </div>
               <div className="mt-4 md:mt-0 text-left md:text-right">
                 <h3 className="font-bold text-gray-500 text-sm">CURRENT STATUS</h3>
-                <p className="text-xl font-bold text-green-600 bg-green-100 px-4 py-1 rounded-full inline-block mt-1">IN TRANSIT</p>
+                <p className="text-xl font-bold text-green-600 bg-green-100 px-4 py-1 rounded-full inline-block mt-1 uppercase">
+                  {cargoInfo.flight_status}
+                </p>
               </div>
             </div>
             
-            <div className="w-full overflow-x-auto pb-4">
-              <div className="relative flex justify-between items-center min-w-[700px] mt-4 mb-4 px-4">
-                <div className="absolute top-4 left-8 right-8 h-1 bg-gray-200 -z-10 rounded-full"></div>
-                <div className="absolute top-4 left-8 w-[50%] h-1 bg-green-500 -z-10 rounded-full"></div>
-                
-                {[
-                  { status: 'SHIPMENT CREATED', time: '12:00 WIB', date: '20 Apr', active: true },
-                  { status: 'LOADING', time: '14:00 WIB', date: '20 Apr', active: true },
-                  { status: 'DEPARTED', time: '18:00 WIB', date: '20 Apr', active: true },
-                  { status: 'TRANSIT', time: '24:00 WIB', date: '20 Apr', active: true },
-                  { status: 'ARRIVED', time: 'Pending', date: '-', active: false },
-                  { status: 'DESTINATION', time: 'Pending', date: '-', active: false },
-                ].map((step, index) => (
-                  <div key={index} className="flex flex-col items-center group">
-                    <div className={`w-8 h-8 rounded-full mb-3 flex items-center justify-center border-4 border-white shadow-md transition-all duration-300 ${step.active ? 'bg-green-500' : 'bg-gray-300'}`}>
-                      {step.active && <span className="text-white text-xs">✓</span>}
+            {/* Timeline Perjalanan Dinamis */}
+            <div className="w-full">
+              <div className="relative flex flex-col gap-6 pl-6 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-gray-200">
+                {trackingSteps.map((step, index) => (
+                  <div key={index} className="relative flex flex-col md:flex-row md:justify-between items-start md:items-center group">
+                    <div className="absolute -left-[21px] mt-1 bg-white rounded-full p-0.5 z-10">
+                      <img 
+                        src="https://img.icons8.com/ios-filled/50/22c55e/checked-checkbox.png" 
+                        alt="Step Completed" 
+                        className="w-5 h-5 object-contain"
+                      />
                     </div>
-                    <div className="text-center">
-                      <div className={`text-[11px] font-extrabold mb-1 ${step.active ? 'text-[#1E3A8A]' : 'text-gray-400'}`}>{step.status}</div>
-                      <div className={`text-[10px] font-semibold ${step.active ? 'text-gray-600' : 'text-gray-400'}`}>{step.date}</div>
-                      <div className={`text-[9px] ${step.active ? 'text-gray-500' : 'text-gray-300'}`}>{step.time}</div>
+                    <div className="flex-1 md:pr-4 ml-2">
+                      <div className="text-sm font-extrabold text-[#1E3A8A] uppercase">{step.current_location}</div>
+                      <div className="text-xs font-medium text-gray-600 mt-0.5">{step.description}</div>
+                    </div>
+                    <div className="text-[11px] font-semibold text-gray-400 mt-1 md:mt-0 whitespace-nowrap ml-2">
+                      {new Date(step.update_time).toLocaleDateString('id-ID', {
+                        day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+                      })} WIB
                     </div>
                   </div>
                 ))}
@@ -121,7 +168,7 @@ export default function TrackingPage() {
             </div>
           </div>
         ) : (
-          /* Tampilan Default saat belum ngetrack apapun atau data salah */
+          /* Tampilan Default saat belum melakukan pelacakan */
           <div className="text-center py-20 border-2 border-dashed border-white/20 rounded-2xl">
             <p className="text-white/50 italic font-medium">Silakan masukkan Cargo ID untuk melihat detail status pengiriman.</p>
           </div>
