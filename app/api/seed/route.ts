@@ -1,30 +1,30 @@
-// app/seed/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import postgres from 'postgres';
 
 export const dynamic = 'force-dynamic';
 
-// ✅ Hardcoded connection string dari Neon kamu
 const sql = postgres(
   "postgresql://neondb_owner:npg_PSeOJ3wzXlN8@ep-jolly-math-ao85w4vz-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?channel_binding=require&sslmode=require",
   { 
     ssl: 'require',
-    max: 1 
+    max: 1,
+    idle_timeout: 20,
+    connect_timeout: 30
   }
 );
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const action = searchParams.get('action');
+  const searchId = searchParams.get('searchId');
 
+  // === SEED DATABASE ===
   if (action === 'seed') {
     try {
       await sql.begin(async (sql) => {
-        // Hapus tabel lama
         await sql`DROP TABLE IF EXISTS cargo_logs CASCADE;`;
         await sql`DROP TABLE IF EXISTS cargo CASCADE;`;
 
-        // Buat tabel baru
         await sql`
           CREATE TABLE cargo (
             id SERIAL PRIMARY KEY,
@@ -59,7 +59,6 @@ export async function GET(request: NextRequest) {
           );
         `;
 
-        // Insert data dummy
         await sql`
           INSERT INTO cargo (manifest_id, airline_name, flight_code, route, weight, flight_status, operational_status, date, scheduled_time, actual_time, gate, items)
           VALUES 
@@ -72,20 +71,56 @@ export async function GET(request: NextRequest) {
         await sql`
           INSERT INTO cargo_logs (flight, airline, date, route, scheduled, actual, gate, items, status)
           VALUES 
-            ('GA-888', 'GARUDA INDONESIA', '2026-05-21', 'CGK-DPS', '17:15', '17:20', 'A12', 45, 'Landed'),
-            ('SJ-555', 'SRIWIJAYA AIR', '2026-05-21', 'CGK-SUB', '18:30', '18:30', 'B08', 32, 'Airborne'),
-            ('JT-100', 'LION AIR', '2026-05-21', 'CGK-KNO', '19:00', '19:15', 'C05', 28, 'Delayed');
+            ('GA-888', 'GARUDA INDONESIA', '2026-05-21', 'CGK-DPS', '17:15', '17:20', 'A12', 45, 'Landed');
         `;
       });
 
-      return NextResponse.json({ success: true, message: '✅ Database berhasil di-seed!' });
+      return NextResponse.json({ success: true, message: 'Database seeded successfully!' });
     } catch (error: any) {
-      console.error(error);
+      console.error("Seed Error:", error);
       return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
   }
 
-  // Default: Ambil data untuk dashboard
+  // === SEARCH TRACKING ===
+  if (searchId) {
+    try {
+      const cargoResult = await sql`
+        SELECT * FROM cargo 
+        WHERE UPPER(manifest_id) = UPPER(${searchId})
+        LIMIT 1;
+      `;
+
+      if (cargoResult.length === 0) {
+        return NextResponse.json({ success: false, error: 'Manifest tidak ditemukan' });
+      }
+
+      // Dummy tracking history (karena tabel tracking belum dibuat)
+      const history = [
+        {
+          current_location: "CGK Cargo Terminal",
+          update_time: "2026-05-21 08:00:00",
+          description: "Manifest diterima dan diverifikasi"
+        },
+        {
+          current_location: "Aircraft Loading",
+          update_time: "2026-05-21 16:30:00",
+          description: "Cargo sudah dimuat ke pesawat"
+        }
+      ];
+
+      return NextResponse.json({
+        success: true,
+        cargo: cargoResult[0],
+        history
+      });
+    } catch (error: any) {
+      console.error("Tracking Error:", error);
+      return NextResponse.json({ success: false, error: "Gagal terhubung ke database" });
+    }
+  }
+
+  // Default: Return all cargo
   const data = await sql`SELECT * FROM cargo ORDER BY id DESC`;
   return NextResponse.json({ success: true, data });
 }

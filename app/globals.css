@@ -7,4 +7,18 @@
 /* Tambahan opsional jika ingin background default halaman agak abu-abu seperti di desain */
 body {
   @apply bg-gray-50;
+  
+  /* 1. MENGUNCI SELEKSI TEKS AGAR TIDAK MUNCUL TANDA LURUS KETIKAN BEBAS */
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none;     /* IE 10+ */
+  user-select: none;         /* Standar (Chrome, Firefox, Edge, Opera) */
+}
+
+/* 2. PENGECUALIAN: KOLOM INPUT & TEXTAREA HARUS TETAP BISA DIKETIK NORMAL */
+input, 
+textarea, 
+[contenteditable="true"] {
+  -webkit-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
 }

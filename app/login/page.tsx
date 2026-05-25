@@ -2,31 +2,50 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation'; // Untuk pindah halaman via code
+import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
-  const [username, setUsername] = useState("");
+  const [username, setUsername] = useState("");   // Bisa pakai email atau username
   const [password, setPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  // Fungsi untuk menangani login
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault(); // Mencegah reload halaman
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
     setErrorMsg("");
+    setLoading(true);
 
-    // Validasi Sederhana
     if (!username.trim() || !password.trim()) {
-      setErrorMsg("Username dan Password wajib diisi!");
+      setErrorMsg("Username / Email dan Password wajib diisi!");
+      setLoading(false);
       return;
     }
 
-    // Simulasi Login (Bisa diganti dengan logic backend nanti)
-    if (username === "admin" && password === "admin123") {
-      router.push("/dashboard"); // Jika benar, pindah ke dashboard
-    } else {
-      setErrorMsg("Username atau Password salah!");
+    try {
+      const res = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          email: username,        // Kirim sebagai email (bisa pakai username juga)
+          password 
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        // Simpan data user ke localStorage
+        localStorage.setItem("user", JSON.stringify(data.user));
+        router.push("/dashboard");
+      } else {
+        setErrorMsg(data.error || "Username atau Password salah!");
+      }
+    } catch (err) {
+      setErrorMsg("Gagal terhubung ke server. Coba lagi.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -122,12 +141,12 @@ export default function LoginPage() {
             </Link>
           </div>
 
-          {/* Tombol Berubah Jadi Button Submit */}
           <button 
             type="submit"
-            className="w-full bg-black hover:bg-gray-900 text-white py-3.5 rounded-xl font-bold text-sm transition-all shadow-md flex items-center justify-center transform hover:scale-[1.01] active:scale-95"
+            disabled={loading}
+            className="w-full bg-black hover:bg-gray-900 text-white py-3.5 rounded-xl font-bold text-sm transition-all shadow-md flex items-center justify-center transform hover:scale-[1.01] active:scale-95 disabled:opacity-70"
           >
-            Sign In
+            {loading ? "SIGNING IN..." : "Sign In"}
           </button>
         </form>
 
