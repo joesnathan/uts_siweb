@@ -17,7 +17,7 @@ export async function GET() {
   }
 }
 
-// POST → Create
+// POST → Create (Lengkap dengan kolom tambahan)
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -26,12 +26,17 @@ export async function POST(request: NextRequest) {
       INSERT INTO cargo (
         manifest_id, airline_name, flight_code, route, weight,
         flight_status, operational_status, date, scheduled_time, 
-        actual_time, gate, items
+        actual_time, gate, items, sender_name, receiver_name, 
+        phone_number, origin_city, destination_city, item_type, 
+        shipping_price, shipping_type, description
       ) VALUES (
         ${body.manifest_id}, ${body.airline_name}, ${body.flight_code}, 
         ${body.route}, ${parseFloat(body.weight) || 0}, ${body.flight_status}, 
         ${body.operational_status}, ${body.date}, ${body.scheduled_time}, 
-        ${body.actual_time || body.scheduled_time}, ${body.gate}, ${parseInt(body.items) || 0}
+        ${body.actual_time || body.scheduled_time}, ${body.gate}, ${parseInt(body.items) || 0},
+        ${body.sender_name}, ${body.receiver_name}, ${body.phone_number}, 
+        ${body.origin_city}, ${body.destination_city}, ${body.item_type}, 
+        ${body.shipping_price}, ${body.shipping_type}, ${body.description}
       )
       RETURNING *
     `;
@@ -43,7 +48,6 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// PUT & DELETE (menggunakan query ?id=xx)
 export async function PUT(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -66,7 +70,16 @@ export async function PUT(request: NextRequest) {
         scheduled_time = ${body.scheduled_time},
         actual_time = ${body.actual_time || body.scheduled_time},
         gate = ${body.gate},
-        items = ${parseInt(body.items) || 0}
+        items = ${parseInt(body.items) || 0},
+        sender_name = ${body.sender_name},
+        receiver_name = ${body.receiver_name},
+        phone_number = ${body.phone_number},
+        origin_city = ${body.origin_city},
+        destination_city = ${body.destination_city},
+        item_type = ${body.item_type},
+        shipping_price = ${body.shipping_price},
+        shipping_type = ${body.shipping_type},
+        description = ${body.description}
       WHERE id = ${parseInt(id)}
       RETURNING *
     `;
