@@ -35,77 +35,81 @@ export default function TrackingPage() {
   };
 
   return (
-    <div className="relative flex-grow min-h-[90vh] flex items-center justify-center p-4 md:p-8 font-sans overflow-hidden">
+    <div className="relative flex-grow min-h-[90vh] flex items-center justify-center p-4 md:p-8 bg-slate-50 font-sans">
       
-      {/* Background Image */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center z-0 scale-105"
-        style={{ backgroundImage: 'url("/bg.jpeg")' }}
-      ></div>
-
-      {/* Dark Overlay */}
-      <div className="absolute inset-0 bg-[#0f284f]/85 backdrop-blur-sm z-0"></div>
-
-      <div className="relative z-10 w-full max-w-3xl bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-10 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] text-white">
+      {/* Light Clean Container matching White Navbar */}
+      <div className="relative z-10 w-full max-w-3xl bg-white border border-gray-100 rounded-[2.5rem] p-8 md:p-12 shadow-[0_15px_50px_rgba(0,0,0,0.05)] text-gray-800">
         
         <div className="text-center mb-10">
-          <h1 className="text-4xl font-black text-white mb-2">Track Your Cargo</h1>
-          <p className="text-blue-200">Masukkan Manifest ID untuk melacak pengiriman</p>
+          <span className="inline-block text-[9px] font-black uppercase tracking-[0.25em] text-blue-600 bg-blue-50 border border-blue-100 px-4 py-1.5 rounded-full mb-3 shadow-sm">
+            Cargo Airspace Radar
+          </span>
+          <h1 className="text-4xl font-black text-[#0a2a66] uppercase italic tracking-tight mb-2">
+            Track <span className="text-blue-600">Your Cargo</span>
+          </h1>
+          <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">Masukkan Manifest ID untuk melacak pengiriman</p>
         </div>
 
-        <div className="flex gap-3 mb-8">
+        <div className="flex flex-col sm:flex-row gap-3 mb-8">
           <input
             type="text"
             value={searchId}
             onChange={(e) => setSearchId(e.target.value)}
             placeholder="Contoh: MNF-2026-001"
-            className="flex-1 px-6 py-4 bg-white/90 text-gray-900 rounded-2xl text-lg font-mono focus:outline-none focus:border-blue-500"
+            className="flex-1 px-6 py-4 bg-slate-50 border border-gray-200 text-gray-900 placeholder-slate-400 rounded-2xl text-lg font-mono focus:outline-none focus:border-blue-500 focus:bg-white transition-all font-bold"
             onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
           />
           <button
             onClick={handleSearch}
             disabled={loading}
-            className="bg-[#0a2a66] hover:bg-blue-900 text-white px-10 py-4 rounded-2xl font-bold transition-all disabled:opacity-70 whitespace-nowrap"
+            className="bg-[#1e3a8a] hover:bg-blue-800 text-white px-10 py-4 rounded-2xl font-bold transition-all disabled:opacity-70 whitespace-nowrap uppercase tracking-wider shadow-md shadow-blue-800/10"
           >
             {loading ? "Mencari..." : "TRACK NOW"}
           </button>
         </div>
 
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-6 py-4 rounded-2xl mb-6">
-            {error}
+          <div className="bg-red-50 border border-red-200 text-red-600 px-6 py-4 rounded-2xl mb-6 text-xs font-black text-center uppercase tracking-wider">
+            ⚠️ {error}
           </div>
         )}
 
         {result && result.success && (
-          <div className="space-y-8 bg-white/95 text-gray-900 rounded-2xl p-8">
+          <div className="space-y-8 bg-slate-50 border border-gray-150 text-gray-800 rounded-2xl p-6 md:p-8 shadow-inner">
             {/* Info Utama */}
-            <div className="bg-blue-50 border border-blue-200 rounded-2xl p-8">
-              <h3 className="font-black text-2xl mb-4">Manifest ID: {result.cargo?.manifest_id}</h3>
-              <p className="text-xl">
-                Status: <span className="font-bold text-green-600">{result.cargo?.flight_status}</span>
-              </p>
-              <p className="text-gray-600 mt-2">Operational: {result.cargo?.operational_status}</p>
+            <div className="bg-white border border-gray-200 rounded-2xl p-6 md:p-8 shadow-sm">
+              <h3 className="font-black text-xl md:text-2xl mb-4 uppercase italic tracking-tight text-[#0a2a66]">
+                Manifest ID: <span className="text-blue-600 font-mono font-black">{result.cargo?.manifest_id}</span>
+              </h3>
+              
+              <div className="flex flex-col gap-2 mt-4 text-sm md:text-base font-bold text-gray-600">
+                <p>
+                  Status: <span className="font-bold text-emerald-700 bg-emerald-50 border border-emerald-100 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider ml-1">{result.cargo?.flight_status}</span>
+                </p>
+                <p className="text-gray-400 text-xs uppercase tracking-wider mt-2 font-bold">
+                  Operational: <span className="text-gray-800 ml-1 font-bold">{result.cargo?.operational_status}</span>
+                </p>
+              </div>
             </div>
 
             {/* Tracking History */}
             <div>
-              <h4 className="font-bold text-lg mb-4 flex items-center gap-2">
-                📍 Tracking History
+              <h4 className="font-black text-xs uppercase tracking-widest mb-6 flex items-center gap-2 text-[#0a2a66]">
+                <span>📍</span> Tracking History
               </h4>
               <div className="space-y-6">
                 {result.history && result.history.length > 0 ? (
                   result.history.map((h: any, i: number) => (
-                    <div key={i} className="border-l-4 border-blue-500 pl-6 py-3 bg-gray-50 rounded-r-2xl">
-                      <p className="text-sm text-gray-500">
+                    <div key={i} className="border border-gray-200 border-l-4 border-l-blue-600 pl-6 py-4 bg-white rounded-r-2xl hover:shadow-md hover:shadow-slate-100/50 transition-all">
+                      <p className="text-xs text-slate-400 font-mono font-bold">
                         {new Date(h.update_time).toLocaleString('id-ID')}
                       </p>
-                      <p className="font-medium mt-1">{h.description}</p>
-                      <p className="text-blue-600 font-medium">{h.current_location}</p>
+                      <p className="font-black text-sm text-gray-800 mt-1.5">{h.description}</p>
+                      <p className="text-blue-600 font-black text-xs uppercase tracking-wider mt-1">{h.current_location}</p>
                     </div>
                   ))
                 ) : (
-                  <p className="text-gray-500 italic">Belum ada riwayat tracking.</p>
+                  <p className="text-gray-400 text-xs italic tracking-wider text-center py-6 font-bold uppercase">Belum ada riwayat tracking.</p>
                 )}
               </div>
             </div>
@@ -113,8 +117,8 @@ export default function TrackingPage() {
         )}
 
         {!result && !error && (
-          <div className="text-center py-16 border-2 border-dashed border-white/30 rounded-2xl">
-            <p className="text-white/70">Silakan masukkan Manifest ID untuk melihat status pengiriman.</p>
+          <div className="text-center py-16 border-2 border-dashed border-gray-200 rounded-2xl bg-slate-50/50">
+            <p className="text-slate-400 text-xs uppercase tracking-wider font-bold">Silakan masukkan Manifest ID untuk melihat status pengiriman.</p>
           </div>
         )}
       </div>

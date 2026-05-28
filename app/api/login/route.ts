@@ -1,15 +1,11 @@
-// app/api/login/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import postgres from 'postgres';
 
-const sql = postgres(
-  "postgresql://neondb_owner:npg_PSeOJ3wzXlN8@ep-jolly-math-ao85w4vz-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?channel_binding=require&sslmode=require",
-  { ssl: 'require', max: 1 }
-);
+const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password } = await request.json();   // 'email' di sini sebenarnya input dari form (bisa username atau email)
+    const { email, password } = await request.json();  
 
     const users = await sql`
       SELECT id, username, email, full_name, operator_id, department 
@@ -31,11 +27,11 @@ export async function POST(request: NextRequest) {
       user: users[0] 
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error("Login Error:", error);
     return NextResponse.json({ 
       success: false, 
-      error: "Terjadi kesalahan server" 
+      error: error.message || "Terjadi kesalahan server" 
     });
   }
 }

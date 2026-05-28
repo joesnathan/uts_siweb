@@ -38,6 +38,7 @@ export default function LoginPage() {
       if (data.success) {
         // Simpan data user ke localStorage
         localStorage.setItem("user", JSON.stringify(data.user));
+        sessionStorage.setItem("needsPreloader", "true");
         router.push("/dashboard");
       } else {
         setErrorMsg(data.error || "Username atau Password salah!");
@@ -49,8 +50,15 @@ export default function LoginPage() {
     }
   };
 
+  // ================= ORIGINAL SYSTEM LOGIN INTERFACE (Preloader removed for instant load) =================
   return (
-    <div className="min-h-screen bg-[#0f284f] flex items-center justify-center p-4 font-sans">
+    <div className="min-h-screen bg-[#0f284f] flex items-center justify-center p-4 font-sans relative overflow-hidden">
+      
+      {/* Background decoration matching the dashboard theme */}
+      <div className="absolute inset-0 z-0 opacity-10 pointer-events-none">
+        <div className="w-full h-full bg-[linear-gradient(to_right,#3b82f6_1px,transparent_1px),linear-gradient(to_bottom,#3b82f6_1px,transparent_1px)] bg-[size:40px_40px]"></div>
+      </div>
+
       <style jsx global>{`
         input::-ms-reveal,
         input::-ms-clear {
@@ -58,7 +66,7 @@ export default function LoginPage() {
         }
       `}</style>
       
-      <div className="w-full max-w-sm bg-white rounded-3xl shadow-2xl p-6 md:p-8 relative">
+      <div className="w-full max-w-sm bg-white rounded-3xl shadow-2xl p-6 md:p-8 relative z-10 transition-all duration-700 animate-in zoom-in duration-500">
         
         {/* Tombol Back */}
         <Link 
@@ -97,7 +105,7 @@ export default function LoginPage() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               placeholder="Enter username..."
-              className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all"
+              className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all font-bold"
             />
           </div>
           
@@ -109,7 +117,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter password..."
-                className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all pr-12"
+                className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all pr-12 font-bold"
               />
               
               <button 
@@ -134,9 +142,9 @@ export default function LoginPage() {
           <div className="flex items-center justify-between mt-1 px-1">
             <label className="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" className="w-3.5 h-3.5 rounded border-gray-300 text-blue-900 focus:ring-0" />
-              <span className="text-[11px] font-medium text-gray-500">Remember me</span>
+              <span className="text-[11px] font-bold text-gray-500">Remember me</span>
             </label>
-            <Link href="/lupa_pw" className="text-[11px] font-bold text-blue-600 hover:underline">
+            <Link href="/lupa_pw" className="text-[11px] font-black text-blue-600 hover:underline">
               Forgot Password?
             </Link>
           </div>
@@ -144,15 +152,15 @@ export default function LoginPage() {
           <button 
             type="submit"
             disabled={loading}
-            className="w-full bg-black hover:bg-gray-900 text-white py-3.5 rounded-xl font-bold text-sm transition-all shadow-md flex items-center justify-center transform hover:scale-[1.01] active:scale-95 disabled:opacity-70"
+            className="w-full bg-[#0a2a66] hover:bg-[#071f4b] text-white py-3.5 rounded-xl font-bold text-sm transition-all shadow-md flex items-center justify-center transform hover:scale-[1.01] active:scale-95 disabled:opacity-70 uppercase tracking-wider"
           >
             {loading ? "SIGNING IN..." : "Sign In"}
           </button>
         </form>
 
         <div className="mt-6 text-[11px] text-center border-t border-gray-50 pt-4">
-          <span className="text-gray-400 font-medium">Forgot Account? </span>
-          <Link href="/lupa_pw" className="text-blue-600 font-bold hover:underline">
+          <span className="text-gray-400 font-bold">Forgot Account? </span>
+          <Link href="/lupa_pw" className="text-blue-600 font-black hover:underline">
             Contact IT
           </Link>
         </div>

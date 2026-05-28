@@ -11,15 +11,19 @@ export default function RootLayout({
 }) {
   const pathname = usePathname(); // Mengambil URL yang sedang aktif
 
-  // Mengecek apakah kita sedang berada di halaman dashboard, login, atau lupa password
-  const isHiddenPage = pathname.startsWith('/dashboard') || pathname.startsWith('/login') || pathname.startsWith('/lupa_pw');
+  // Menentukan apakah halaman saat ini adalah halaman profil publik yang valid
+  const isValidPublicPage = 
+    pathname === '/' || 
+    pathname === '/company_profile/tracking' || 
+    pathname === '/company_profile/privacy-policy' || 
+    pathname === '/company_profile/contact_us';
 
   return (
     <html lang="en">
       <body className="bg-gray-50 flex flex-col min-h-screen font-sans">
         
-        {/* NAVBAR - Hanya ditampilkan jika BUKAN di halaman hidden (dashboard/login) */}
-        {!isHiddenPage && (
+        {/* NAVBAR - Hanya ditampilkan jika berada di halaman public profile yang valid */}
+        {isValidPublicPage && (
           // Tambahan bg-white/90 dan backdrop-blur-md untuk efek kaca transparan yang elegan
           <header className="bg-white/90 backdrop-blur-md shadow-sm z-50 sticky top-0 border-b-2 border-[#1E3A8A] transition-all duration-300">
             <div className="w-full px-8 md:px-16 h-20 flex items-center justify-between">
@@ -85,8 +89,8 @@ export default function RootLayout({
           {children}
         </main>
 
-        {/* FOOTER - Hanya ditampilkan jika BUKAN di halaman hidden (dashboard/login) */}
-        {!isHiddenPage && (
+        {/* FOOTER - Hanya ditampilkan jika berada di halaman public profile yang valid */}
+        {isValidPublicPage && (
           <footer className="bg-[#f2f2f2] text-blue-800/80 py-4 px-8 md:px-16 text-left text-sm font-semibold border-t border-gray-300">
             © 2026 TERBANGIN AJA CARGO JAKARTA
           </footer>

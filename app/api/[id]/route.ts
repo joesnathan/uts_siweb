@@ -1,15 +1,12 @@
-// app/api/cargo/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import postgres from 'postgres';
 
-const sql = postgres(
-  "postgresql://neondb_owner:npg_PSeOJ3wzXlN8@ep-jolly-math-ao85w4vz-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?channel_binding=require&sslmode=require",
-  { ssl: 'require', max: 1 }
-);
+const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require', max: 1 });
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const body = await request.json();
-  const id = parseInt(params.id);
+  const resolvedParams = await params;
+  const id = parseInt(resolvedParams.id);
 
   const result = await sql`
     UPDATE cargo SET
@@ -32,8 +29,9 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   return NextResponse.json({ success: true, data: result[0] });
 }
 
-export async function DELETE(_: NextRequest, { params }: { params: { id: string } }) {
-  const id = parseInt(params.id);
+export async function DELETE(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params;
+  const id = parseInt(resolvedParams.id);
   await sql`DELETE FROM cargo WHERE id = ${id}`;
   return NextResponse.json({ success: true });
 }   
