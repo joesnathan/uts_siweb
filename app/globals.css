@@ -6,9 +6,10 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Apply Poppins globally to all elements */
+/* Apply Poppins globally to all elements and remove all italic styles */
 * {
   font-family: 'Poppins', sans-serif !important;
+  font-style: normal !important;
 }
 
 body {

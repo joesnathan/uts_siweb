@@ -654,7 +654,7 @@ export default function DashboardOperationalPage() {
           <span className="text-[9px] font-black uppercase tracking-[0.25em] text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
             Loading Manifest
           </span>
-          <h2 className="text-[#0a2a66] font-black text-xl tracking-tighter mt-4 uppercase italic">Terbanginaja Logistics</h2>
+          <h2 className="text-[#0a2a66] font-black text-xl tracking-tighter mt-4 uppercase">Terbanginaja Logistics</h2>
           <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-2.5 flex items-center justify-center gap-1.5 font-mono">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
             Loading operational manifest database & shipping slots...
@@ -773,7 +773,7 @@ export default function DashboardOperationalPage() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.182 15.182a4.5 4.5 0 01-6.364 0M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9.75 9.75c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75zm-.375 0h.008v.015h-.008V9.75zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75zm-.375 0h.008v.015h-.008V9.75z" />
             </svg>
           </div>
-          <h2 className="text-2xl font-black text-gray-800 tracking-tight leading-none uppercase italic">
+          <h2 className="text-2xl font-black text-gray-800 tracking-tight leading-none uppercase">
             Database Sync Failed
           </h2>
           <p className="text-sm font-bold text-gray-500">
@@ -813,7 +813,7 @@ export default function DashboardOperationalPage() {
       {/* FORM */}
       {showForm && (
         <div className="bg-white p-8 rounded-2xl shadow-xl animate-in slide-in-from-top-6 duration-300" id="cargoFormTitle">
-          <h3 className="text-xl font-black text-[#0a2a66] uppercase italic tracking-tight mb-6">
+          <h3 className="text-xl font-black text-[#0a2a66] uppercase tracking-tight mb-6">
             {editingCargo ? "⚡ Edit Cargo Manifest" : "📦 Tambah Cargo Baru"}
           </h3>
 
@@ -1408,7 +1408,7 @@ export default function DashboardOperationalPage() {
               <span className="text-[9px] font-black uppercase tracking-[0.2em] text-rose-600 bg-rose-50 px-3.5 py-1 rounded-full">
                 Konfirmasi Hapus
               </span>
-              <h3 className="text-xl font-black text-[#0a2a66] uppercase italic tracking-tight mt-4">
+              <h3 className="text-xl font-black text-[#0a2a66] uppercase tracking-tight mt-4">
                 Hapus Manifest Ini?
               </h3>
               <p className="text-xs text-gray-400 font-bold leading-relaxed px-4 uppercase">
