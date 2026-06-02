@@ -70,7 +70,10 @@ export default function CargoLogsPage() {
     const matchSearch =
       log.flight_code?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       log.airline_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      log.manifest_id?.toLowerCase().includes(searchTerm.toLowerCase());
+      log.manifest_id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      log.sender_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      log.receiver_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      log.item_type?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchStatus =
       filterStatus === "All" || log.flight_status === filterStatus;
     const matchDate = !selectedDate || log.date === selectedDate;

@@ -144,7 +144,10 @@ export default function DashboardOperationalPage() {
       (cargo) =>
         cargo.manifest_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
         cargo.airline_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        cargo.route.toLowerCase().includes(searchTerm.toLowerCase())
+        cargo.route.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        cargo.sender_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        cargo.receiver_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        cargo.item_type?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     setFilteredList(filtered);
@@ -487,6 +490,26 @@ export default function DashboardOperationalPage() {
               value={formData.date}
               onChange={(e) =>
                 setFormData({ ...formData, date: e.target.value })
+              }
+              className="w-full h-[56px] px-4 border border-gray-300 rounded-xl"
+            />
+
+            <input
+              type="text"
+              placeholder="Gate (e.g. A12)"
+              value={formData.gate}
+              onChange={(e) =>
+                setFormData({ ...formData, gate: e.target.value })
+              }
+              className="w-full h-[56px] px-4 border border-gray-300 rounded-xl"
+            />
+
+            <input
+              type="number"
+              placeholder="Jumlah Item / Capacity (units)"
+              value={formData.items}
+              onChange={(e) =>
+                setFormData({ ...formData, items: e.target.value })
               }
               className="w-full h-[56px] px-4 border border-gray-300 rounded-xl"
             />
