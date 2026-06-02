@@ -27,6 +27,7 @@ export async function GET(request: NextRequest) {
 
   try {
     await sql.begin(async (tx) => {
+      await tx`DROP TABLE IF EXISTS recovery_requests CASCADE;`;
       await tx`DROP TABLE IF EXISTS cargo_tracking CASCADE;`;
       await tx`DROP TABLE IF EXISTS users CASCADE;`;
       await tx`DROP TABLE IF EXISTS cargo CASCADE;`;
@@ -77,6 +78,18 @@ export async function GET(request: NextRequest) {
           operator_id VARCHAR(50) NOT NULL,
           department VARCHAR(100) NOT NULL,
           password VARCHAR(100) NOT NULL
+        );
+      `;
+
+      await tx`
+        CREATE TABLE recovery_requests (
+          id SERIAL PRIMARY KEY,
+          user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+          full_name VARCHAR(100) NOT NULL,
+          operator_id VARCHAR(50) NOT NULL,
+          department VARCHAR(100) NOT NULL,
+          issue_detail TEXT NOT NULL,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
       `;
 

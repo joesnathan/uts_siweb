@@ -7,14 +7,49 @@ export default function ForgotPasswordPage() {
   const [isEmailSent, setIsEmailSent] = useState(false);
   const [isFormSubmitted, setIsFormSubmitted] = useState(false);
 
+  // States untuk form Manual Account Recovery
+  const [fullName, setFullName] = useState("");
+  const [operatorId, setOperatorId] = useState("");
+  const [department, setDepartment] = useState("Air Freight Support");
+  const [issueDetail, setIssueDetail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+
   const handleEmailSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsEmailSent(true);
   };
 
-  const handleManualSubmit = (e: React.FormEvent) => {
+  const handleManualSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsFormSubmitted(true);
+    setLoading(true);
+    setErrorMsg("");
+
+    try {
+      const res = await fetch("/api/recovery", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          full_name: fullName,
+          operator_id: operatorId,
+          department,
+          issue_detail: issueDetail
+        })
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setIsFormSubmitted(true);
+        setErrorMsg("");
+      } else {
+        setErrorMsg(data.error || "Identitas operator tidak terdaftar!");
+      }
+    } catch (err) {
+      setErrorMsg("Gagal menghubungi server. Periksa koneksi internet Anda.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -92,34 +127,66 @@ export default function ForgotPasswordPage() {
                 </p>
 
                 <form onSubmit={handleManualSubmit} className="space-y-4">
+                  {/* Banner error verifikasi IT */}
+                  {errorMsg && (
+                    <div className="bg-red-500/15 border border-red-500/30 text-red-400 p-4 rounded-2xl text-[11px] font-black uppercase text-center tracking-wider mb-4 animate-bounce">
+                      ⚠️ {errorMsg}
+                    </div>
+                  )}
+
                   <table className="w-full border-collapse border border-white/10 rounded-xl overflow-hidden">
                     <tbody>
                       <tr className="border-b border-white/10 bg-white/5">
                         <td className="p-4 text-[10px] uppercase font-black text-blue-300 w-1/3">Full Name</td>
                         <td className="p-2">
-                          <input type="text" required placeholder="Input name..." className="w-full bg-transparent border-none outline-none text-sm px-2 placeholder:text-white/20" />
+                          <input 
+                            type="text" 
+                            required 
+                            value={fullName}
+                            onChange={(e) => setFullName(e.target.value)}
+                            placeholder="Input name..." 
+                            className="w-full bg-transparent border-none outline-none text-sm px-2 placeholder:text-white/20 font-bold" 
+                          />
                         </td>
                       </tr>
                       <tr className="border-b border-white/10">
                         <td className="p-4 text-[10px] uppercase font-black text-blue-300">Operator ID</td>
                         <td className="p-2">
-                          <input type="text" required placeholder="Input ID..." className="w-full bg-transparent border-none outline-none text-sm px-2 placeholder:text-white/20" />
+                          <input 
+                            type="text" 
+                            required 
+                            value={operatorId}
+                            onChange={(e) => setOperatorId(e.target.value)}
+                            placeholder="Input ID..." 
+                            className="w-full bg-transparent border-none outline-none text-sm px-2 placeholder:text-white/20 font-mono font-bold" 
+                          />
                         </td>
                       </tr>
                       <tr className="border-b border-white/10 bg-white/5">
                         <td className="p-4 text-[10px] uppercase font-black text-blue-300">Department</td>
                         <td className="p-2">
-                          <select className="w-full bg-[#1a3a6a] border-none outline-none text-sm px-2 py-1 rounded cursor-pointer">
-                            <option>Air Freight Support</option>
-                            <option>Cargo Manifest Admin</option>
-                            <option>Ground Ops Team</option>
+                          <select 
+                            value={department}
+                            onChange={(e) => setDepartment(e.target.value)}
+                            className="w-full bg-[#1a3a6a] border-none outline-none text-sm px-2 py-1 rounded cursor-pointer font-bold"
+                          >
+                            <option value="Air Freight Support">Air Freight Support</option>
+                            <option value="Cargo Manifest Admin">Cargo Manifest Admin</option>
+                            <option value="Ground Ops Team">Ground Ops Team</option>
                           </select>
                         </td>
                       </tr>
                       <tr className="border-white/10">
                         <td className="p-4 text-[10px] uppercase font-black text-blue-300 align-top">Issue Detail</td>
                         <td className="p-2">
-                          <textarea rows={2} required placeholder="Why do you need recovery?" className="w-full bg-transparent border-none outline-none text-sm px-2 placeholder:text-white/20 resize-none"></textarea>
+                          <textarea 
+                            rows={2} 
+                            required 
+                            value={issueDetail}
+                            onChange={(e) => setIssueDetail(e.target.value)}
+                            placeholder="Why do you need recovery?" 
+                            className="w-full bg-transparent border-none outline-none text-sm px-2 placeholder:text-white/20 resize-none font-bold"
+                          ></textarea>
                         </td>
                       </tr>
                     </tbody>
@@ -127,12 +194,15 @@ export default function ForgotPasswordPage() {
 
                   <button 
                     type="submit"
-                    className="w-full bg-blue-500 hover:bg-blue-400 text-white font-bold py-4 rounded-2xl shadow-xl transition-all mt-4 flex items-center justify-center gap-2 group"
+                    disabled={loading}
+                    className="w-full bg-blue-500 hover:bg-blue-400 text-white font-bold py-4 rounded-2xl shadow-xl transition-all mt-4 flex items-center justify-center gap-2 group disabled:opacity-50"
                   >
-                    Submit Verification
-                    <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                    </svg>
+                    {loading ? "Verifying Identity..." : "Submit Verification"}
+                    {!loading && (
+                      <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                      </svg>
+                    )}
                   </button>
                 </form>
               </>
