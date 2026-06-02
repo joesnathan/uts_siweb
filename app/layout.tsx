@@ -3,6 +3,7 @@
 import './globals.css';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation'; 
+import { useEffect } from 'react';
 
 export default function RootLayout({
   children,
@@ -10,6 +11,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname(); // Mengambil URL yang sedang aktif
+
+  // Centralized Page Title Manager based on active pathname
+  useEffect(() => {
+    const titleMap: Record<string, string> = {
+      "/": "About Us | Terbanginaja Cargo",
+      "/login": "Operator Sign In | Terbanginaja Logistics",
+      "/company_profile/tracking": "Track Your Cargo | Terbanginaja Cargo",
+      "/company_profile/privacy-policy": "Privacy Policy | Terbanginaja Cargo",
+      "/company_profile/contact_us": "Contact Us | Terbanginaja Cargo",
+      "/dashboard": "Executive Dashboard | Terbanginaja Logistics",
+      "/dashboard/operational": "Operational Cargo Management | Terbanginaja Logistics",
+      "/dashboard/flight-status": "Live Airspace Cargo Radar | Terbanginaja Logistics",
+    };
+    
+    document.title = titleMap[pathname] || "Terbanginaja Logistics";
+  }, [pathname]);
 
   // Menentukan apakah halaman saat ini adalah halaman profil publik yang valid
   const isValidPublicPage = 
@@ -20,6 +37,14 @@ export default function RootLayout({
 
   return (
     <html lang="en">
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="description" content="Sistem Informasi Manajemen Kargo Udara Terintegrasi Cloud Neon & Terbanginaja Logistics" />
+        <meta name="author" content="Terbanginaja Team" />
+        <meta name="theme-color" content="#0a2a66" />
+        <link rel="icon" href="/favicon.ico" />
+      </head>
       <body className="bg-gray-50 flex flex-col min-h-screen font-sans">
         
         {/* NAVBAR - Hanya ditampilkan jika berada di halaman public profile yang valid */}

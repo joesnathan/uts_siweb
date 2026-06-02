@@ -460,8 +460,8 @@ export default function DashboardOperationalPage() {
                         return (
                           <tr 
                             key={item.id || i} 
-                            // 3. DIKLIK LANGSUNG DIARAHKAN KE /dashboard/cargo-logs
-                            onClick={() => router.push("/dashboard/cargo-logs")}
+                            // DIKLIK LANGSUNG DIARAHKAN KE /dashboard/operational DENGAN PARAMETER UNTUK AUTO-MODAL
+                            onClick={() => router.push(`/dashboard/operational?manifest_id=${item.manifest_id}`)}
                             className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors text-[10px] cursor-pointer"
                           >
                             <td className="py-4 px-6 font-black text-[#0a2a66] hover:underline">{item.manifest_id}</td>
