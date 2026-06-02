@@ -141,6 +141,31 @@ async function run() {
         ('operator', 'operator@terbanginaja.co.id', 'Jonathan Operator', 'OP-2026-001', 'Air Freight Support', 'operator123'),
         ('user', 'user@nextmail.com', 'User Nextmail', 'OP-2026-002', 'Cargo Manifest Admin', '123456');
       `;
+
+      console.log("Inserting 20 manual recovery requests dummy data...");
+      await tx`
+        INSERT INTO recovery_requests (user_id, full_name, operator_id, department, issue_detail) VALUES
+        (2, 'Jonathan Operator', 'OP-2026-001', 'Air Freight Support', 'Lupa password setelah libur panjang tahun baru.'),
+        (3, 'User Nextmail', 'OP-2026-002', 'Cargo Manifest Admin', 'Akses ke dashboard kargo lemot saat jam sibuk ekspor.'),
+        (1, 'System Administrator', 'ADM-2026-001', 'HQ Operations Control', 'Request penambahan kapasitas IT cloud untuk Singapore server cluster.'),
+        (2, 'Jonathan Operator', 'OP-2026-001', 'Air Freight Support', 'Session token login sering log out otomatis setelah 5 menit idle.'),
+        (3, 'User Nextmail', 'OP-2026-002', 'Cargo Manifest Admin', 'Gagal mengekspor data kargo logs ke format Excel/CSV.'),
+        (2, 'Jonathan Operator', 'OP-2026-001', 'Air Freight Support', 'Salah mengetikkan ID Operator saat pendaftaran pertama kali.'),
+        (3, 'User Nextmail', 'OP-2026-002', 'Cargo Manifest Admin', 'Layar blank putih saat membuka manifest kargo AWB MNF-2026-012.'),
+        (1, 'System Administrator', 'ADM-2026-001', 'HQ Operations Control', 'Lupa password master database cloud Neon Postgres.'),
+        (2, 'Jonathan Operator', 'OP-2026-001', 'Air Freight Support', 'Perangkat scanner manifest kargo tidak terdeteksi di Gate A12.'),
+        (3, 'User Nextmail', 'OP-2026-002', 'Cargo Manifest Admin', 'Meminta perubahan deskripsi departemen kargo di profile IT.'),
+        (2, 'Jonathan Operator', 'OP-2026-001', 'Air Freight Support', 'Lupa password setelah reset kebijakan IT terbaru.'),
+        (3, 'User Nextmail', 'OP-2026-002', 'Cargo Manifest Admin', 'Kesalahan input berat kargo pada manifest penerbangan GA-888.'),
+        (1, 'System Administrator', 'ADM-2026-001', 'HQ Operations Control', 'IT backup terjadwal gagal dieksekusi secara otomatis.'),
+        (2, 'Jonathan Operator', 'OP-2026-001', 'Air Freight Support', 'Gagal memuat visual radar kargo udara GIS.'),
+        (3, 'User Nextmail', 'OP-2026-002', 'Cargo Manifest Admin', 'Email pekerjaan salah didaftarkan oleh admin IT.'),
+        (2, 'Jonathan Operator', 'OP-2026-001', 'Air Freight Support', 'Gagal menerima kode OTP verifikasi pemulihan password.'),
+        (3, 'User Nextmail', 'OP-2026-002', 'Cargo Manifest Admin', 'Layanan pemulihan akun IT Administrator lambat merespon.'),
+        (1, 'System Administrator', 'ADM-2026-001', 'HQ Operations Control', 'IT support memohon pergantian email superadmin utama.'),
+        (2, 'Jonathan Operator', 'OP-2026-001', 'Air Freight Support', 'Akun terblokir setelah salah memasukkan password sebanyak 3 kali.'),
+        (3, 'User Nextmail', 'OP-2026-002', 'Cargo Manifest Admin', 'Pesan warning database pooler penuh muncul di log dashboard.');
+      `;
       
       console.log("MIGRATION COMPLETE!");
     });
