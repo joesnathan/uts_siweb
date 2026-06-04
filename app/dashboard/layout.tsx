@@ -11,6 +11,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [timeString, setTimeString] = useState<string>("");
   const [user, setUser] = useState<any>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [theme, setTheme] = useState<string>("light");
+
+  // Sync theme on mount
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme") || "light";
+    setTheme(savedTheme);
+  }, []);
+
+  const toggleTheme = () => {
+    const newTheme = theme === "light" ? "dark" : "light";
+    setTheme(newTheme);
+    localStorage.setItem("theme", newTheme);
+  };
 
   // 1. DYNAMIC CLIENT-SIDE AUTHENTICATION ROUTE GUARD
   useEffect(() => {
@@ -136,7 +149,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }
 
   return (
-    <div className="flex h-screen bg-gray-100 font-sans overflow-hidden">
+    <div className={`flex h-screen bg-gray-100 dark:bg-[#090d16] font-sans overflow-hidden ${theme === 'dark' ? 'dark' : ''}`}>
       
       {/* SIDEBAR */}
       <aside className={`relative bg-[#0a2a66] text-white flex flex-col justify-between h-full flex-shrink-0 transition-all duration-300 ease-in-out ${isOpen ? 'w-64' : 'w-20'}`}>
@@ -236,8 +249,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
             {/* SISI KANAN: INFO TANGGAL & LOGOUT */}
             <div className="flex items-center">
+              {/* THEME TOGGLE BUTTON */}
+              <button
+                onClick={toggleTheme}
+                className="mr-6 text-xl hover:scale-110 active:scale-95 transition-all duration-200 bg-transparent border-none p-0 focus:outline-none select-none cursor-pointer flex items-center justify-center"
+                title={theme === "light" ? "Switch to Dark Mode" : "Switch to Light Mode"}
+              >
+                {theme === "light" ? "☀️" : "🌙"}
+              </button>
+
               <div className="text-right mr-6">
-                <p className="font-black text-sm text-gray-800 leading-none">
+                <p className="font-black text-sm text-gray-800 dark:text-slate-200 leading-none">
                   {timeString || "Sunday, 5 April 2026 | 17:30 WIB"}
                 </p>
                 <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mt-1">SOEDIRMAN AIRPORT (CGK)</p>

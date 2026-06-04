@@ -29,3 +29,176 @@ textarea,
   -ms-user-select: text;
   user-select: text;
 }
+
+/* ================= DARK THEME OVERRIDES ================= */
+.dark body {
+  background-color: #090d16 !important;
+  color: #f1f5f9 !important;
+}
+
+.dark main {
+  background-color: #090d16 !important;
+}
+
+.dark header {
+  background-color: #0f172a !important;
+  border-bottom-color: #1e293b !important;
+}
+
+.dark header p.text-gray-800,
+.dark header p.text-gray-500 {
+  color: #cbd5e1 !important;
+}
+
+.dark .bg-white {
+  background-color: #111c35 !important;
+  border-color: #1e293b !important;
+  color: #f1f5f9 !important;
+}
+
+.dark .bg-gray-50 {
+  background-color: #0d1527 !important;
+}
+
+.dark .bg-gray-50\/30 {
+  background-color: #090d16 !important;
+}
+
+.dark .bg-gray-50\/50 {
+  background-color: #0d1527 !important;
+}
+
+.dark .bg-gray-100 {
+  background-color: #090d16 !important;
+  border-color: #1e293b !important;
+}
+
+.dark .bg-blue-50\/30 {
+  background-color: #090d16 !important;
+  border-color: #1e293b !important;
+}
+
+.dark .bg-green-50\/30 {
+  background-color: #090d16 !important;
+  border-color: #1e293b !important;
+}
+
+.dark .bg-green-50 {
+  background-color: rgba(16, 185, 129, 0.1) !important;
+  color: #34d399 !important;
+}
+
+.dark .bg-yellow-50 {
+  background-color: rgba(245, 158, 11, 0.1) !important;
+  color: #fbbf24 !important;
+}
+
+.dark .bg-blue-50 {
+  background-color: rgba(59, 130, 246, 0.1) !important;
+  color: #60a5fa !important;
+}
+
+.dark .border-gray-50 {
+  border-color: #1e293b !important;
+}
+
+.dark .border-gray-100 {
+  border-color: #1e293b !important;
+}
+
+.dark .border-gray-200 {
+  border-color: #1e293b !important;
+}
+
+.dark .border-t {
+  border-color: #1e293b !important;
+}
+
+.dark .border-b {
+  border-color: #1e293b !important;
+}
+
+.dark .border-x {
+  border-color: #1e293b !important;
+}
+
+.dark .border {
+  border-color: #1e293b !important;
+}
+
+.dark .text-gray-800 {
+  color: #f1f5f9 !important;
+}
+
+.dark .text-gray-700 {
+  color: #cbd5e1 !important;
+}
+
+.dark .text-gray-600 {
+  color: #94a3b8 !important;
+}
+
+.dark .text-gray-500 {
+  color: #cbd5e1 !important;
+}
+
+.dark .text-gray-400 {
+  color: #94a3b8 !important;
+}
+
+.dark th {
+  color: #f1f5f9 !important;
+}
+
+.dark .text-\[\#0a2a66\] {
+  color: #60a5fa !important;
+}
+
+.dark .hover\:bg-gray-50:hover {
+  background-color: #1e293b !important;
+}
+
+.dark .hover\:bg-gray-50\/50:hover {
+  background-color: #1e293b !important;
+}
+
+.dark .hover\:bg-slate-50\/75:hover {
+  background-color: rgba(30, 41, 59, 0.5) !important;
+}
+
+.dark .hover\:bg-blue-50\/50:hover {
+  background-color: rgba(59, 130, 246, 0.15) !important;
+}
+
+.dark input, 
+.dark select, 
+.dark textarea {
+  background-color: #070b12 !important;
+  border-color: #1e293b !important;
+  color: #f1f5f9 !important;
+}
+
+.dark input::placeholder {
+  color: #64748b !important;
+}
+
+.dark input:focus, 
+.dark select:focus, 
+.dark textarea:focus {
+  border-color: #3b82f6 !important;
+  --tw-ring-color: #3b82f6 !important;
+}
+
+.dark .divide-gray-50 > * + * {
+  border-color: #1e293b !important;
+}
+
+/* Modal and Overlay Adjustments */
+.dark .bg-black\/50,
+.dark .bg-opacity-50 {
+  background-color: rgba(0, 0, 0, 0.75) !important;
+}
+
+.dark .shadow-xl {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.4) !important;
+}

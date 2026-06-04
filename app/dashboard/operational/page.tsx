@@ -46,7 +46,7 @@ export default function DashboardOperationalPage() {
   // --- STATE ERROR HANDLING BARU ---
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
-  
+
   interface Toast {
     id: string;
     type: "success" | "error" | "warning" | "info";
@@ -164,11 +164,11 @@ export default function DashboardOperationalPage() {
     const maxId =
       cargoList.length > 0
         ? Math.max(
-            ...cargoList.map((c) => {
-              const num = parseInt(c.manifest_id.split("-")[2] || "0");
-              return isNaN(num) ? 0 : num;
-            })
-          )
+          ...cargoList.map((c) => {
+            const num = parseInt(c.manifest_id.split("-")[2] || "0");
+            return isNaN(num) ? 0 : num;
+          })
+        )
         : 0;
 
     const nextNum = (maxId + 1).toString().padStart(3, "0");
@@ -291,7 +291,7 @@ export default function DashboardOperationalPage() {
         const to = field === "route_to" ? value : prev.route_to;
         updated.route = from && to ? `${from}-${to}` : "";
       }
-      
+
       // Hitung otomatis harga jika berat atau tipe pengiriman berubah
       if (field === "weight" || field === "shipping_type") {
         updated.shipping_price = calculateShippingPrice(
@@ -299,19 +299,19 @@ export default function DashboardOperationalPage() {
           field === "shipping_type" ? value : prev.shipping_type
         );
       }
-      
+
       return updated;
     });
 
     if (touched[field]) {
       setErrors((prevErrors) => {
         const nextErrors = { ...prevErrors };
-        
+
         if (field === "airline_name") {
           if (!value.trim()) nextErrors.airline_name = "Nama maskapai wajib diisi";
           else delete nextErrors.airline_name;
         }
-        
+
         if (field === "flight_code") {
           if (!value.trim()) nextErrors.flight_code = "Kode penerbangan wajib diisi";
           else delete nextErrors.flight_code;
@@ -604,13 +604,13 @@ export default function DashboardOperationalPage() {
 
   const confirmDelete = async () => {
     if (deleteModal.cargoId === null) return;
-    
+
     try {
       const res = await fetch(`/api/cargo?id=${deleteModal.cargoId}`, {
         method: "DELETE",
       });
       const result = await res.json();
-      
+
       if (result.success) {
         addToast(`🗑️ Kargo ${deleteModal.manifestId} berhasil dihapus.`, "success");
         fetchCargoData();
@@ -627,7 +627,7 @@ export default function DashboardOperationalPage() {
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[480px] w-full bg-white border border-gray-100 rounded-[2.5rem] p-12 relative overflow-hidden shadow-xl shadow-gray-100/50 animate-in fade-in duration-500">
-        
+
         {/* Subtle grid background */}
         <div className="absolute inset-0 z-0 opacity-[0.04] pointer-events-none">
           <div className="w-full h-full bg-[linear-gradient(to_right,#0a2a66_1px,transparent_1px),linear-gradient(to_bottom,#0a2a66_1px,transparent_1px)] bg-[size:30px_30px]"></div>
@@ -638,7 +638,7 @@ export default function DashboardOperationalPage() {
           <div className="absolute inset-0 border border-blue-500/20 rounded-full animate-ping" style={{ animationDuration: '2s' }}></div>
           <div className="absolute inset-3 border-2 border-blue-500/15 rounded-full animate-ping" style={{ animationDuration: '3s' }}></div>
           <div className="absolute inset-6 border border-blue-400/20 rounded-full animate-pulse"></div>
-          
+
           {/* Glowing Glassmorphic Cargo Scope */}
           <div className="w-16 h-16 bg-gradient-to-tr from-[#0a2a66] to-blue-700 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-900/30 relative overflow-hidden">
             <div className="absolute inset-0 bg-[conic-gradient(from_0deg,transparent_45%,rgba(255,255,255,0.35)_100%)] animate-spin" style={{ animationDuration: '2.5s' }}></div>
@@ -718,7 +718,7 @@ export default function DashboardOperationalPage() {
   };
 
   const selectedPrefix = getAirlinePrefix(formData.airline_name);
-  
+
   const allFlightCodes = [
     "GA-888", "GA-412", "GA-889", "GA-413",
     "SJ-555", "SJ-182", "SJ-221", "SJ-183",
@@ -792,606 +792,591 @@ export default function DashboardOperationalPage() {
           <div className="flex flex-col md:flex-row justify-between gap-4">
             <h2 className="text-2xl font-bold">Operational Cargo Management</h2>
 
-        <div className="flex gap-3">
-          <input
-            type="text"
-            placeholder="Cari Manifest ID / Airline / Route..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full md:w-80 h-[56px] px-4 border border-gray-300 rounded-xl outline-none"
-          />
+            <div className="flex gap-3">
+              <input
+                type="text"
+                placeholder="Cari Manifest ID / Airline / Route..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full md:w-80 h-[56px] px-4 border border-gray-300 rounded-xl outline-none"
+              />
 
-          <button
-            onClick={openForm}
-            className="bg-[#0a2a66] text-white px-6 h-[56px] rounded-xl font-bold whitespace-nowrap hover:opacity-90 transition"
-          >
-            + Tambah Cargo
-          </button>
-        </div>
-      </div>
+              <button
+                onClick={openForm}
+                className="bg-[#0a2a66] text-white px-6 h-[56px] rounded-xl font-bold whitespace-nowrap hover:opacity-90 transition"
+              >
+                + Tambah Cargo
+              </button>
+            </div>
+          </div>
 
-      {/* FORM */}
-      {showForm && (
-        <div className="bg-white p-8 rounded-2xl shadow-xl animate-in slide-in-from-top-6 duration-300" id="cargoFormTitle">
-          <h3 className="text-xl font-black text-[#0a2a66] uppercase tracking-tight mb-6">
-            {editingCargo ? "⚡ Edit Cargo Manifest" : "📦 Tambah Cargo Baru"}
-          </h3>
+          {/* FORM */}
+          {showForm && (
+            <div className="bg-white p-8 rounded-2xl shadow-xl animate-in slide-in-from-top-6 duration-300" id="cargoFormTitle">
+              <h3 className="text-xl font-black text-[#0a2a66] uppercase tracking-tight mb-6">
+                {editingCargo ? "⚡ Edit Cargo Manifest" : "📦 Tambah Cargo Baru"}
+              </h3>
 
-          {/* Form-level Error Banner */}
-          {formError && (
-            <div className="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 flex items-start gap-3 animate-in fade-in duration-300">
-              <svg className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-              <div className="space-y-1">
-                <p className="text-xs font-black uppercase tracking-wider">Kesalahan Server / Database</p>
-                <p className="text-xs text-rose-700/90 font-medium leading-relaxed uppercase">{formError}</p>
-              </div>
+              {/* Form-level Error Banner */}
+              {formError && (
+                <div className="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 flex items-start gap-3 animate-in fade-in duration-300">
+                  <svg className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                  <div className="space-y-1">
+                    <p className="text-xs font-black uppercase tracking-wider">Kesalahan Server / Database</p>
+                    <p className="text-xs text-rose-700/90 font-medium leading-relaxed uppercase">{formError}</p>
+                  </div>
+                </div>
+              )}
+
+              <form
+                onSubmit={handleSubmit}
+                className="grid grid-cols-1 md:grid-cols-2 gap-4"
+              >
+                {/* Manifest ID */}
+                <div className="w-full">
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Manifest ID (Otomatis)</label>
+                  <input
+                    type="text"
+                    value={formData.manifest_id}
+                    readOnly
+                    className="w-full h-[56px] px-4 bg-gray-50 border border-gray-200 text-gray-500 rounded-xl font-mono font-bold"
+                  />
+                </div>
+
+                {/* Airline Name */}
+                <div className="w-full">
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Nama Maskapai *</label>
+                  <select
+                    value={formData.airline_name}
+                    onChange={(e) => handleFieldChange("airline_name", e.target.value)}
+                    onBlur={() => handleBlur("airline_name")}
+                    className={`w-full h-[56px] px-4 border rounded-xl outline-none transition-all font-medium text-gray-700 bg-white ${touched.airline_name && errors.airline_name
+                        ? "border-rose-500 bg-rose-50/10 focus:ring-2 focus:ring-rose-200/50"
+                        : "border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100/50"
+                      }`}
+                  >
+                    <option value="">-- Pilih Maskapai --</option>
+                    {airlineOptions.map((airline) => (
+                      <option key={airline} value={airline}>{airline}</option>
+                    ))}
+                  </select>
+                  {touched.airline_name && errors.airline_name && (
+                    <p className="text-[10px] text-rose-600 font-black uppercase tracking-wider mt-1.5 ml-1 flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 bg-rose-500 rounded-full shrink-0"></span>
+                      {errors.airline_name}
+                    </p>
+                  )}
+                </div>
+
+                {/* Flight Code */}
+                <div className="w-full">
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Kode Penerbangan *</label>
+                  <select
+                    value={formData.flight_code}
+                    onChange={(e) => handleFieldChange("flight_code", e.target.value)}
+                    onBlur={() => handleBlur("flight_code")}
+                    disabled={!formData.airline_name}
+                    className={`w-full h-[56px] px-4 border rounded-xl outline-none transition-all font-medium text-gray-700 bg-white disabled:bg-gray-50 disabled:text-gray-400 ${touched.flight_code && errors.flight_code
+                        ? "border-rose-500 bg-rose-50/10 focus:ring-2 focus:ring-rose-200/50"
+                        : "border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100/50"
+                      }`}
+                  >
+                    {!formData.airline_name ? (
+                      <option value="">-- Pilih Maskapai Terlebih Dahulu --</option>
+                    ) : (
+                      <>
+                        <option value="">-- Pilih Kode Penerbangan --</option>
+                        {flightCodeOptions.map((code) => (
+                          <option key={code} value={code}>{code}</option>
+                        ))}
+                      </>
+                    )}
+                  </select>
+                  {touched.flight_code && errors.flight_code && (
+                    <p className="text-[10px] text-rose-600 font-black uppercase tracking-wider mt-1.5 ml-1 flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 bg-rose-500 rounded-full shrink-0"></span>
+                      {errors.flight_code}
+                    </p>
+                  )}
+                </div>
+
+                {/* Rute Penerbangan Split (Dari - Ke) dalam 1 Kolom Panjang dibagi 2 */}
+                <div className="w-full">
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Rute Penerbangan (Asal ➔ Tujuan) *</label>
+                  <div className="flex items-center gap-2">
+                    {/* Bandara Asal */}
+                    <div className="flex-1">
+                      <select
+                        value={formData.route_from}
+                        onChange={(e) => handleFieldChange("route_from", e.target.value)}
+                        onBlur={() => handleBlur("route_from")}
+                        className={`w-full h-[56px] px-3 border rounded-xl outline-none transition-all font-medium text-xs text-gray-700 bg-white ${touched.route_from && errors.route_from
+                            ? "border-rose-500 bg-rose-50/10 focus:ring-2 focus:ring-rose-200/50"
+                            : "border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100/50"
+                          }`}
+                      >
+                        <option value="">-- Pilih Asal --</option>
+                        {fromRoutes.map((airport) => (
+                          <option key={airport} value={airport}>{getAirportLabel(airport)}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Arrow Icon */}
+                    <span className="text-gray-400 font-bold select-none shrink-0">➔</span>
+
+                    {/* Bandara Tujuan */}
+                    <div className="flex-1">
+                      <select
+                        value={formData.route_to}
+                        onChange={(e) => handleFieldChange("route_to", e.target.value)}
+                        onBlur={() => handleBlur("route_to")}
+                        className={`w-full h-[56px] px-3 border rounded-xl outline-none transition-all font-medium text-xs text-gray-700 bg-white ${touched.route_to && errors.route_to
+                            ? "border-rose-500 bg-rose-50/10 focus:ring-2 focus:ring-rose-200/50"
+                            : "border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100/50"
+                          }`}
+                      >
+                        <option value="">-- Pilih Tujuan --</option>
+                        {toRoutes.map((airport) => (
+                          <option key={airport} value={airport}>{getAirportLabel(airport)}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Errors container */}
+                  {((touched.route_from && errors.route_from) || (touched.route_to && errors.route_to)) && (
+                    <div className="flex flex-col gap-1 mt-1.5 ml-1 select-none">
+                      {touched.route_from && errors.route_from && (
+                        <p className="text-[10px] text-rose-600 font-black uppercase tracking-wider flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 bg-rose-500 rounded-full shrink-0"></span>
+                          Asal: {errors.route_from}
+                        </p>
+                      )}
+                      {touched.route_to && errors.route_to && (
+                        <p className="text-[10px] text-rose-600 font-black uppercase tracking-wider flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 bg-rose-500 rounded-full shrink-0"></span>
+                          Tujuan: {errors.route_to}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Weight */}
+                <div className="w-full">
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Berat (kg) *</label>
+                  <input
+                    type="number"
+                    placeholder="Weight (kg)"
+                    value={formData.weight}
+                    onChange={(e) => handleFieldChange("weight", e.target.value)}
+                    onBlur={() => handleBlur("weight")}
+                    className={`w-full h-[56px] px-4 border rounded-xl outline-none transition-all ${touched.weight && errors.weight
+                        ? "border-rose-500 bg-rose-50/10 focus:ring-2 focus:ring-rose-200/50"
+                        : "border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100/50"
+                      }`}
+                  />
+                  {touched.weight && errors.weight && (
+                    <p className="text-[10px] text-rose-600 font-black uppercase tracking-wider mt-1.5 ml-1 flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 bg-rose-500 rounded-full shrink-0"></span>
+                      {errors.weight}
+                    </p>
+                  )}
+                </div>
+
+                {/* Date */}
+                <div className="w-full">
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Tanggal Pengiriman *</label>
+                  <input
+                    type="date"
+                    value={formData.date}
+                    onChange={(e) => handleFieldChange("date", e.target.value)}
+                    onBlur={() => handleBlur("date")}
+                    className={`w-full h-[56px] px-4 border rounded-xl outline-none transition-all ${touched.date && errors.date
+                        ? "border-rose-500 bg-rose-50/10 focus:ring-2 focus:ring-rose-200/50"
+                        : "border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100/50"
+                      }`}
+                  />
+                  {touched.date && errors.date && (
+                    <p className="text-[10px] text-rose-600 font-black uppercase tracking-wider mt-1.5 ml-1 flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 bg-rose-500 rounded-full shrink-0"></span>
+                      {errors.date}
+                    </p>
+                  )}
+                </div>
+
+                {/* Gate */}
+                <div className="w-full">
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Gate (Opsional)</label>
+                  <input
+                    type="text"
+                    placeholder="Gate (e.g. A12)"
+                    value={formData.gate}
+                    onChange={(e) => handleFieldChange("gate", e.target.value)}
+                    className="w-full h-[56px] px-4 border border-gray-300 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100/50 transition-all"
+                  />
+                </div>
+
+                {/* Items */}
+                <div className="w-full">
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Jumlah Item / Capacity (units) *</label>
+                  <input
+                    type="number"
+                    placeholder="Jumlah Item / Capacity (units)"
+                    value={formData.items}
+                    onChange={(e) => handleFieldChange("items", e.target.value)}
+                    onBlur={() => handleBlur("items")}
+                    className={`w-full h-[56px] px-4 border rounded-xl outline-none transition-all ${touched.items && errors.items
+                        ? "border-rose-500 bg-rose-50/10 focus:ring-2 focus:ring-rose-200/50"
+                        : "border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100/50"
+                      }`}
+                  />
+                  {touched.items && errors.items && (
+                    <p className="text-[10px] text-rose-600 font-black uppercase tracking-wider mt-1.5 ml-1 flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 bg-rose-500 rounded-full shrink-0"></span>
+                      {errors.items}
+                    </p>
+                  )}
+                </div>
+
+                {/* Sender Name */}
+                <div className="w-full">
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Nama Pengirim *</label>
+                  <input
+                    type="text"
+                    placeholder="Nama Pengirim"
+                    value={formData.sender_name}
+                    onChange={(e) => handleFieldChange("sender_name", e.target.value)}
+                    onBlur={() => handleBlur("sender_name")}
+                    className={`w-full h-[56px] px-4 border rounded-xl outline-none transition-all ${touched.sender_name && errors.sender_name
+                        ? "border-rose-500 bg-rose-50/10 focus:ring-2 focus:ring-rose-200/50"
+                        : "border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100/50"
+                      }`}
+                  />
+                  {touched.sender_name && errors.sender_name && (
+                    <p className="text-[10px] text-rose-600 font-black uppercase tracking-wider mt-1.5 ml-1 flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 bg-rose-500 rounded-full shrink-0"></span>
+                      {errors.sender_name}
+                    </p>
+                  )}
+                </div>
+
+                {/* Receiver Name */}
+                <div className="w-full">
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Nama Penerima *</label>
+                  <input
+                    type="text"
+                    placeholder="Nama Penerima"
+                    value={formData.receiver_name}
+                    onChange={(e) => handleFieldChange("receiver_name", e.target.value)}
+                    onBlur={() => handleBlur("receiver_name")}
+                    className={`w-full h-[56px] px-4 border rounded-xl outline-none transition-all ${touched.receiver_name && errors.receiver_name
+                        ? "border-rose-500 bg-rose-50/10 focus:ring-2 focus:ring-rose-200/50"
+                        : "border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100/50"
+                      }`}
+                  />
+                  {touched.receiver_name && errors.receiver_name && (
+                    <p className="text-[10px] text-rose-600 font-black uppercase tracking-wider mt-1.5 ml-1 flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 bg-rose-500 rounded-full shrink-0"></span>
+                      {errors.receiver_name}
+                    </p>
+                  )}
+                </div>
+
+                {/* Phone Number */}
+                <div className="w-full">
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">No Telepon *</label>
+                  <input
+                    type="text"
+                    placeholder="No Telepon"
+                    value={formData.phone_number}
+                    onChange={(e) => handleFieldChange("phone_number", e.target.value)}
+                    onBlur={() => handleBlur("phone_number")}
+                    className={`w-full h-[56px] px-4 border rounded-xl outline-none transition-all ${touched.phone_number && errors.phone_number
+                        ? "border-rose-500 bg-rose-50/10 focus:ring-2 focus:ring-rose-200/50"
+                        : "border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100/50"
+                      }`}
+                  />
+                  {touched.phone_number && errors.phone_number && (
+                    <p className="text-[10px] text-rose-600 font-black uppercase tracking-wider mt-1.5 ml-1 flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 bg-rose-500 rounded-full shrink-0"></span>
+                      {errors.phone_number}
+                    </p>
+                  )}
+                </div>
+
+                {/* Origin City */}
+                <div className="w-full">
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Kota Asal *</label>
+                  <input
+                    type="text"
+                    placeholder="Kota Asal"
+                    value={formData.origin_city}
+                    onChange={(e) => handleFieldChange("origin_city", e.target.value)}
+                    onBlur={() => handleBlur("origin_city")}
+                    className={`w-full h-[56px] px-4 border rounded-xl outline-none transition-all ${touched.origin_city && errors.origin_city
+                        ? "border-rose-500 bg-rose-50/10 focus:ring-2 focus:ring-rose-200/50"
+                        : "border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100/50"
+                      }`}
+                  />
+                  {touched.origin_city && errors.origin_city && (
+                    <p className="text-[10px] text-rose-600 font-black uppercase tracking-wider mt-1.5 ml-1 flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 bg-rose-500 rounded-full shrink-0"></span>
+                      {errors.origin_city}
+                    </p>
+                  )}
+                </div>
+
+                {/* Destination City */}
+                <div className="w-full">
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Kota Tujuan *</label>
+                  <input
+                    type="text"
+                    placeholder="Kota Tujuan"
+                    value={formData.destination_city}
+                    onChange={(e) => handleFieldChange("destination_city", e.target.value)}
+                    onBlur={() => handleBlur("destination_city")}
+                    className={`w-full h-[56px] px-4 border rounded-xl outline-none transition-all ${touched.destination_city && errors.destination_city
+                        ? "border-rose-500 bg-rose-50/10 focus:ring-2 focus:ring-rose-200/50"
+                        : "border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100/50"
+                      }`}
+                  />
+                  {touched.destination_city && errors.destination_city && (
+                    <p className="text-[10px] text-rose-600 font-black uppercase tracking-wider mt-1.5 ml-1 flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 bg-rose-500 rounded-full shrink-0"></span>
+                      {errors.destination_city}
+                    </p>
+                  )}
+                </div>
+
+                {/* Item Type */}
+                <div className="w-full">
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Jenis Barang *</label>
+                  <input
+                    type="text"
+                    placeholder="Jenis Barang"
+                    value={formData.item_type}
+                    onChange={(e) => handleFieldChange("item_type", e.target.value)}
+                    onBlur={() => handleBlur("item_type")}
+                    className={`w-full h-[56px] px-4 border rounded-xl outline-none transition-all ${touched.item_type && errors.item_type
+                        ? "border-rose-500 bg-rose-50/10 focus:ring-2 focus:ring-rose-200/50"
+                        : "border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100/50"
+                      }`}
+                  />
+                  {touched.item_type && errors.item_type && (
+                    <p className="text-[10px] text-rose-600 font-black uppercase tracking-wider mt-1.5 ml-1 flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 bg-rose-500 rounded-full shrink-0"></span>
+                      {errors.item_type}
+                    </p>
+                  )}
+                </div>
+
+                {/* Shipping Price */}
+                <div className="w-full">
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Harga Pengiriman (Otomatis)</label>
+                  <input
+                    type="text"
+                    placeholder="Harga Pengiriman"
+                    value={
+                      formData.shipping_price
+                        ? `Rp ${Number(formData.shipping_price).toLocaleString("id-ID")}`
+                        : ""
+                    }
+                    readOnly
+                    className="w-full h-[56px] px-4 bg-gray-50 border border-gray-200 rounded-xl font-semibold text-gray-700 outline-none"
+                  />
+                </div>
+
+                {/* Shipping Type */}
+                <div className="w-full">
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Tipe Pengiriman *</label>
+                  <select
+                    value={formData.shipping_type}
+                    onChange={(e) => handleFieldChange("shipping_type", e.target.value)}
+                    className="w-full h-[56px] px-4 border border-gray-300 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100/50 transition-all font-medium text-gray-700"
+                  >
+                    <option value="Regular">Regular</option>
+                    <option value="Express">Express</option>
+                    <option value="VVIP">VVIP</option>
+                  </select>
+                </div>
+
+                {/* Flight Status */}
+                <div className="w-full">
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Status Penerbangan *</label>
+                  <select
+                    value={formData.flight_status}
+                    onChange={(e) => handleFieldChange("flight_status", e.target.value)}
+                    className="w-full h-[56px] px-4 border border-gray-300 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100/50 transition-all font-medium text-gray-700"
+                  >
+                    <option value="Scheduled">Scheduled</option>
+                    <option value="Airborne">Airborne</option>
+                    <option value="Landed">Landed</option>
+                    <option value="Delayed">Delayed</option>
+                  </select>
+                </div>
+
+                {/* Description */}
+                <div className="col-span-2">
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Deskripsi Barang (Opsional)</label>
+                  <textarea
+                    placeholder="Deskripsi Barang"
+                    value={formData.description}
+                    onChange={(e) => handleFieldChange("description", e.target.value)}
+                    className="w-full p-4 border border-gray-300 rounded-xl min-h-[120px] outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100/50 transition-all"
+                  />
+                </div>
+
+                {/* Form Action Buttons */}
+                <div className="col-span-2 flex flex-col sm:flex-row gap-3 mt-4">
+                  <button
+                    type="submit"
+                    disabled={saving}
+                    className="flex-1 bg-[#0a2a66] hover:opacity-90 active:scale-95 text-white h-[56px] rounded-xl font-bold transition-all shadow-md flex items-center justify-center gap-2"
+                  >
+                    {saving ? (
+                      <>
+                        <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>Menyimpan...</span>
+                      </>
+                    ) : editingCargo ? (
+                      "Update Cargo"
+                    ) : (
+                      "Simpan Cargo Baru"
+                    )}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowForm(false);
+                      setEditingCargo(null);
+                      resetForm();
+                      setErrors({});
+                      setTouched({});
+                    }}
+                    className="flex-1 h-[56px] border border-gray-300 hover:bg-gray-50 text-gray-700 font-bold rounded-xl transition-all"
+                  >
+                    Batal
+                  </button>
+                </div>
+              </form>
             </div>
           )}
 
-          <form
-            onSubmit={handleSubmit}
-            className="grid grid-cols-1 md:grid-cols-2 gap-4"
-          >
-            {/* Manifest ID */}
-            <div className="w-full">
-              <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Manifest ID (Otomatis)</label>
-              <input
-                type="text"
-                value={formData.manifest_id}
-                readOnly
-                className="w-full h-[56px] px-4 bg-gray-50 border border-gray-200 text-gray-500 rounded-xl font-mono font-bold"
-              />
-            </div>
+          {/* TABLE */}
+          <div className="bg-white rounded-2xl shadow overflow-hidden">
+            <table className="w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="p-4 text-left">Manifest ID</th>
+                  <th className="p-4 text-left">Airline</th>
+                  <th className="p-4 text-left">Route</th>
+                  <th className="p-4 text-center">Weight</th>
+                  <th className="p-4 text-center">Status</th>
+                  <th className="p-4 text-center">Actions</th>
+                </tr>
+              </thead>
 
-            {/* Airline Name */}
-            <div className="w-full">
-              <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Nama Maskapai *</label>
-              <select
-                value={formData.airline_name}
-                onChange={(e) => handleFieldChange("airline_name", e.target.value)}
-                onBlur={() => handleBlur("airline_name")}
-                className={`w-full h-[56px] px-4 border rounded-xl outline-none transition-all font-medium text-gray-700 bg-white ${
-                  touched.airline_name && errors.airline_name
-                    ? "border-rose-500 bg-rose-50/10 focus:ring-2 focus:ring-rose-200/50"
-                    : "border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100/50"
-                }`}
-              >
-                <option value="">-- Pilih Maskapai --</option>
-                {airlineOptions.map((airline) => (
-                  <option key={airline} value={airline}>{airline}</option>
+              <tbody>
+                {paginatedList.map((cargo) => (
+                  <tr
+                    key={cargo.id}
+                    className="border-t hover:bg-slate-50/75 cursor-pointer transition-colors group"
+                    onClick={() => setDetailCargo(cargo)}
+                  >
+                    <td className="p-4 font-bold font-mono text-[#0a2a66] group-hover:text-blue-600 transition-colors">
+                      <span className="border-b border-dashed border-[#0a2a66]/30 group-hover:border-blue-600/50">
+                        {cargo.manifest_id}
+                      </span>
+                    </td>
+                    <td className="p-4">{cargo.airline_name}</td>
+                    <td className="p-4">{cargo.route}</td>
+                    <td className="p-4 text-center">{cargo.weight} kg</td>
+                    <td className="p-4 text-center">
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs ${cargo.flight_status === "Landed"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-blue-100 text-blue-700"
+                          }`}
+                      >
+                        {cargo.flight_status}
+                      </span>
+                    </td>
+                    <td className="p-4 text-center space-x-4">
+                      {/* 4. e.stopPropagation() mencegah trigger navigasi onClick <tr> */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEdit(cargo);
+                        }}
+                        className="text-blue-600 font-semibold hover:underline"
+                      >
+                        Update
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteClick(cargo.id, cargo.manifest_id);
+                        }}
+                        className="text-red-600 font-semibold hover:underline"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
                 ))}
-              </select>
-              {touched.airline_name && errors.airline_name && (
-                <p className="text-[10px] text-rose-600 font-black uppercase tracking-wider mt-1.5 ml-1 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 bg-rose-500 rounded-full shrink-0"></span>
-                  {errors.airline_name}
-                </p>
-              )}
-            </div>
+              </tbody>
+            </table>
+          </div>
 
-            {/* Flight Code */}
-            <div className="w-full">
-              <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Kode Penerbangan *</label>
-              <select
-                value={formData.flight_code}
-                onChange={(e) => handleFieldChange("flight_code", e.target.value)}
-                onBlur={() => handleBlur("flight_code")}
-                disabled={!formData.airline_name}
-                className={`w-full h-[56px] px-4 border rounded-xl outline-none transition-all font-medium text-gray-700 bg-white disabled:bg-gray-50 disabled:text-gray-400 ${
-                  touched.flight_code && errors.flight_code
-                    ? "border-rose-500 bg-rose-50/10 focus:ring-2 focus:ring-rose-200/50"
-                    : "border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100/50"
-                }`}
-              >
-                {!formData.airline_name ? (
-                  <option value="">-- Pilih Maskapai Terlebih Dahulu --</option>
-                ) : (
-                  <>
-                    <option value="">-- Pilih Kode Penerbangan --</option>
-                    {flightCodeOptions.map((code) => (
-                      <option key={code} value={code}>{code}</option>
-                    ))}
-                  </>
-                )}
-              </select>
-              {touched.flight_code && errors.flight_code && (
-                <p className="text-[10px] text-rose-600 font-black uppercase tracking-wider mt-1.5 ml-1 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 bg-rose-500 rounded-full shrink-0"></span>
-                  {errors.flight_code}
-                </p>
-              )}
-            </div>
-
-            {/* Rute Penerbangan Split (Dari - Ke) dalam 1 Kolom Panjang dibagi 2 */}
-            <div className="w-full">
-              <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Rute Penerbangan (Asal ➔ Tujuan) *</label>
+          {/* PAGINATION */}
+          {totalPages > 1 && (
+            <div className="p-6 border-t border-gray-100 flex items-center justify-between bg-gray-50/20 bg-white rounded-b-2xl border-x border-b border-gray-100 shadow-sm">
+              <p className="text-[10px] font-black text-gray-400 uppercase tracking-wider">
+                Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, filteredList.length)} of {filteredList.length} cargo items
+              </p>
               <div className="flex items-center gap-2">
-                {/* Bandara Asal */}
-                <div className="flex-1">
-                  <select
-                    value={formData.route_from}
-                    onChange={(e) => handleFieldChange("route_from", e.target.value)}
-                    onBlur={() => handleBlur("route_from")}
-                    className={`w-full h-[56px] px-3 border rounded-xl outline-none transition-all font-medium text-xs text-gray-700 bg-white ${
-                      touched.route_from && errors.route_from
-                        ? "border-rose-500 bg-rose-50/10 focus:ring-2 focus:ring-rose-200/50"
-                        : "border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100/50"
-                    }`}
-                  >
-                    <option value="">-- Pilih Asal --</option>
-                    {fromRoutes.map((airport) => (
-                      <option key={airport} value={airport}>{getAirportLabel(airport)}</option>
-                    ))}
-                  </select>
-                </div>
+                <button
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  className="px-3 py-1.5 rounded-lg bg-[#0a2a66] text-white text-[10px] font-black uppercase disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 transition"
+                >
+                  ◀ Prev
+                </button>
 
-                {/* Arrow Icon */}
-                <span className="text-gray-400 font-bold select-none shrink-0">➔</span>
-
-                {/* Bandara Tujuan */}
-                <div className="flex-1">
-                  <select
-                    value={formData.route_to}
-                    onChange={(e) => handleFieldChange("route_to", e.target.value)}
-                    onBlur={() => handleBlur("route_to")}
-                    className={`w-full h-[56px] px-3 border rounded-xl outline-none transition-all font-medium text-xs text-gray-700 bg-white ${
-                      touched.route_to && errors.route_to
-                        ? "border-rose-500 bg-rose-50/10 focus:ring-2 focus:ring-rose-200/50"
-                        : "border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100/50"
-                    }`}
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    className={`w-7 h-7 rounded-lg text-[10px] font-black flex items-center justify-center transition ${currentPage === page
+                        ? "bg-[#0a2a66] text-white"
+                        : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50"
+                      }`}
                   >
-                    <option value="">-- Pilih Tujuan --</option>
-                    {toRoutes.map((airport) => (
-                      <option key={airport} value={airport}>{getAirportLabel(airport)}</option>
-                    ))}
-                  </select>
-                </div>
+                    {page}
+                  </button>
+                ))}
+
+                <button
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                  className="px-3 py-1.5 rounded-lg bg-[#0a2a66] text-white text-[10px] font-black uppercase disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 transition"
+                >
+                  Next ▶
+                </button>
               </div>
-
-              {/* Errors container */}
-              {((touched.route_from && errors.route_from) || (touched.route_to && errors.route_to)) && (
-                <div className="flex flex-col gap-1 mt-1.5 ml-1 select-none">
-                  {touched.route_from && errors.route_from && (
-                    <p className="text-[10px] text-rose-600 font-black uppercase tracking-wider flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 bg-rose-500 rounded-full shrink-0"></span>
-                      Asal: {errors.route_from}
-                    </p>
-                  )}
-                  {touched.route_to && errors.route_to && (
-                    <p className="text-[10px] text-rose-600 font-black uppercase tracking-wider flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 bg-rose-500 rounded-full shrink-0"></span>
-                      Tujuan: {errors.route_to}
-                    </p>
-                  )}
-                </div>
-              )}
             </div>
-
-            {/* Weight */}
-            <div className="w-full">
-              <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Berat (kg) *</label>
-              <input
-                type="number"
-                placeholder="Weight (kg)"
-                value={formData.weight}
-                onChange={(e) => handleFieldChange("weight", e.target.value)}
-                onBlur={() => handleBlur("weight")}
-                className={`w-full h-[56px] px-4 border rounded-xl outline-none transition-all ${
-                  touched.weight && errors.weight
-                    ? "border-rose-500 bg-rose-50/10 focus:ring-2 focus:ring-rose-200/50"
-                    : "border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100/50"
-                }`}
-              />
-              {touched.weight && errors.weight && (
-                <p className="text-[10px] text-rose-600 font-black uppercase tracking-wider mt-1.5 ml-1 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 bg-rose-500 rounded-full shrink-0"></span>
-                  {errors.weight}
-                </p>
-              )}
-            </div>
-
-            {/* Date */}
-            <div className="w-full">
-              <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Tanggal Pengiriman *</label>
-              <input
-                type="date"
-                value={formData.date}
-                onChange={(e) => handleFieldChange("date", e.target.value)}
-                onBlur={() => handleBlur("date")}
-                className={`w-full h-[56px] px-4 border rounded-xl outline-none transition-all ${
-                  touched.date && errors.date
-                    ? "border-rose-500 bg-rose-50/10 focus:ring-2 focus:ring-rose-200/50"
-                    : "border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100/50"
-                }`}
-              />
-              {touched.date && errors.date && (
-                <p className="text-[10px] text-rose-600 font-black uppercase tracking-wider mt-1.5 ml-1 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 bg-rose-500 rounded-full shrink-0"></span>
-                  {errors.date}
-                </p>
-              )}
-            </div>
-
-            {/* Gate */}
-            <div className="w-full">
-              <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Gate (Opsional)</label>
-              <input
-                type="text"
-                placeholder="Gate (e.g. A12)"
-                value={formData.gate}
-                onChange={(e) => handleFieldChange("gate", e.target.value)}
-                className="w-full h-[56px] px-4 border border-gray-300 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100/50 transition-all"
-              />
-            </div>
-
-            {/* Items */}
-            <div className="w-full">
-              <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Jumlah Item / Capacity (units) *</label>
-              <input
-                type="number"
-                placeholder="Jumlah Item / Capacity (units)"
-                value={formData.items}
-                onChange={(e) => handleFieldChange("items", e.target.value)}
-                onBlur={() => handleBlur("items")}
-                className={`w-full h-[56px] px-4 border rounded-xl outline-none transition-all ${
-                  touched.items && errors.items
-                    ? "border-rose-500 bg-rose-50/10 focus:ring-2 focus:ring-rose-200/50"
-                    : "border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100/50"
-                }`}
-              />
-              {touched.items && errors.items && (
-                <p className="text-[10px] text-rose-600 font-black uppercase tracking-wider mt-1.5 ml-1 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 bg-rose-500 rounded-full shrink-0"></span>
-                  {errors.items}
-                </p>
-              )}
-            </div>
-
-            {/* Sender Name */}
-            <div className="w-full">
-              <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Nama Pengirim *</label>
-              <input
-                type="text"
-                placeholder="Nama Pengirim"
-                value={formData.sender_name}
-                onChange={(e) => handleFieldChange("sender_name", e.target.value)}
-                onBlur={() => handleBlur("sender_name")}
-                className={`w-full h-[56px] px-4 border rounded-xl outline-none transition-all ${
-                  touched.sender_name && errors.sender_name
-                    ? "border-rose-500 bg-rose-50/10 focus:ring-2 focus:ring-rose-200/50"
-                    : "border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100/50"
-                }`}
-              />
-              {touched.sender_name && errors.sender_name && (
-                <p className="text-[10px] text-rose-600 font-black uppercase tracking-wider mt-1.5 ml-1 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 bg-rose-500 rounded-full shrink-0"></span>
-                  {errors.sender_name}
-                </p>
-              )}
-            </div>
-
-            {/* Receiver Name */}
-            <div className="w-full">
-              <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Nama Penerima *</label>
-              <input
-                type="text"
-                placeholder="Nama Penerima"
-                value={formData.receiver_name}
-                onChange={(e) => handleFieldChange("receiver_name", e.target.value)}
-                onBlur={() => handleBlur("receiver_name")}
-                className={`w-full h-[56px] px-4 border rounded-xl outline-none transition-all ${
-                  touched.receiver_name && errors.receiver_name
-                    ? "border-rose-500 bg-rose-50/10 focus:ring-2 focus:ring-rose-200/50"
-                    : "border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100/50"
-                }`}
-              />
-              {touched.receiver_name && errors.receiver_name && (
-                <p className="text-[10px] text-rose-600 font-black uppercase tracking-wider mt-1.5 ml-1 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 bg-rose-500 rounded-full shrink-0"></span>
-                  {errors.receiver_name}
-                </p>
-              )}
-            </div>
-
-            {/* Phone Number */}
-            <div className="w-full">
-              <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">No Telepon *</label>
-              <input
-                type="text"
-                placeholder="No Telepon"
-                value={formData.phone_number}
-                onChange={(e) => handleFieldChange("phone_number", e.target.value)}
-                onBlur={() => handleBlur("phone_number")}
-                className={`w-full h-[56px] px-4 border rounded-xl outline-none transition-all ${
-                  touched.phone_number && errors.phone_number
-                    ? "border-rose-500 bg-rose-50/10 focus:ring-2 focus:ring-rose-200/50"
-                    : "border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100/50"
-                }`}
-              />
-              {touched.phone_number && errors.phone_number && (
-                <p className="text-[10px] text-rose-600 font-black uppercase tracking-wider mt-1.5 ml-1 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 bg-rose-500 rounded-full shrink-0"></span>
-                  {errors.phone_number}
-                </p>
-              )}
-            </div>
-
-            {/* Origin City */}
-            <div className="w-full">
-              <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Kota Asal *</label>
-              <input
-                type="text"
-                placeholder="Kota Asal"
-                value={formData.origin_city}
-                onChange={(e) => handleFieldChange("origin_city", e.target.value)}
-                onBlur={() => handleBlur("origin_city")}
-                className={`w-full h-[56px] px-4 border rounded-xl outline-none transition-all ${
-                  touched.origin_city && errors.origin_city
-                    ? "border-rose-500 bg-rose-50/10 focus:ring-2 focus:ring-rose-200/50"
-                    : "border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100/50"
-                }`}
-              />
-              {touched.origin_city && errors.origin_city && (
-                <p className="text-[10px] text-rose-600 font-black uppercase tracking-wider mt-1.5 ml-1 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 bg-rose-500 rounded-full shrink-0"></span>
-                  {errors.origin_city}
-                </p>
-              )}
-            </div>
-
-            {/* Destination City */}
-            <div className="w-full">
-              <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Kota Tujuan *</label>
-              <input
-                type="text"
-                placeholder="Kota Tujuan"
-                value={formData.destination_city}
-                onChange={(e) => handleFieldChange("destination_city", e.target.value)}
-                onBlur={() => handleBlur("destination_city")}
-                className={`w-full h-[56px] px-4 border rounded-xl outline-none transition-all ${
-                  touched.destination_city && errors.destination_city
-                    ? "border-rose-500 bg-rose-50/10 focus:ring-2 focus:ring-rose-200/50"
-                    : "border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100/50"
-                }`}
-              />
-              {touched.destination_city && errors.destination_city && (
-                <p className="text-[10px] text-rose-600 font-black uppercase tracking-wider mt-1.5 ml-1 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 bg-rose-500 rounded-full shrink-0"></span>
-                  {errors.destination_city}
-                </p>
-              )}
-            </div>
-
-            {/* Item Type */}
-            <div className="w-full">
-              <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Jenis Barang *</label>
-              <input
-                type="text"
-                placeholder="Jenis Barang"
-                value={formData.item_type}
-                onChange={(e) => handleFieldChange("item_type", e.target.value)}
-                onBlur={() => handleBlur("item_type")}
-                className={`w-full h-[56px] px-4 border rounded-xl outline-none transition-all ${
-                  touched.item_type && errors.item_type
-                    ? "border-rose-500 bg-rose-50/10 focus:ring-2 focus:ring-rose-200/50"
-                    : "border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100/50"
-                }`}
-              />
-              {touched.item_type && errors.item_type && (
-                <p className="text-[10px] text-rose-600 font-black uppercase tracking-wider mt-1.5 ml-1 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 bg-rose-500 rounded-full shrink-0"></span>
-                  {errors.item_type}
-                </p>
-              )}
-            </div>
-
-            {/* Shipping Price */}
-            <div className="w-full">
-              <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Harga Pengiriman (Otomatis)</label>
-              <input
-                type="text"
-                placeholder="Harga Pengiriman"
-                value={
-                  formData.shipping_price
-                    ? `Rp ${Number(formData.shipping_price).toLocaleString("id-ID")}`
-                    : ""
-                }
-                readOnly
-                className="w-full h-[56px] px-4 bg-gray-50 border border-gray-200 rounded-xl font-semibold text-gray-700 outline-none"
-              />
-            </div>
-
-            {/* Shipping Type */}
-            <div className="w-full">
-              <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Tipe Pengiriman *</label>
-              <select
-                value={formData.shipping_type}
-                onChange={(e) => handleFieldChange("shipping_type", e.target.value)}
-                className="w-full h-[56px] px-4 border border-gray-300 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100/50 transition-all font-medium text-gray-700"
-              >
-                <option value="Regular">Regular</option>
-                <option value="Express">Express</option>
-                <option value="VVIP">VVIP</option>
-              </select>
-            </div>
-
-            {/* Flight Status */}
-            <div className="w-full">
-              <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Status Penerbangan *</label>
-              <select
-                value={formData.flight_status}
-                onChange={(e) => handleFieldChange("flight_status", e.target.value)}
-                className="w-full h-[56px] px-4 border border-gray-300 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100/50 transition-all font-medium text-gray-700"
-              >
-                <option value="Scheduled">Scheduled</option>
-                <option value="Airborne">Airborne</option>
-                <option value="Landed">Landed</option>
-                <option value="Delayed">Delayed</option>
-              </select>
-            </div>
-
-            {/* Description */}
-            <div className="col-span-2">
-              <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Deskripsi Barang (Opsional)</label>
-              <textarea
-                placeholder="Deskripsi Barang"
-                value={formData.description}
-                onChange={(e) => handleFieldChange("description", e.target.value)}
-                className="w-full p-4 border border-gray-300 rounded-xl min-h-[120px] outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100/50 transition-all"
-              />
-            </div>
-
-            {/* Form Action Buttons */}
-            <div className="col-span-2 flex flex-col sm:flex-row gap-3 mt-4">
-              <button
-                type="submit"
-                disabled={saving}
-                className="flex-1 bg-[#0a2a66] hover:opacity-90 active:scale-95 text-white h-[56px] rounded-xl font-bold transition-all shadow-md flex items-center justify-center gap-2"
-              >
-                {saving ? (
-                  <>
-                    <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    <span>Menyimpan...</span>
-                  </>
-                ) : editingCargo ? (
-                  "Update Cargo"
-                ) : (
-                  "Simpan Cargo Baru"
-                )}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setShowForm(false);
-                  setEditingCargo(null);
-                  resetForm();
-                  setErrors({});
-                  setTouched({});
-                }}
-                className="flex-1 h-[56px] border border-gray-300 hover:bg-gray-50 text-gray-700 font-bold rounded-xl transition-all"
-              >
-                Batal
-              </button>
-            </div>
-          </form>
-        </div>
+          )}
+        </>
       )}
 
-      {/* TABLE */}
-      <div className="bg-white rounded-2xl shadow overflow-hidden">
-        <table className="w-full">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="p-4 text-left">Manifest ID</th>
-              <th className="p-4 text-left">Airline</th>
-              <th className="p-4 text-left">Route</th>
-              <th className="p-4 text-center">Weight</th>
-              <th className="p-4 text-center">Status</th>
-              <th className="p-4 text-center">Actions</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {paginatedList.map((cargo) => (
-              <tr 
-                key={cargo.id} 
-                className="border-t hover:bg-slate-50/75 cursor-pointer transition-colors group"
-                onClick={() => setDetailCargo(cargo)}
-              >
-                <td className="p-4 font-bold font-mono text-[#0a2a66] group-hover:text-blue-600 transition-colors">
-                  <span className="border-b border-dashed border-[#0a2a66]/30 group-hover:border-blue-600/50">
-                    {cargo.manifest_id}
-                  </span>
-                </td>
-                <td className="p-4">{cargo.airline_name}</td>
-                <td className="p-4">{cargo.route}</td>
-                <td className="p-4 text-center">{cargo.weight} kg</td>
-                <td className="p-4 text-center">
-                  <span
-                    className={`px-3 py-1 rounded-full text-xs ${
-                      cargo.flight_status === "Landed"
-                        ? "bg-green-100 text-green-700"
-                        : "bg-blue-100 text-blue-700"
-                    }`}
-                  >
-                    {cargo.flight_status}
-                  </span>
-                </td>
-                <td className="p-4 text-center space-x-4">
-                  {/* 4. e.stopPropagation() mencegah trigger navigasi onClick <tr> */}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleEdit(cargo);
-                    }}
-                    className="text-blue-600 font-semibold hover:underline"
-                  >
-                    Update
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteClick(cargo.id, cargo.manifest_id);
-                    }}
-                    className="text-red-600 font-semibold hover:underline"
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
- 
-       {/* PAGINATION */}
-       {totalPages > 1 && (
-         <div className="p-6 border-t border-gray-100 flex items-center justify-between bg-gray-50/20 bg-white rounded-b-2xl border-x border-b border-gray-100 shadow-sm">
-           <p className="text-[10px] font-black text-gray-400 uppercase tracking-wider">
-             Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, filteredList.length)} of {filteredList.length} cargo items
-           </p>
-           <div className="flex items-center gap-2">
-             <button
-               disabled={currentPage === 1}
-               onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-               className="px-3 py-1.5 rounded-lg bg-[#0a2a66] text-white text-[10px] font-black uppercase disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 transition"
-             >
-               ◀ Prev
-             </button>
-             
-             {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-               <button
-                 key={page}
-                 onClick={() => setCurrentPage(page)}
-                 className={`w-7 h-7 rounded-lg text-[10px] font-black flex items-center justify-center transition ${
-                   currentPage === page
-                     ? "bg-[#0a2a66] text-white"
-                     : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50"
-                 }`}
-               >
-                 {page}
-               </button>
-             ))}
- 
-             <button
-               disabled={currentPage === totalPages}
-               onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-               className="px-3 py-1.5 rounded-lg bg-[#0a2a66] text-white text-[10px] font-black uppercase disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 transition"
-             >
-               Next ▶
-             </button>
-           </div>
-         </div>
-       )}
-         </>
-       )}
- 
       {/* CUSTOM DELETE CONFIRMATION MODAL */}
       {deleteModal.show && (
         <div className="fixed inset-0 z-[99999] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
@@ -1482,10 +1467,10 @@ export default function DashboardOperationalPage() {
                       detailCargo.flight_status === "Landed"
                         ? "bg-green-100 text-green-700"
                         : detailCargo.flight_status === "Delayed"
-                        ? "bg-red-100 text-red-700"
-                        : detailCargo.flight_status === "Airborne"
-                        ? "bg-sky-100 text-sky-700"
-                        : "bg-blue-100 text-blue-700"
+                          ? "bg-red-100 text-red-700"
+                          : detailCargo.flight_status === "Airborne"
+                            ? "bg-sky-100 text-sky-700"
+                            : "bg-blue-100 text-blue-700"
                     }
                   />
                 </div>
@@ -1527,8 +1512,8 @@ export default function DashboardOperationalPage() {
                       detailCargo.operational_status === "Completed"
                         ? "bg-emerald-100 text-emerald-700"
                         : detailCargo.operational_status === "Processing"
-                        ? "bg-amber-100 text-amber-700"
-                        : "bg-gray-100 text-gray-700"
+                          ? "bg-amber-100 text-amber-700"
+                          : "bg-gray-100 text-gray-700"
                     }
                   />
                 </div>
@@ -1562,15 +1547,14 @@ export default function DashboardOperationalPage() {
         {toasts.map((toast) => (
           <div
             key={toast.id}
-            className={`pointer-events-auto flex items-center justify-between p-4 rounded-2xl shadow-2xl border backdrop-blur-md transition-all duration-300 animate-in slide-in-from-bottom-5 duration-300 ${
-              toast.type === "success"
+            className={`pointer-events-auto flex items-center justify-between p-4 rounded-2xl shadow-2xl border backdrop-blur-md transition-all duration-300 animate-in slide-in-from-bottom-5 duration-300 ${toast.type === "success"
                 ? "bg-emerald-500/10 border-emerald-500/25 text-emerald-800"
                 : toast.type === "error"
-                ? "bg-rose-500/10 border-rose-500/25 text-rose-800"
-                : toast.type === "warning"
-                ? "bg-amber-500/10 border-amber-500/25 text-amber-800"
-                : "bg-blue-500/10 border-blue-500/25 text-blue-800"
-            }`}
+                  ? "bg-rose-500/10 border-rose-500/25 text-rose-800"
+                  : toast.type === "warning"
+                    ? "bg-amber-500/10 border-amber-500/25 text-amber-800"
+                    : "bg-blue-500/10 border-blue-500/25 text-blue-800"
+              }`}
           >
             <div className="flex items-center gap-3">
               {toast.type === "success" && (
