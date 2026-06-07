@@ -202,3 +202,16 @@ textarea,
 .dark .shadow-xl {
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.4) !important;
 }
+
+/* Custom dark mode styling overrides */
+.dark input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) !important;
+}
+
+.dark .bg-slate-50\/70 {
+  background-color: #1a253c !important;
+}
+
+.dark .border-slate-100 {
+  border-color: #1e293b !important;
+}

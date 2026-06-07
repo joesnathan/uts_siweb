@@ -332,7 +332,7 @@ export default function DashboardOperationalPage() {
           </div>
 
           {/* DYNAMIC REAL-TIME METRICS & GRAPH EXPLANATION PANEL */}
-          <div className="bg-gradient-to-r from-slate-50 to-blue-50/40 p-6 rounded-[2rem] border border-slate-100 shadow-lg mb-6 transition-all duration-300">
+          <div className="bg-gradient-to-r from-slate-50 to-blue-50/40 dark:from-[#111c35] dark:to-[#111c35]/50 p-6 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-lg mb-6 transition-all duration-300">
             <div className="flex flex-col md:flex-row items-start gap-4">
               <div className="bg-[#0a2a66] text-white p-3.5 rounded-2xl shadow-lg shrink-0 flex items-center justify-center">
                 {/* SVG Icon representing analytics/charts */}
@@ -345,20 +345,20 @@ export default function DashboardOperationalPage() {
                   <h3 className="font-black text-gray-800 uppercase text-xs tracking-wider">
                     Pusat Analisis & Informasi Grafik Real-time
                   </h3>
-                  <span className="text-[9px] font-black uppercase bg-blue-100 text-[#0a2a66] px-2.5 py-1 rounded-full border border-blue-200">
+                  <span className="text-[9px] font-black uppercase bg-blue-100 text-[#0a2a66] dark:bg-blue-950/40 dark:text-blue-400 dark:border-blue-900/50 px-2.5 py-1 rounded-full border border-blue-200">
                     Neon DB Connected
                   </span>
                 </div>
                 <p className="text-[10px] text-gray-500 font-bold mb-4">
-                  Sistem menyajikan <span className="text-[#0a2a66] font-black">2 grafik analitis</span> yang terintegrasi secara langsung dengan data kargo aktif:
+                  Sistem menyajikan <span className="text-[#0a2a66] dark:text-blue-400 font-black">2 grafik analitis</span> yang terintegrasi secara langsung dengan data kargo aktif:
                 </p>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Grafik 1 Info: Daily Cargo Volume Trend */}
-                  <div className="bg-white/80 backdrop-blur-sm p-4 rounded-2xl border border-blue-50/50 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="bg-white/80 dark:bg-[#0d1527]/50 backdrop-blur-sm p-4 rounded-2xl border border-blue-50/50 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
                     <div className="flex items-center gap-2 mb-2">
                       <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
-                      <h4 className="font-extrabold text-[#0a2a66] text-[11px] uppercase tracking-wider">
+                      <h4 className="font-extrabold text-[#0a2a66] dark:text-blue-400 text-[11px] uppercase tracking-wider">
                         1. Grafik Tren Volume Cargo Harian
                       </h4>
                     </div>
@@ -366,7 +366,7 @@ export default function DashboardOperationalPage() {
                       Menampilkan status operasional dari kargo yang masuk dalam manifestasi.
                     </p>
                     <div className="grid grid-cols-2 gap-2 text-[9px] font-black text-gray-700">
-                      <div className="flex items-center justify-between bg-slate-50/80 px-2.5 py-2 rounded-xl border border-slate-100/50 hover:bg-slate-50 transition-colors">
+                      <div className="flex items-center justify-between bg-slate-50/80 dark:bg-[#070b12]/60 px-2.5 py-2 rounded-xl border border-slate-100/50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-[#070b12]/80 transition-colors">
                         <div className="flex items-center gap-1.5">
                           <svg className="w-3.5 h-3.5 text-blue-500 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
@@ -376,7 +376,7 @@ export default function DashboardOperationalPage() {
                         <span className="text-blue-600 font-extrabold">{stats.total - stats.onTime - stats.delayed - stats.departed} data</span>
                       </div>
                       
-                      <div className="flex items-center justify-between bg-slate-50/80 px-2.5 py-2 rounded-xl border border-slate-100/50 hover:bg-slate-50 transition-colors">
+                      <div className="flex items-center justify-between bg-slate-50/80 dark:bg-[#070b12]/60 px-2.5 py-2 rounded-xl border border-slate-100/50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-[#070b12]/80 transition-colors">
                         <div className="flex items-center gap-1.5">
                           <svg className="w-3.5 h-3.5 text-sky-500 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
@@ -386,7 +386,7 @@ export default function DashboardOperationalPage() {
                         <span className="text-sky-600 font-extrabold">{stats.departed} data</span>
                       </div>
                       
-                      <div className="flex items-center justify-between bg-slate-50/80 px-2.5 py-2 rounded-xl border border-slate-100/50 hover:bg-slate-50 transition-colors">
+                      <div className="flex items-center justify-between bg-slate-50/80 dark:bg-[#070b12]/60 px-2.5 py-2 rounded-xl border border-slate-100/50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-[#070b12]/80 transition-colors">
                         <div className="flex items-center gap-1.5">
                           <svg className="w-3.5 h-3.5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296a3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
@@ -396,7 +396,7 @@ export default function DashboardOperationalPage() {
                         <span className="text-emerald-600 font-extrabold">{stats.onTime} data</span>
                       </div>
                       
-                      <div className="flex items-center justify-between bg-slate-50/80 px-2.5 py-2 rounded-xl border border-slate-100/50 hover:bg-slate-50 transition-colors">
+                      <div className="flex items-center justify-between bg-slate-50/80 dark:bg-[#070b12]/60 px-2.5 py-2 rounded-xl border border-slate-100/50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-[#070b12]/80 transition-colors">
                         <div className="flex items-center gap-1.5">
                           <svg className="w-3.5 h-3.5 text-amber-500 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
@@ -409,10 +409,10 @@ export default function DashboardOperationalPage() {
                   </div>
 
                   {/* Grafik 2 Info: Flight On-Time Performance */}
-                  <div className="bg-white/80 backdrop-blur-sm p-4 rounded-2xl border border-blue-50/50 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="bg-white/80 dark:bg-[#0d1527]/50 backdrop-blur-sm p-4 rounded-2xl border border-blue-50/50 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
                     <div className="flex items-center gap-2 mb-2">
                       <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                      <h4 className="font-extrabold text-[#0a2a66] text-[11px] uppercase tracking-wider">
+                      <h4 className="font-extrabold text-[#0a2a66] dark:text-blue-400 text-[11px] uppercase tracking-wider">
                         2. Grafik Performa Ketepatan Waktu
                       </h4>
                     </div>
@@ -420,7 +420,7 @@ export default function DashboardOperationalPage() {
                       Mengukur rasio ketepatan waktu keberangkatan dan pendaratan penerbangan kargo.
                     </p>
                     <div className="grid grid-cols-2 gap-2 text-[9px] font-black text-gray-700">
-                      <div className="flex items-center justify-between bg-slate-50/80 px-2.5 py-2 rounded-xl border border-slate-100/50 hover:bg-slate-50 transition-colors">
+                      <div className="flex items-center justify-between bg-slate-50/80 dark:bg-[#070b12]/60 px-2.5 py-2 rounded-xl border border-slate-100/50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-[#070b12]/80 transition-colors">
                         <div className="flex items-center gap-1.5">
                           <svg className="w-3.5 h-3.5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                             <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
@@ -432,7 +432,7 @@ export default function DashboardOperationalPage() {
                         <span className="text-emerald-600 font-extrabold">{stats.onTime} data</span>
                       </div>
                       
-                      <div className="flex items-center justify-between bg-slate-50/80 px-2.5 py-2 rounded-xl border border-slate-100/50 hover:bg-slate-50 transition-colors">
+                      <div className="flex items-center justify-between bg-slate-50/80 dark:bg-[#070b12]/60 px-2.5 py-2 rounded-xl border border-slate-100/50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-[#070b12]/80 transition-colors">
                         <div className="flex items-center gap-1.5">
                           <svg className="w-3.5 h-3.5 text-red-500 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
@@ -445,8 +445,8 @@ export default function DashboardOperationalPage() {
                   </div>
                 </div>
 
-                <div className="mt-4 flex items-center gap-2 text-[10px] text-slate-500 font-bold bg-[#0a2a66]/5 px-3.5 py-2.5 rounded-xl border border-[#0a2a66]/10">
-                  <svg className="w-4 h-4 text-[#0a2a66] shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <div className="mt-4 flex items-center gap-2 text-[10px] text-slate-500 dark:text-slate-300 font-bold bg-[#0a2a66]/5 dark:bg-blue-950/20 px-3.5 py-2.5 rounded-xl border border-[#0a2a66]/10 dark:border-blue-900/30">
+                  <svg className="w-4 h-4 text-[#0a2a66] dark:text-blue-400 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 111.063.852l-.708 2.836a.75.75 0 001.063.852l.041-.028M12 18.75h.007v.008H12v-.008zM12 3a9 9 0 110 18 9 9 0 010-18z" />
                   </svg>
                   <span>
