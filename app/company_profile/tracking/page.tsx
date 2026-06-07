@@ -69,8 +69,11 @@ export default function TrackingPage() {
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-600 px-6 py-4 rounded-2xl mb-6 text-xs font-black text-center uppercase tracking-wider">
-            ⚠️ {error}
+          <div className="bg-red-50 border border-red-200 text-red-600 px-6 py-4 rounded-2xl mb-6 text-xs font-black text-center uppercase tracking-wider flex items-center justify-center gap-1.5">
+            <svg className="w-4 h-4 text-red-650 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <span>{error}</span>
           </div>
         )}
 
@@ -95,7 +98,11 @@ export default function TrackingPage() {
             {/* Tracking History */}
             <div>
               <h4 className="font-black text-xs uppercase tracking-widest mb-6 flex items-center gap-2 text-[#0a2a66]">
-                <span>📍</span> Tracking History
+                <svg className="w-4 h-4 text-blue-600 shrink-0 inline-block align-middle" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25s-7.5-4.108-7.5-11.25a7.5 7.5 0 1115 0z" />
+                </svg>
+                <span>Tracking History</span>
               </h4>
               <div className="space-y-6">
                 {result.history && result.history.length > 0 ? (

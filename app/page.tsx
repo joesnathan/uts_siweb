@@ -295,7 +295,7 @@ export default function LandingPage() {
             {/* Package 1 */}
             <div className="group bg-slate-50/40 border border-slate-100 rounded-3xl p-6 flex flex-col items-center shadow-lg shadow-slate-100/30 hover:shadow-[0_20px_40px_rgba(10,42,102,0.05)] hover:-translate-y-2 transition-all duration-500 cursor-pointer">
               <div className="w-full h-48 bg-white border border-slate-100/60 rounded-2xl mb-8 flex items-center justify-center overflow-hidden relative shadow-inner">
-                <img src="/DALAM PULAU.png" alt="Domestic Island Delivery" className="w-full h-full object-cover object-center group-hover:scale-108 transition-transform duration-700 ease-out" />
+                <img src="/domestic_delivery_pkg.png" alt="Domestic Island Delivery" className="w-full h-full object-cover object-center group-hover:scale-108 transition-transform duration-700 ease-out" />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900/10 to-transparent"></div>
               </div>
               <h4 className="font-black text-lg text-center mb-6 text-[#0a2a66] uppercase italic tracking-tight group-hover:text-blue-600 transition-colors duration-300">
@@ -310,7 +310,7 @@ export default function LandingPage() {
             {/* Package 2 */}
             <div className="group bg-slate-50/40 border border-slate-100 rounded-3xl p-6 flex flex-col items-center shadow-lg shadow-slate-100/30 hover:shadow-[0_20px_40px_rgba(10,42,102,0.05)] hover:-translate-y-2 transition-all duration-500 cursor-pointer">
               <div className="w-full h-48 bg-white border border-slate-100/60 rounded-2xl mb-8 flex items-center justify-center overflow-hidden relative shadow-inner">
-                <img src="/peta pulau lain.jpeg" alt="Delivery to other islands" className="w-full h-full object-cover object-center group-hover:scale-108 transition-transform duration-700 ease-out" />
+                <img src="/inter_island_delivery_pkg.png" alt="Delivery to other islands" className="w-full h-full object-cover object-center group-hover:scale-108 transition-transform duration-700 ease-out" />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900/10 to-transparent"></div>
               </div>
               <h4 className="font-black text-lg text-center mb-6 text-[#0a2a66] uppercase italic tracking-tight group-hover:text-blue-600 transition-colors duration-300">
@@ -321,11 +321,11 @@ export default function LandingPage() {
                 <p className="text-sm font-black text-blue-600 bg-blue-50/60 border border-blue-100/35 py-2 rounded-xl">8M - 10M <span className="text-[10px] opacity-75">IDR</span></p>
               </div>
             </div>
-
+ 
             {/* Package 3 */}
             <div className="group bg-slate-50/40 border border-slate-100 rounded-3xl p-6 flex flex-col items-center shadow-lg shadow-slate-100/30 hover:shadow-[0_20px_40px_rgba(10,42,102,0.05)] hover:-translate-y-2 transition-all duration-500 cursor-pointer">
               <div className="w-full h-48 bg-white border border-slate-100/60 rounded-2xl mb-8 flex items-center justify-center overflow-hidden relative shadow-inner">
-                <img src="/peta global.jpeg" alt="International Shipping" className="w-full h-full object-cover object-center group-hover:scale-108 transition-transform duration-700 ease-out" />
+                <img src="/international_shipping_pkg.png" alt="International Shipping" className="w-full h-full object-cover object-center group-hover:scale-108 transition-transform duration-700 ease-out" />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900/10 to-transparent"></div>
               </div>
               <h4 className="font-black text-lg text-center mb-6 text-[#0a2a66] uppercase italic tracking-tight group-hover:text-blue-600 transition-colors duration-300">
@@ -336,7 +336,7 @@ export default function LandingPage() {
                 <p className="text-sm font-black text-blue-600 bg-blue-50/60 border border-blue-100/35 py-2 rounded-xl">15M - 35M <span className="text-[10px] opacity-75">IDR</span></p>
               </div>
             </div>
-
+ 
           </div>
         </div>
       </section>

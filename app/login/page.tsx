@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -12,8 +12,61 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
+  // State untuk 3 token dan lockout
+  const [attemptsRemaining, setAttemptsRemaining] = useState(3);
+  const [isLocked, setIsLocked] = useState(false);
+  const [secondsLeft, setSecondsLeft] = useState(0);
+
+  // Cek localStorage setelah mount untuk memulihkan state percobaan dan penguncian
+  useEffect(() => {
+    const storedAttempts = localStorage.getItem("login_attempts_remaining");
+    const storedLockout = localStorage.getItem("login_lockout_until");
+
+    if (storedLockout) {
+      const lockoutTime = parseInt(storedLockout, 10);
+      if (lockoutTime > Date.now()) {
+        const timeLeft = Math.ceil((lockoutTime - Date.now()) / 1000);
+        setIsLocked(true);
+        setSecondsLeft(timeLeft);
+        setAttemptsRemaining(0);
+      } else {
+        localStorage.removeItem("login_lockout_until");
+        localStorage.setItem("login_attempts_remaining", "3");
+        setAttemptsRemaining(3);
+      }
+    } else if (storedAttempts !== null) {
+      setAttemptsRemaining(parseInt(storedAttempts, 10));
+    }
+  }, []);
+
+  // Timer hitung mundur untuk lockout
+  useEffect(() => {
+    if (!isLocked || secondsLeft <= 0) return;
+
+    const timer = setInterval(() => {
+      setSecondsLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          setIsLocked(false);
+          setAttemptsRemaining(3);
+          localStorage.removeItem("login_lockout_until");
+          localStorage.setItem("login_attempts_remaining", "3");
+          setErrorMsg("");
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [isLocked, secondsLeft]);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isLocked) {
+      return;
+    }
+
     setErrorMsg("");
     setLoading(true);
 
@@ -36,12 +89,31 @@ export default function LoginPage() {
       const data = await res.json();
 
       if (data.success) {
+        // Reset attempts on successful login
+        localStorage.removeItem("login_attempts_remaining");
+        localStorage.removeItem("login_lockout_until");
         // Simpan data user ke localStorage
         localStorage.setItem("user", JSON.stringify(data.user));
         sessionStorage.setItem("needsPreloader", "true");
         router.push("/dashboard");
       } else {
-        setErrorMsg(data.error || "Username atau Password salah!");
+        const nextAttempts = attemptsRemaining - 1;
+        setAttemptsRemaining(nextAttempts);
+        localStorage.setItem("login_attempts_remaining", nextAttempts.toString());
+
+        // Reset usn dan pw otomatis langsung jika salah memasukkan
+        setUsername("");
+        setPassword("");
+
+        if (nextAttempts <= 0) {
+          const lockoutTime = Date.now() + 30000; // 30 detik
+          localStorage.setItem("login_lockout_until", lockoutTime.toString());
+          setIsLocked(true);
+          setSecondsLeft(30);
+          setErrorMsg(""); // Error ditangani oleh UI lockout
+        } else {
+          setErrorMsg(data.error || "Username atau Password salah!");
+        }
       }
     } catch (err) {
       setErrorMsg("Gagal terhubung ke server. Coba lagi.");
@@ -91,12 +163,23 @@ export default function LoginPage() {
         {/* Form Login */}
         <form className="space-y-4" onSubmit={handleLogin}>
           
-          {/* Pesan Error */}
-          {errorMsg && (
-            <div className="bg-red-50 text-red-600 text-[10px] p-2 rounded-lg border border-red-100 font-bold animate-shake text-center">
-              ⚠️ {errorMsg}
+          {/* Pesan Error / Lockout */}
+          {isLocked ? (
+            <div className="bg-red-50 text-red-600 text-[11px] p-3 rounded-2xl border border-red-100 font-bold text-center animate-pulse flex flex-col items-center justify-center gap-1 shadow-inner shadow-red-50/50">
+              <svg className="w-5 h-5 text-red-500 animate-bounce" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+              </svg>
+              <span className="uppercase text-[9px] tracking-wider font-extrabold text-red-500">Percobaan Terlampaui</span>
+              <span>Silakan tunggu <span className="text-red-700 font-black text-sm px-1.5 py-0.5 bg-red-100 rounded-md inline-block min-w-[24px]">{secondsLeft}</span> detik.</span>
             </div>
-          )}
+          ) : errorMsg ? (
+            <div className="bg-red-50 text-red-600 text-[10px] p-2.5 rounded-xl border border-red-100 font-bold animate-shake text-center flex items-center justify-center gap-1.5">
+              <svg className="w-3.5 h-3.5 text-red-500 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <span>{errorMsg}</span>
+            </div>
+          ) : null}
 
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-gray-600 ml-1">Username / Email</label>
@@ -105,7 +188,8 @@ export default function LoginPage() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               placeholder="Enter username..."
-              className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all font-bold"
+              disabled={isLocked || loading}
+              className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all font-bold disabled:opacity-50 disabled:cursor-not-allowed"
             />
           </div>
           
@@ -117,7 +201,8 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter password..."
-                className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all pr-12 font-bold"
+                disabled={isLocked || loading}
+                className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all pr-12 font-bold disabled:opacity-50 disabled:cursor-not-allowed"
               />
               
               <button 
@@ -141,7 +226,7 @@ export default function LoginPage() {
 
           <div className="flex items-center justify-between mt-1 px-1">
             <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" className="w-3.5 h-3.5 rounded border-gray-300 text-blue-900 focus:ring-0" />
+              <input type="checkbox" disabled={isLocked} className="w-3.5 h-3.5 rounded border-gray-300 text-blue-900 focus:ring-0 disabled:opacity-50" />
               <span className="text-[11px] font-bold text-gray-500">Remember me</span>
             </label>
             <Link href="/lupa_pw" className="text-[11px] font-black text-blue-600 hover:underline">
@@ -149,12 +234,28 @@ export default function LoginPage() {
             </Link>
           </div>
 
+          {/* Teks Percobaan Tersisa */}
+          <div className="text-center py-2 bg-gray-50 rounded-xl border border-gray-100">
+            <p className="text-[11px] font-bold text-gray-500">
+              Sisa Percobaan Login:{" "}
+              <span className={`text-xs font-black px-2 py-0.5 rounded-md ${
+                isLocked 
+                  ? 'bg-red-100 text-red-600' 
+                  : attemptsRemaining === 1 
+                  ? 'bg-red-100 text-red-600 animate-pulse' 
+                  : 'bg-blue-50 text-blue-600'
+              }`}>
+                {isLocked ? 0 : attemptsRemaining} / 3
+              </span>
+            </p>
+          </div>
+
           <button 
             type="submit"
-            disabled={loading}
-            className="w-full bg-[#0a2a66] hover:bg-[#071f4b] text-white py-3.5 rounded-xl font-bold text-sm transition-all shadow-md flex items-center justify-center transform hover:scale-[1.01] active:scale-95 disabled:opacity-70 uppercase tracking-wider"
+            disabled={loading || isLocked}
+            className="w-full bg-[#0a2a66] hover:bg-[#071f4b] text-white py-3.5 rounded-xl font-bold text-sm transition-all shadow-md flex items-center justify-center transform hover:scale-[1.01] active:scale-95 disabled:opacity-70 disabled:bg-gray-400 disabled:cursor-not-allowed uppercase tracking-wider"
           >
-            {loading ? "SIGNING IN..." : "Sign In"}
+            {loading ? "SIGNING IN..." : isLocked ? "LOCKED OUT" : "Sign In"}
           </button>
         </form>
 

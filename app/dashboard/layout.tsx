@@ -13,7 +13,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [theme, setTheme] = useState<string>("light");
 
-  // Sync theme on mount
+  // OPERASIONAL: Menyelaraskan tema visual antarmuka (light/dark mode) yang dipilih pengguna saat halaman dimuat.
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme") || "light";
     setTheme(savedTheme);
@@ -25,7 +25,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     localStorage.setItem("theme", newTheme);
   };
 
-  // 1. DYNAMIC CLIENT-SIDE AUTHENTICATION ROUTE GUARD
+  const handleLogout = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    localStorage.removeItem("user");
+    try {
+      await fetch('/api/logout', { method: 'POST' });
+    } catch (err) {
+      console.error("Logout error:", err);
+    }
+    router.push('/login');
+  };
+
+  // OPERASIONAL: Sistem proteksi rute di sisi klien. Memeriksa keberadaan data sesi pengguna di localStorage. Jika kosong, akses ditolak dan dialihkan ke login.
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
@@ -38,7 +49,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       }
     } else {
       setIsAuthenticated(false);
-      // Auto-redirect to login page after 2.5 seconds
+      // OPERASIONAL: Mengalihkan pengguna tidak dikenal ke halaman masuk (login) secara otomatis dalam waktu 2.5 detik.
       const redirectTimer = setTimeout(() => {
         router.push("/login");
       }, 2500);
@@ -46,7 +57,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
   }, [router]);
 
-  // 2. REAL-TIME SYSTEM CLOCK
+  // OPERASIONAL: Menampilkan dan memperbarui jam sistem operasional bandara secara real-time setiap detik.
   useEffect(() => {
     const updateTime = () => {
       const date = new Date();
@@ -82,7 +93,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     return () => clearInterval(interval);
   }, []);
 
-  // --- FUNGSI UNTUK MENGATUR JUDUL DINAMIS ---
+  // OPERASIONAL: Mengubah judul halaman di header bagian atas secara dinamis berdasarkan rute URL aktif.
   const getPageTitle = () => {
     if (pathname === "/dashboard") {
       return `Welcome, ${user ? user.full_name : "Jonathan"}`;
@@ -98,7 +109,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       : "hover:bg-[#0b3b82]/50";
 
   if (isAuthenticated === null) {
-    return null; // Mencegah flashing layout saat membaca session
+    // OPERASIONAL: Mencegah efek berkedip (flashing) pada tata letak halaman ketika sistem sedang memverifikasi token sesi pengguna.
+    return null;
   }
 
   if (isAuthenticated === false) {
@@ -151,7 +163,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <div className={`flex h-screen bg-gray-100 dark:bg-[#090d16] font-sans overflow-hidden ${theme === 'dark' ? 'dark' : ''}`}>
       
-      {/* SIDEBAR */}
+      {/* OPERASIONAL: Komponen navigasi utama (sidebar) untuk berpindah rute di panel dasbor admin kargo. */}
       <aside className={`relative bg-[#0a2a66] text-white flex flex-col justify-between h-full flex-shrink-0 transition-all duration-300 ease-in-out ${isOpen ? 'w-64' : 'w-20'}`}>
         <button 
           onClick={() => setIsOpen(!isOpen)}
@@ -161,7 +173,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </button>
 
         <div>
-          {/* Logo Section */}
+          {/* OPERASIONAL: Bagian logo maskapai penerbangan kargo. */}
           <div className={`flex items-center border-b border-white/10 h-40 justify-center font-[Arial,sans-serif]`}>
             {isOpen ? (
               <div className="flex items-center justify-center w-full p-0 animate-in fade-in zoom-in duration-300">
@@ -218,26 +230,25 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </div>
             )}
           </div>
-          <Link 
-            href="/login" 
-            onClick={() => localStorage.removeItem("user")}
-            className={`flex items-center hover:text-gray-300 transition-colors font-bold ${isOpen ? 'gap-3 px-2' : 'justify-center'} font-[Arial] text-white`}
+          <button 
+            onClick={handleLogout}
+            className={`w-full flex items-center hover:text-gray-300 transition-colors font-bold ${isOpen ? 'gap-3 px-2' : 'justify-center'} font-[Arial] text-white bg-transparent border-none outline-none cursor-pointer`}
           >
             <svg className="w-5 h-5 flex-shrink-0 text-red-400" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 01-3-3h4a3 3 0 013 3v1" />
             </svg>
             {isOpen && <span>Logout</span>}
-          </Link>
+          </button>
         </div>
       </aside>
 
-      {/* AREA KONTEN KANAN */}
+      {/* OPERASIONAL: Area konten utama di sisi kanan dasbor. */}
       <main className="flex-1 flex flex-col h-full overflow-hidden bg-white font-[Arial,sans-serif]">
         
-        {/* Header Umum - JUDUL DINAMIS DI SINI */}
+        {/* OPERASIONAL: Header atas dasbor untuk menampilkan nama rute aktif, jam kerja, dan kontrol profil. */}
         <header className="h-24 border-b border-gray-200 flex items-center justify-between px-8 flex-shrink-0 bg-white z-10">
             
-            {/* JUDUL YANG BERGANTI OTOMATIS SESUAI HALAMAN */}
+            {/* OPERASIONAL: Teks judul halaman dinamis yang berubah sesuai dengan navigasi yang dipilih. */}
             <div className="flex flex-col animate-in slide-in-from-left duration-500">
               <h1 className="text-2xl font-black tracking-tighter text-[#0a2a66] leading-none uppercase italic">
                 {getPageTitle()}
@@ -255,7 +266,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 className="mr-6 text-xl hover:scale-110 active:scale-95 transition-all duration-200 bg-transparent border-none p-0 focus:outline-none select-none cursor-pointer flex items-center justify-center"
                 title={theme === "light" ? "Switch to Dark Mode" : "Switch to Light Mode"}
               >
-                {theme === "light" ? "☀️" : "🌙"}
+                {theme === "light" ? (
+                  <svg className="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m11.314 11.314l.707.707M12 7a5 5 0 100 10 5 5 0 000-10z" />
+                  </svg>
+                ) : (
+                  <svg className="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+                  </svg>
+                )}
               </button>
 
               <div className="text-right mr-6">
@@ -264,16 +283,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </p>
                 <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold mt-1">SOEDIRMAN AIRPORT (CGK)</p>
               </div>
-              <Link 
-                href="/login" 
-                onClick={() => localStorage.removeItem("user")}
-                className="border-2 border-gray-100 rounded-xl px-4 py-2 text-xs font-black flex items-center gap-2 hover:bg-gray-50 transition-all uppercase text-gray-700"
+              <button 
+                onClick={handleLogout}
+                className="border-2 border-gray-100 rounded-xl px-4 py-2 text-xs font-black flex items-center gap-2 hover:bg-gray-50 bg-white transition-all uppercase text-gray-700 cursor-pointer"
               >
                 Log Out 
                 <svg className="w-4 h-4 text-red-500 shrink-0" fill="none" stroke="currentColor" strokeWidth="3.5" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 01-3-3h4a3 3 0 013 3v1" />
                 </svg>
-              </Link>
+              </button>
             </div>
         </header>
 
