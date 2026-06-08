@@ -1293,6 +1293,20 @@ export default function DashboardOperationalPage() {
                   </select>
                 </div>
 
+                {/* Status Operasional */}
+                <div className="w-full">
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Status Operasional *</label>
+                  <select
+                    value={formData.operational_status}
+                    onChange={(e) => handleFieldChange("operational_status", e.target.value)}
+                    className="w-full h-[56px] px-4 border border-gray-300 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100/50 transition-all font-medium text-gray-700"
+                  >
+                    <option value="Pending">Pending</option>
+                    <option value="In progress">In progress</option>
+                    <option value="Completed">Completed</option>
+                  </select>
+                </div>
+
                 {/* Description */}
                 <div className="col-span-2">
                   <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Deskripsi Barang (Opsional)</label>
