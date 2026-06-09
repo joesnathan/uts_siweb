@@ -1615,77 +1615,7 @@ export default function DashboardOperationalPage() {
                 </div>
               )}
 
-              {/* Tracking History Timeline & Input Form */}
-              <div className="border-t border-gray-100 pt-6">
-                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4">Riwayat Pelacakan Checkpoint (AWB Tracking)</p>
-                
-                {/* Timeline */}
-                <div className="space-y-4 mb-6">
-                  {loadingHistory ? (
-                    <div className="flex items-center gap-2 text-xs font-bold text-gray-500 py-4 font-mono">
-                      <span className="w-4 h-4 border-2 border-[#0a2a66] border-t-transparent rounded-full animate-spin"></span>
-                      Memuat riwayat pelacakan...
-                    </div>
-                  ) : trackingHistory.length > 0 ? (
-                    <div className="relative border-l border-gray-200 ml-2.5 pl-6 space-y-5">
-                      {trackingHistory.map((h: any, i: number) => (
-                        <div key={h.id || i} className="relative">
-                          {/* Timeline dot */}
-                          <span className="absolute -left-[31px] top-1.5 w-3.5 h-3.5 rounded-full bg-blue-600 border-2 border-white ring-4 ring-blue-50"></span>
-                          
-                          <p className="text-[10px] text-gray-400 font-mono font-bold leading-none">
-                            {new Date(h.update_time).toLocaleString('id-ID')}
-                          </p>
-                          <p className="text-xs font-black text-gray-800 mt-1">{h.description}</p>
-                          <p className="text-[10px] text-blue-600 font-black uppercase tracking-wider mt-0.5">{h.current_location}</p>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-xs italic text-gray-400 py-3 font-bold uppercase">Belum ada riwayat pelacakan untuk kargo ini.</p>
-                  )}
-                </div>
 
-                {/* Add Checkpoint Form */}
-                <form onSubmit={handleAddCheckpoint} className="bg-slate-50 border border-slate-150 rounded-2xl p-5 space-y-4 mt-6">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-[#0a2a66] mb-1">Tambah Checkpoint Baru</p>
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                      <label className="text-[8px] font-black uppercase tracking-wider text-gray-400 block mb-1">Lokasi Checkpoint</label>
-                      <input
-                        type="text"
-                        placeholder="Contoh: CGK Sorting Area"
-                        value={newLocation}
-                        onChange={(e) => setNewLocation(e.target.value)}
-                        className="w-full px-4 py-2 text-xs font-bold bg-white border border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 transition-all text-gray-800"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[8px] font-black uppercase tracking-wider text-gray-400 block mb-1">Keterangan / Aktivitas</label>
-                      <input
-                        type="text"
-                        placeholder="Contoh: Dokumen manifestasi kargo diproses"
-                        value={newDescription}
-                        onChange={(e) => setNewDescription(e.target.value)}
-                        className="w-full px-4 py-2 text-xs font-bold bg-white border border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 transition-all text-gray-800"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex justify-end pt-1">
-                    <button
-                      type="submit"
-                      disabled={savingHistory}
-                      className="px-6 py-2.5 bg-[#0a2a66] hover:bg-[#124294] disabled:opacity-50 text-white font-bold rounded-xl text-[10px] uppercase tracking-wider transition-all shadow-md active:scale-95 flex items-center gap-1.5"
-                    >
-                      {savingHistory ? "Menyimpan..." : "Simpan Checkpoint"}
-                    </button>
-                  </div>
-                </form>
-              </div>
             </div>
 
             {/* Modal Footer */}

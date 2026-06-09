@@ -100,6 +100,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
     if (pathname === "/dashboard/operational") return "Operational";
     if (pathname === "/dashboard/flight-status") return "Flight Status";
+    if (pathname === "/dashboard/tracking-awb") return "Tracking AWB";
     return "Dashboard";
   };
 
@@ -206,6 +207,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 19.5h16.5M21 12l-5-2-4-5H9l2 5-5 1-2-2H2l1 3 3 1 12 3 5-3z" />
               </svg>
               {isOpen && <span className="whitespace-nowrap font-[Arial] font-bold">Flight Status</span>}
+            </Link>
+
+            <Link href="/dashboard/tracking-awb" className={`py-3 rounded-full border border-white/30 flex items-center transition-colors ${isOpen ? 'px-4 gap-3' : 'justify-center'} ${getActiveClass('/dashboard/tracking-awb')}`}>
+              <svg className="w-5 h-5 flex-shrink-0 text-white" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+              </svg>
+              {isOpen && <span className="whitespace-nowrap font-[Arial] font-bold">Tracking AWB</span>}
             </Link>
 
 

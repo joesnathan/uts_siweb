@@ -1,8 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { useLanguage } from "./LanguageContext";
 
 export default function LandingPage() {
+  const { t } = useLanguage();
+
   return (
     <div className="w-full font-sans bg-slate-50/50 animate-in fade-in duration-700">
       
@@ -40,15 +43,15 @@ export default function LandingPage() {
             {/* Teks Sebelah Kiri */}
             <div className="lg:col-span-7 space-y-6">
               <span className="text-[10px] font-black uppercase tracking-[0.3em] text-blue-400 bg-blue-500/10 border border-blue-500/25 px-4 py-1.5 rounded-full backdrop-blur-md">
-                PT Ekspedisi Terbanginaja
+                {t("company_badge")}
               </span>
               
               <h1 className="text-4xl md:text-5xl font-black tracking-tight leading-none uppercase italic">
-                About <span className="text-blue-500">Us</span>
+                {t("about_title_pre")} <span className="text-blue-500">{t("about_title_post")}</span>
               </h1>
               
               <p className="text-sm md:text-base leading-relaxed text-gray-300 text-justify">
-                PT Ekspedisi Terbanginaja is a leading air freight service provider focused on inter-island logistics delivery with high-level speed, precision, and security. Born from the need for rapid distribution systems in the modern era, we combine a reliable air fleet with digital payload management and tracking technology. From fresh agricultural produce to large-scale industrial cargo, we ensure every item arrives at its destination on time, every time.
+                {t("about_desc")}
               </p>
             </div>
 
@@ -68,34 +71,34 @@ export default function LandingPage() {
           {/* Visi Misi */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-4">
-              <h2 className="text-2xl font-black uppercase tracking-tight text-blue-400">Our Vision</h2>
+              <h2 className="text-2xl font-black uppercase tracking-tight text-blue-400">{t("vision_title")}</h2>
               <p className="text-sm leading-relaxed text-gray-300 text-justify">
-                To be the pioneer of the most innovative and trusted air cargo logistics solutions in the archipelago, connecting every regional economic potential without distance barriers.
+                {t("vision_desc")}
               </p>
             </div>
             <div className="space-y-4">
-              <h2 className="text-2xl font-black uppercase tracking-tight text-blue-400">Our Mission</h2>
+              <h2 className="text-2xl font-black uppercase tracking-tight text-blue-400">{t("mission_title")}</h2>
               <ul className="text-sm text-gray-300 space-y-3.5">
                 
                 <li className="flex gap-3 text-justify">
                   <svg className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span><strong>Punctuality</strong>: Guaranteeing delivery SLAs with disciplined and robust cargo flight schedules.</span>
+                  <span><strong>{t("mission_item1_title")}</strong>: {t("mission_item1_desc")}</span>
                 </li>
 
                 <li className="flex gap-3 text-justify">
                   <svg className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span><strong>Technology Driven</strong>: Providing real-time information tracking systems and transparent digital manifests.</span>
+                  <span><strong>{t("mission_item2_title")}</strong>: {t("mission_item2_desc")}</span>
                 </li>
 
                 <li className="flex gap-3 text-justify">
                   <svg className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span><strong>Cargo Integrity</strong>: Applying the highest aviation standards to ensure goods arrive in perfect condition.</span>
+                  <span><strong>{t("mission_item3_title")}</strong>: {t("mission_item3_desc")}</span>
                 </li>
 
               </ul>
@@ -109,10 +112,10 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center max-w-xl mx-auto mb-20 space-y-4">
             <span className="inline-block text-[9px] font-black uppercase tracking-[0.25em] text-blue-600 bg-blue-50 border border-blue-100 px-4 py-1.5 rounded-full shadow-sm">
-              What We Do Best
+              {t("services_badge")}
             </span>
             <h2 className="text-4xl font-black text-[#0a2a66] uppercase tracking-tight italic bg-gradient-to-r from-[#0a2a66] to-blue-900 bg-clip-text text-transparent">
-              Core Services
+              {t("services_title")}
             </h2>
             <div className="h-1 w-16 bg-gradient-to-r from-blue-600 to-cyan-500 mx-auto rounded-full shadow-sm"></div>
           </div>
@@ -127,9 +130,9 @@ export default function LandingPage() {
               </div>
               <div className="px-1.5 pb-2">
                 <h3 className="font-black text-xl text-[#0a2a66] uppercase italic tracking-tight group-hover:text-blue-600 transition-colors duration-300">
-                  Priority Air Freight
+                  {t("service1_title")}
                 </h3>
-                <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1.5">SLA-Guaranteed Express</p>
+                <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1.5">{t("service1_desc")}</p>
               </div>
             </div>
             
@@ -141,9 +144,9 @@ export default function LandingPage() {
               </div>
               <div className="px-1.5 pb-2">
                 <h3 className="font-black text-xl text-[#0a2a66] uppercase italic tracking-tight group-hover:text-blue-600 transition-colors duration-300">
-                  Perishable Goods Handling
+                  {t("service2_title")}
                 </h3>
-                <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1.5">Temperature-Controlled Logistics</p>
+                <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1.5">{t("service2_desc")}</p>
               </div>
             </div>
             
@@ -155,9 +158,9 @@ export default function LandingPage() {
               </div>
               <div className="px-1.5 pb-2">
                 <h3 className="font-black text-xl text-[#0a2a66] uppercase italic tracking-tight group-hover:text-blue-600 transition-colors duration-300">
-                  Integrated Tracking
+                  {t("service3_title")}
                 </h3>
-                <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1.5">Real-time GPS coordinates</p>
+                <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1.5">{t("service3_desc")}</p>
               </div>
             </div>
 
@@ -175,10 +178,10 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto relative z-10">
           <div className="text-center max-w-xl mx-auto mb-20 space-y-4">
             <span className="inline-block text-[9px] font-black uppercase tracking-[0.25em] text-blue-400 bg-blue-500/10 border border-blue-500/25 px-4 py-1.5 rounded-full shadow-sm">
-              Why Partner With Us
+              {t("why_badge")}
             </span>
             <h2 className="text-4xl font-black text-white uppercase tracking-tight italic bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">
-              Why Choose Us?
+              {t("why_title")}
             </h2>
             <div className="h-1 w-16 bg-gradient-to-r from-blue-500 to-cyan-400 mx-auto rounded-full shadow-sm"></div>
           </div>
@@ -192,9 +195,9 @@ export default function LandingPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </div>
-              <h4 className="text-lg font-black uppercase italic tracking-tight text-white">Centralized Digital Manifest</h4>
+              <h4 className="text-lg font-black uppercase italic tracking-tight text-white">{t("why_item1_title")}</h4>
               <p className="text-xs leading-relaxed text-slate-400">
-                No more lost or scattered paperwork. All shipper data, assigned crew, and detailed weight per item are recorded in real-time within the Ekspedisi Terbanginaja system.
+                {t("why_item1_desc")}
               </p>
             </div>
 
@@ -205,9 +208,9 @@ export default function LandingPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
                 </svg>
               </div>
-              <h4 className="text-lg font-black uppercase italic tracking-tight text-white">Flexible Payload Capacity</h4>
+              <h4 className="text-lg font-black uppercase italic tracking-tight text-white">{t("why_item2_title")}</h4>
               <p className="text-xs leading-relaxed text-slate-400">
-                Capable of accommodating ton-scale cargo volumes with precise weight & balance calculations controlled by experienced and licensed Air Cargo Engineers.
+                {t("why_item2_desc")}
               </p>
             </div>
 
@@ -218,9 +221,9 @@ export default function LandingPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
                 </svg>
               </div>
-              <h4 className="text-lg font-black uppercase italic tracking-tight text-white">Operational Transparency</h4>
+              <h4 className="text-lg font-black uppercase italic tracking-tight text-white">{t("why_item3_title")}</h4>
               <p className="text-xs leading-relaxed text-slate-400">
-                Displaying the real-time status of cargo, providing complete peace of mind and secure operational auditing for retail and corporate business partners.
+                {t("why_item3_desc")}
               </p>
             </div>
 
@@ -237,7 +240,7 @@ export default function LandingPage() {
             <div className="h-full bg-gradient-to-br from-[#0f284f] to-[#071f4b] hover:from-[#112d59] hover:to-[#082457] text-white p-8 rounded-3xl shadow-xl hover:-translate-y-1.5 transition-all duration-500 cursor-pointer border border-transparent hover:border-blue-400/25 group">
               <div className="flex justify-between items-start mb-6">
                 <h4 className="text-2xl font-black uppercase italic tracking-tighter text-blue-400 group-hover:text-white transition-colors duration-300">
-                  Headquarters
+                  {t("contact_hq_title")}
                 </h4>
                 <div className="bg-blue-500/10 p-2 rounded-xl">
                   <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
@@ -245,10 +248,8 @@ export default function LandingPage() {
                   </svg>
                 </div>
               </div>
-              <p className="text-sm leading-relaxed text-slate-300 font-medium">
-                Soekarno-Hatta International Airport<br/>
-                Cargo Village (CGK) Air Logistics<br/>
-                Building Block A2, Banten, Indonesia
+              <p className="text-sm leading-relaxed text-slate-300 font-medium whitespace-pre-line">
+                {t("contact_hq_desc")}
               </p>
             </div>
           </Link>
@@ -258,7 +259,7 @@ export default function LandingPage() {
             <div className="h-full bg-gradient-to-br from-[#0f284f] to-[#071f4b] hover:from-[#112d59] hover:to-[#082457] text-white p-8 rounded-3xl shadow-xl hover:-translate-y-1.5 transition-all duration-500 cursor-pointer border border-transparent hover:border-blue-400/25 group">
               <div className="flex justify-between items-start mb-6">
                 <h4 className="text-2xl font-black uppercase italic tracking-tighter text-blue-400 group-hover:text-white transition-colors duration-300">
-                  Ops Center
+                  {t("contact_ops_title")}
                 </h4>
                 <div className="bg-blue-500/10 p-2 rounded-xl">
                   <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
@@ -266,10 +267,8 @@ export default function LandingPage() {
                   </svg>
                 </div>
               </div>
-              <p className="text-sm leading-relaxed text-slate-300 font-medium">
-                Email: operasional@terbanginaja.co.id<br/>
-                Phone/WhatsApp: +62 811-0000-888<br/>
-                Website Portal: ops.terbanginaja.co.id
+              <p className="text-sm leading-relaxed text-slate-300 font-medium whitespace-pre-line">
+                {t("contact_ops_desc")}
               </p>
             </div>
           </Link>
@@ -282,10 +281,10 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center max-w-xl mx-auto mb-20 space-y-4">
             <span className="inline-block text-[9px] font-black uppercase tracking-[0.25em] text-blue-600 bg-blue-50 border border-blue-100 px-4 py-1.5 rounded-full shadow-sm">
-              Flexible Shipping Rates
+              {t("pkg_badge")}
             </span>
             <h2 className="text-4xl font-black text-[#0a2a66] uppercase tracking-tight italic bg-gradient-to-r from-[#0a2a66] to-blue-900 bg-clip-text text-transparent">
-              Package Services
+              {t("pkg_title")}
             </h2>
             <div className="h-1 w-16 bg-gradient-to-r from-blue-600 to-cyan-500 mx-auto rounded-full shadow-sm"></div>
           </div>
@@ -299,10 +298,10 @@ export default function LandingPage() {
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900/10 to-transparent"></div>
               </div>
               <h4 className="font-black text-lg text-center mb-6 text-[#0a2a66] uppercase italic tracking-tight group-hover:text-blue-600 transition-colors duration-300">
-                Domestic Island Delivery
+                {t("pkg1_title")}
               </h4>
               <div className="w-full text-center space-y-1 mt-auto">
-                <p className="text-[9px] font-black text-slate-400 tracking-widest uppercase">Start From</p>
+                <p className="text-[9px] font-black text-slate-400 tracking-widest uppercase">{t("pkg_start")}</p>
                 <p className="text-sm font-black text-blue-600 bg-blue-50/60 border border-blue-100/35 py-2 rounded-xl">1M - 5M <span className="text-[10px] opacity-75">IDR</span></p>
               </div>
             </div>
@@ -314,10 +313,10 @@ export default function LandingPage() {
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900/10 to-transparent"></div>
               </div>
               <h4 className="font-black text-lg text-center mb-6 text-[#0a2a66] uppercase italic tracking-tight group-hover:text-blue-600 transition-colors duration-300">
-                Delivery to other islands
+                {t("pkg2_title")}
               </h4>
               <div className="w-full text-center space-y-1 mt-auto">
-                <p className="text-[9px] font-black text-slate-400 tracking-widest uppercase">Start From</p>
+                <p className="text-[9px] font-black text-slate-400 tracking-widest uppercase">{t("pkg_start")}</p>
                 <p className="text-sm font-black text-blue-600 bg-blue-50/60 border border-blue-100/35 py-2 rounded-xl">8M - 10M <span className="text-[10px] opacity-75">IDR</span></p>
               </div>
             </div>
@@ -329,10 +328,10 @@ export default function LandingPage() {
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900/10 to-transparent"></div>
               </div>
               <h4 className="font-black text-lg text-center mb-6 text-[#0a2a66] uppercase italic tracking-tight group-hover:text-blue-600 transition-colors duration-300">
-                International Shipping
+                {t("pkg3_title")}
               </h4>
               <div className="w-full text-center space-y-1 mt-auto">
-                <p className="text-[9px] font-black text-slate-400 tracking-widest uppercase">Start From</p>
+                <p className="text-[9px] font-black text-slate-400 tracking-widest uppercase">{t("pkg_start")}</p>
                 <p className="text-sm font-black text-blue-600 bg-blue-50/60 border border-blue-100/35 py-2 rounded-xl">15M - 35M <span className="text-[10px] opacity-75">IDR</span></p>
               </div>
             </div>

@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation'; 
 import { useEffect } from 'react';
 
+import { LanguageProvider, useLanguage } from './LanguageContext';
+
 export default function RootLayout({
   children,
 }: {
@@ -46,82 +48,115 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.ico" />
       </head>
       <body className="bg-gray-50 flex flex-col min-h-screen font-sans">
-        
-        {/* NAVBAR - Hanya ditampilkan jika berada di halaman public profile yang valid */}
-        {isValidPublicPage && (
-          // Tambahan bg-white/90 dan backdrop-blur-md untuk efek kaca transparan yang elegan
-          <header className="bg-white/90 backdrop-blur-md shadow-sm z-50 sticky top-0 border-b-2 border-[#1E3A8A] transition-all duration-300">
-            <div className="w-full px-8 md:px-16 h-20 flex items-center justify-between">
-              
-              <nav className="flex space-x-10 text-xl font-extrabold">
-                
-                {/* About Us */}
-                <Link 
-                  href="/" 
-                  className={`relative group py-1 transition-colors duration-300 ${pathname === '/' ? 'text-black' : 'text-[#1E3A8A] hover:text-black'}`}
-                >
-                  About Us
-                  {/* Efek Garis Bawah Animasi */}
-                  <span className={`absolute left-0 -bottom-1 h-[3px] bg-black transition-all duration-300 ${pathname === '/' ? 'w-full' : 'w-0 group-hover:w-full'}`}></span>
-                </Link>
+        <LanguageProvider>
+          {/* NAVBAR - Hanya ditampilkan jika berada di halaman public profile yang valid */}
+          {isValidPublicPage && (
+            <PublicHeader pathname={pathname} />
+          )}
 
-                {/* Track Your Cargo */}
-                <Link 
-                  href="/company_profile/tracking" 
-                  className={`relative group py-1 transition-colors duration-300 ${pathname === '/company_profile/tracking' ? 'text-black' : 'text-[#1E3A8A] hover:text-black'}`}
-                >
-                  Track Your Cargo
-                  {/* Efek Garis Bawah Animasi */}
-                  <span className={`absolute left-0 -bottom-1 h-[3px] bg-black transition-all duration-300 ${pathname === '/company_profile/tracking' ? 'w-full' : 'w-0 group-hover:w-full'}`}></span>
-                </Link>
+          {/* KONTEN HALAMAN UTAMA  */}
+          <main className="flex-grow flex flex-col">
+            {children}
+          </main>
 
-                {/* Privacy Policy */}
-                <Link 
-                  href="/company_profile/privacy-policy" 
-                  className={`relative group py-1 transition-colors duration-300 ${pathname === '/company_profile/privacy-policy' ? 'text-black' : 'text-[#1E3A8A] hover:text-black'}`}
-                >
-                  Privacy Policy
-                  {/* Efek Garis Bawah Animasi */}
-                  <span className={`absolute left-0 -bottom-1 h-[3px] bg-black transition-all duration-300 ${pathname === '/company_profile/privacy-policy' ? 'w-full' : 'w-0 group-hover:w-full'}`}></span>
-                </Link>
-
-                {/* Contact Us! */}
-                <Link 
-                  href="/company_profile/contact_us" 
-                  className={`relative group py-1 transition-colors duration-300 ${pathname === '/company_profile/contact_us' ? 'text-black' : 'text-[#1E3A8A] hover:text-black'}`}
-                >
-                  Contact Us!
-                  {/* Efek Garis Bawah Animasi */}
-                  <span className={`absolute left-0 -bottom-1 h-[3px] bg-black transition-all duration-300 ${pathname === '/company_profile/contact_us' ? 'w-full' : 'w-0 group-hover:w-full'}`}></span>
-                </Link>
-
-              </nav>
-
-              {/* Login Button dengan efek hover terangkat (hover:-translate-y-1) dan glow shadow */}
-              <Link 
-                href="/login" 
-                className="bg-[#1E3A8A] hover:bg-blue-800 text-white px-8 py-2.5 rounded-md font-bold text-lg shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
-              >
-                Login
-              </Link>
-              
-            </div>
-          </header>
-        )}
-
-        {/* KONTEN HALAMAN UTAMA  */}
-        <main className="flex-grow flex flex-col">
-          {children}
-        </main>
-
-        {/* FOOTER - Hanya ditampilkan jika berada di halaman public profile yang valid */}
-        {isValidPublicPage && (
-          <footer className="bg-[#f2f2f2] text-blue-800/80 py-4 px-8 md:px-16 text-left text-sm font-semibold border-t border-gray-300">
-            © 2026 TERBANGIN AJA CARGO JAKARTA
-          </footer>
-        )}
-
+          {/* FOOTER - Hanya ditampilkan jika berada di halaman public profile yang valid */}
+          {isValidPublicPage && (
+            <PublicFooter />
+          )}
+        </LanguageProvider>
       </body>
     </html>
+  );
+}
+
+function PublicHeader({ pathname }: { pathname: string }) {
+  const { language, setLanguage, t } = useLanguage();
+
+  return (
+    <header className="bg-white/90 backdrop-blur-md shadow-sm z-50 sticky top-0 border-b-2 border-[#1E3A8A] transition-all duration-300">
+      <div className="w-full px-8 md:px-16 h-20 flex items-center justify-between">
+        
+        <nav className="flex space-x-10 text-xl font-extrabold">
+          
+          {/* About Us */}
+          <Link 
+            href="/" 
+            className={`relative group py-1 transition-colors duration-300 ${pathname === '/' ? 'text-black' : 'text-[#1E3A8A] hover:text-black'}`}
+          >
+            {t("nav_about_us")}
+            {/* Efek Garis Bawah Animasi */}
+            <span className={`absolute left-0 -bottom-1 h-[3px] bg-black transition-all duration-300 ${pathname === '/' ? 'w-full' : 'w-0 group-hover:w-full'}`}></span>
+          </Link>
+
+          {/* Track Your Cargo */}
+          <Link 
+            href="/company_profile/tracking" 
+            className={`relative group py-1 transition-colors duration-300 ${pathname === '/company_profile/tracking' ? 'text-black' : 'text-[#1E3A8A] hover:text-black'}`}
+          >
+            {t("nav_track_cargo")}
+            {/* Efek Garis Bawah Animasi */}
+            <span className={`absolute left-0 -bottom-1 h-[3px] bg-black transition-all duration-300 ${pathname === '/company_profile/tracking' ? 'w-full' : 'w-0 group-hover:w-full'}`}></span>
+          </Link>
+
+          {/* Privacy Policy */}
+          <Link 
+            href="/company_profile/privacy-policy" 
+            className={`relative group py-1 transition-colors duration-300 ${pathname === '/company_profile/privacy-policy' ? 'text-black' : 'text-[#1E3A8A] hover:text-black'}`}
+          >
+            {t("nav_privacy_policy")}
+            {/* Efek Garis Bawah Animasi */}
+            <span className={`absolute left-0 -bottom-1 h-[3px] bg-black transition-all duration-300 ${pathname === '/company_profile/privacy-policy' ? 'w-full' : 'w-0 group-hover:w-full'}`}></span>
+          </Link>
+
+          {/* Contact Us! */}
+          <Link 
+            href="/company_profile/contact_us" 
+            className={`relative group py-1 transition-colors duration-300 ${pathname === '/company_profile/contact_us' ? 'text-black' : 'text-[#1E3A8A] hover:text-black'}`}
+          >
+            {t("nav_contact_us")}
+            {/* Efek Garis Bawah Animasi */}
+            <span className={`absolute left-0 -bottom-1 h-[3px] bg-black transition-all duration-300 ${pathname === '/company_profile/contact_us' ? 'w-full' : 'w-0 group-hover:w-full'}`}></span>
+          </Link>
+
+        </nav>
+
+        {/* Right buttons: Language Switcher and Login */}
+        <div className="flex items-center gap-6">
+          {/* Language Switcher */}
+          <div className="flex bg-slate-100 p-1 rounded-lg border border-gray-200 shadow-inner">
+            <button 
+              onClick={() => setLanguage('id')}
+              className={`px-3 py-1 text-xs font-black rounded-md transition-all select-none cursor-pointer ${language === 'id' ? 'bg-[#1E3A8A] text-white shadow-md' : 'text-slate-500 hover:text-[#1E3A8A]'}`}
+            >
+              ID
+            </button>
+            <button 
+              onClick={() => setLanguage('en')}
+              className={`px-3 py-1 text-xs font-black rounded-md transition-all select-none cursor-pointer ${language === 'en' ? 'bg-[#1E3A8A] text-white shadow-md' : 'text-slate-500 hover:text-[#1E3A8A]'}`}
+            >
+              EN
+            </button>
+          </div>
+
+          {/* Login Button dengan efek hover terangkat (hover:-translate-y-1) dan glow shadow */}
+          <Link 
+            href="/login" 
+            className="bg-[#1E3A8A] hover:bg-blue-800 text-white px-8 py-2.5 rounded-md font-bold text-lg shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+          >
+            {t("nav_login")}
+          </Link>
+        </div>
+        
+      </div>
+    </header>
+  );
+}
+
+function PublicFooter() {
+  const { t } = useLanguage();
+  return (
+    <footer className="bg-[#f2f2f2] text-blue-800/80 py-4 px-8 md:px-16 text-left text-sm font-semibold border-t border-gray-300">
+      {t("footer_text")}
+    </footer>
   );
 }

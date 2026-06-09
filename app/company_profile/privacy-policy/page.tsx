@@ -1,15 +1,19 @@
 "use client";
 
+import { useLanguage } from "../../LanguageContext";
+
 export default function PrivacyPolicyPage() {
+  const { t } = useLanguage();
+
   return (
     <div className="min-h-screen bg-slate-50 font-sans pb-24">
       
       {/* 1. Page Header inside container matching White Navbar */}
       <div className="relative z-10 w-full max-w-7xl text-center px-4 pt-16 mb-12 mx-auto">
         <span className="inline-block text-[9px] font-black uppercase tracking-[0.25em] text-blue-600 bg-blue-50 border border-blue-100 px-4 py-1.5 rounded-full mb-3 shadow-sm">
-          Legal Documentation
+          {t("privacy_badge")}
         </span>
-        <h1 className="text-4xl md:text-5xl font-black text-[#0a2a66] uppercase italic tracking-tight mb-2">Privacy Policy</h1>
+        <h1 className="text-4xl md:text-5xl font-black text-[#0a2a66] uppercase italic tracking-tight mb-2">{t("privacy_title")}</h1>
         <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">PT Ekspedisi Terbanginaja</p>
       </div>
 
@@ -20,29 +24,29 @@ export default function PrivacyPolicyPage() {
           {/* 3. SIDEBAR NAVIGATION (Daftar Isi Sticky) */}
           <div className="md:w-1/3 lg:w-1/4 bg-slate-50 border-r border-gray-150 p-8 hidden md:block">
             <div className="sticky top-32">
-              <h3 className="text-xs font-black text-[#0a2a66] uppercase tracking-widest mb-6">Table of Contents</h3>
+              <h3 className="text-xs font-black text-[#0a2a66] uppercase tracking-widest mb-6">{t("privacy_toc")}</h3>
               <ul className="space-y-5 text-sm font-bold text-slate-500">
-                <li><a href="#info-we-collect" className="hover:text-blue-600 hover:underline transition-colors">1. Information We Collect</a></li>
-                <li><a href="#how-we-use" className="hover:text-blue-600 hover:underline transition-colors">2. How We Use Information</a></li>
-                <li><a href="#sharing-info" className="hover:text-blue-600 hover:underline transition-colors">3. Sharing with Third Parties</a></li>
-                <li><a href="#data-security" className="hover:text-blue-600 hover:underline transition-colors">4. Data Security</a></li>
-                <li><a href="#data-retention" className="hover:text-blue-600 hover:underline transition-colors">5. Data Retention</a></li>
-                <li><a href="#user-rights" className="hover:text-blue-600 hover:underline transition-colors">6. User Rights</a></li>
-                <li><a href="#changes" className="hover:text-blue-600 hover:underline transition-colors">7. Policy Changes</a></li>
+                <li><a href="#info-we-collect" className="hover:text-blue-600 hover:underline transition-colors">{t("toc_item1")}</a></li>
+                <li><a href="#how-we-use" className="hover:text-blue-600 hover:underline transition-colors">{t("toc_item2")}</a></li>
+                <li><a href="#sharing-info" className="hover:text-blue-600 hover:underline transition-colors">{t("toc_item3")}</a></li>
+                <li><a href="#data-security" className="hover:text-blue-600 hover:underline transition-colors">{t("toc_item4")}</a></li>
+                <li><a href="#data-retention" className="hover:text-blue-600 hover:underline transition-colors">{t("toc_item5")}</a></li>
+                <li><a href="#user-rights" className="hover:text-blue-600 hover:underline transition-colors">{t("toc_item6")}</a></li>
+                <li><a href="#changes" className="hover:text-blue-600 hover:underline transition-colors">{t("toc_item7")}</a></li>
               </ul>
             </div>
           </div>
 
           {/* 4. TEXT CONTENT AREA */}
-          <div className="md:w-2/3 lg:w-3/4 p-8 md:p-12 lg:p-16 text-slate-600">
+          <div className="md:w-2/3 lg:w-3/4 p-8 md:p-12 lg:p-16 text-slate-650">
             
             {/* Intro */}
             <div className="mb-14">
               <div className="inline-block bg-blue-50 text-blue-600 border border-blue-100 px-4 py-2 rounded-full text-xs font-black tracking-wider mb-6">
-                LAST UPDATED: APRIL 12, 2026
+                {t("privacy_updated")}
               </div>
               <p className="text-lg text-slate-600 leading-relaxed text-justify">
-                <strong className="text-slate-900 font-black">PT Ekspedisi Terbanginaja</strong> ("We," "Our," or "The Company") is committed to protecting and respecting your privacy. This Privacy Policy explains how we collect, use, protect, and share your personal information when you use our website, operational portal, and air cargo services.
+                {t("privacy_intro")}
               </p>
             </div>
 
@@ -52,22 +56,22 @@ export default function PrivacyPolicyPage() {
               <section id="info-we-collect" className="scroll-mt-32">
                 <h2 className="text-2xl md:text-3xl font-black text-[#0a2a66] uppercase italic tracking-tight mb-6 flex items-center border-b border-gray-200 pb-4">
                   <span className="text-blue-600 mr-4 text-4xl font-black font-mono tracking-tighter">01.</span>
-                  Information We Collect
+                  {t("sec1_title")}
                 </h2>
-                <p className="text-slate-600 mb-6 text-justify">To provide safe and efficient logistics services, we collect several types of information:</p>
+                <p className="text-slate-600 mb-6 text-justify">{t("sec1_desc")}</p>
                 <div className="grid grid-cols-1 gap-4">
                   {[
-                    { title: "Account & Contact Information", desc: "Full name, email address, phone number, and password when you register or log in to our portal." },
-                    { title: "Shipment Information (Manifest)", desc: "Details of the Shipper and Consignee, including names, full addresses, contact numbers, and corporate identities." },
-                    { title: "Cargo Details", desc: "Item descriptions, weight, dimensions, and cargo categories (including General Cargo, Perishable Goods, or Dangerous Goods)." },
-                    { title: "Payment Data", desc: "Transaction information for billing purposes and administration of shipping services." },
-                    { title: "Technical & Tracking Data", desc: "IP addresses, device types, access times, and activity logs when you use the 'Track Your Cargo' feature." }
+                    { title: t("sec1_card1_title"), desc: t("sec1_card1_desc") },
+                    { title: t("sec1_card2_title"), desc: t("sec1_card2_desc") },
+                    { title: t("sec1_card3_title"), desc: t("sec1_card3_desc") },
+                    { title: t("sec1_card4_title"), desc: t("sec1_card4_desc") },
+                    { title: t("sec1_card5_title"), desc: t("sec1_card5_desc") }
                   ].map((item, idx) => (
-                    <div key={idx} className="flex items-start bg-slate-50 border border-gray-150 p-4 rounded-xl hover:bg-slate-100/50 transition-colors shadow-sm">
+                    <div key={idx} className="flex items-start bg-slate-50 border border-gray-155 p-4 rounded-xl hover:bg-slate-100/50 transition-colors shadow-sm">
                       <div className="text-blue-600 mr-4 mt-1 font-bold">✦</div>
                       <div>
                         <strong className="text-slate-800 block mb-1 font-bold">{item.title}</strong>
-                        <span className="text-slate-500 text-sm font-semibold">{item.desc}</span>
+                        <span className="text-slate-505 text-sm font-semibold">{item.desc}</span>
                       </div>
                     </div>
                   ))}
@@ -78,14 +82,14 @@ export default function PrivacyPolicyPage() {
               <section id="how-we-use" className="scroll-mt-32">
                 <h2 className="text-2xl md:text-3xl font-black text-[#0a2a66] uppercase italic tracking-tight mb-6 flex items-center border-b border-gray-200 pb-4">
                   <span className="text-blue-600 mr-4 text-4xl font-black font-mono tracking-tighter">02.</span>
-                  How We Use Your Information
+                  {t("sec2_title")}
                 </h2>
-                <p className="text-slate-600 mb-6 text-justify">We use the collected information for operational and legal purposes, including:</p>
+                <p className="text-slate-600 mb-6 text-justify">{t("sec2_desc")}</p>
                 <ul className="space-y-4 text-slate-600 font-semibold text-sm">
-                  <li className="flex items-start"><span className="text-blue-600 mr-3">✔</span> <span><strong className="text-slate-850">Service Execution:</strong> Processing cargo shipment orders for domestic (inter-island and intra-island) and international routes.</span></li>
-                  <li className="flex items-start"><span className="text-blue-600 mr-3">✔</span> <span><strong className="text-slate-855">Operational Management:</strong> Preparing flight manifests, calculating aircraft Weight & Balance, and providing special handling instructions for flight crews and ground operators.</span></li>
-                  <li className="flex items-start"><span className="text-blue-600 mr-3">✔</span> <span><strong className="text-slate-855">Tracking & Communication:</strong> Providing real-time cargo status updates to customers and responding to customer service inquiries.</span></li>
-                  <li className="flex items-start"><span className="text-blue-600 mr-3">✔</span> <span><strong className="text-slate-855">Security & Legal Compliance:</strong> Ensuring aviation safety, preventing fraud, and complying with civil aviation regulations and customs requirements.</span></li>
+                  <li className="flex items-start"><span className="text-blue-600 mr-3">✔</span> <span>{t("sec2_bullet1")}</span></li>
+                  <li className="flex items-start"><span className="text-blue-600 mr-3">✔</span> <span>{t("sec2_bullet2")}</span></li>
+                  <li className="flex items-start"><span className="text-blue-600 mr-3">✔</span> <span>{t("sec2_bullet3")}</span></li>
+                  <li className="flex items-start"><span className="text-blue-600 mr-3">✔</span> <span>{t("sec2_bullet4")}</span></li>
                 </ul>
               </section>
 
@@ -93,13 +97,13 @@ export default function PrivacyPolicyPage() {
               <section id="sharing-info" className="scroll-mt-32">
                 <h2 className="text-2xl md:text-3xl font-black text-[#0a2a66] uppercase italic tracking-tight mb-6 flex items-center border-b border-gray-200 pb-4">
                   <span className="text-blue-600 mr-4 text-4xl font-black font-mono tracking-tighter">03.</span>
-                  Sharing with Third Parties
+                  {t("sec3_title")}
                 </h2>
-                <p className="text-slate-600 mb-6 text-justify">We do not sell or rent your personal data. We only share information with authorized third parties relevant to cargo operations:</p>
+                <p className="text-slate-600 mb-6 text-justify">{t("sec3_desc")}</p>
                 <ul className="list-disc pl-6 space-y-3 text-slate-600 marker:text-blue-500 text-justify font-semibold text-sm">
-                  <li><strong className="text-slate-855">Airport Authorities & Airlines:</strong> Manifest data is shared with airport authorities and Air Engineers for flight permits and safety purposes.</li>
-                  <li><strong className="text-slate-855">Legal & Customs Authorities:</strong> For international shipments, cargo information and shipper/consignee identities must be reported to Customs in the origin and destination countries in accordance with international law.</li>
-                  <li><strong className="text-slate-855">Ground Logistics Partners:</strong> Third parties that assist in the loading/unloading process or last-mile delivery.</li>
+                  <li>{t("sec3_bullet1")}</li>
+                  <li>{t("sec3_bullet2")}</li>
+                  <li>{t("sec3_bullet3")}</li>
                 </ul>
               </section>
 
@@ -107,10 +111,10 @@ export default function PrivacyPolicyPage() {
               <section id="data-security" className="scroll-mt-32">
                 <h2 className="text-2xl md:text-3xl font-black text-[#0a2a66] uppercase italic tracking-tight mb-6 flex items-center border-b border-gray-200 pb-4">
                   <span className="text-blue-600 mr-4 text-4xl font-black font-mono tracking-tighter">04.</span>
-                  Data Security
+                  {t("sec4_title")}
                 </h2>
                 <p className="text-slate-600 leading-relaxed text-justify font-semibold text-sm">
-                  We implement strict technical and organizational security standards to protect your digital manifest data and personal information from unauthorized access, use, or disclosure. Our system utilizes data encryption and role-based access control (e.g., only authorized Operators and Supervisors can modify cargo status).
+                  {t("sec4_desc")}
                 </p>
               </section>
 
@@ -118,10 +122,10 @@ export default function PrivacyPolicyPage() {
               <section id="data-retention" className="scroll-mt-32">
                 <h2 className="text-2xl md:text-3xl font-black text-[#0a2a66] uppercase italic tracking-tight mb-6 flex items-center border-b border-gray-200 pb-4">
                   <span className="text-blue-600 mr-4 text-4xl font-black font-mono tracking-tighter">05.</span>
-                  Data Retention
+                  {t("sec5_title")}
                 </h2>
                 <p className="text-slate-600 leading-relaxed text-justify font-semibold text-sm">
-                  We will store your personal data and shipment history for as long as necessary to fulfill our operational service goals, or as required by applicable tax laws and civil aviation regulations.
+                  {t("sec5_desc")}
                 </p>
               </section>
 
@@ -129,13 +133,13 @@ export default function PrivacyPolicyPage() {
               <section id="user-rights" className="scroll-mt-32">
                 <h2 className="text-2xl md:text-3xl font-black text-[#0a2a66] uppercase italic tracking-tight mb-6 flex items-center border-b border-gray-200 pb-4">
                   <span className="text-blue-600 mr-4 text-4xl font-black font-mono tracking-tighter">06.</span>
-                  User Rights
+                  {t("sec6_title")}
                 </h2>
-                <p className="text-slate-600 mb-4 font-bold">You have the right to:</p>
+                <p className="text-slate-600 mb-4 font-bold">{t("sec6_desc")}</p>
                 <div className="flex flex-col gap-3 font-semibold text-sm">
-                  <div className="bg-blue-50/50 p-4 rounded-lg border-l-4 border-blue-600 text-slate-700 border border-blue-100/30">Access and review the profile information we store about you.</div>
-                  <div className="bg-blue-50/50 p-4 rounded-lg border-l-4 border-blue-600 text-slate-700 border border-blue-100/30">Request corrections or updates to inaccurate contact data.</div>
-                  <div className="bg-blue-50/50 p-4 rounded-lg border-l-4 border-blue-600 text-slate-700 border border-blue-100/30">Contact our customer service regarding the management of your cargo data.</div>
+                  <div className="bg-blue-50/50 p-4 rounded-lg border-l-4 border-blue-600 text-slate-700 border border-blue-100/30">{t("sec6_bullet1")}</div>
+                  <div className="bg-blue-50/50 p-4 rounded-lg border-l-4 border-blue-600 text-slate-700 border border-blue-100/30">{t("sec6_bullet2")}</div>
+                  <div className="bg-blue-50/50 p-4 rounded-lg border-l-4 border-blue-600 text-slate-700 border border-blue-100/30">{t("sec6_bullet3")}</div>
                 </div>
               </section>
 
@@ -143,10 +147,10 @@ export default function PrivacyPolicyPage() {
               <section id="changes" className="scroll-mt-32">
                 <h2 className="text-2xl md:text-3xl font-black text-[#0a2a66] uppercase italic tracking-tight mb-6 flex items-center border-b border-gray-200 pb-4">
                   <span className="text-blue-600 mr-4 text-4xl font-black font-mono tracking-tighter">07.</span>
-                  Changes to the Privacy Policy
+                  {t("sec7_title")}
                 </h2>
                 <p className="text-slate-600 leading-relaxed text-justify font-semibold text-sm">
-                  We may update this Privacy Policy from time to time to comply with legal regulations or improvements to our operational systems. Changes will be announced through the Ekspedisi Terbanginaja web portal.
+                  {t("sec7_desc")}
                 </p>
               </section>
 

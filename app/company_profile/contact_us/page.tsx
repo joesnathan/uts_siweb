@@ -1,4 +1,10 @@
+"use client";
+
+import { useLanguage } from "../../LanguageContext";
+
 export default function ContactPage() {
+  const { t } = useLanguage();
+
   return (
     <div className="relative flex-grow min-h-[90vh] flex items-center justify-center p-4 md:p-8 bg-slate-50 font-sans">
       
@@ -7,8 +13,8 @@ export default function ContactPage() {
         
         {/* Header Title */}
         <div className="text-center mb-12 border-b border-gray-150 pb-6">
-          <p className="text-blue-600 text-sm font-bold tracking-widest uppercase mb-2">Get in Touch</p>
-          <h1 className="text-3xl md:text-4xl font-black text-[#0a2a66] uppercase italic tracking-tight mb-2">OUR CONTACT</h1>
+          <p className="text-blue-600 text-sm font-bold tracking-widest uppercase mb-2">{t("contact_us_badge")}</p>
+          <h1 className="text-3xl md:text-4xl font-black text-[#0a2a66] uppercase italic tracking-tight mb-2">{t("contact_us_title")}</h1>
         </div>
 
         {/* Grid Layout (2 Kolom di Desktop, 1 Kolom di HP) */}
@@ -17,7 +23,7 @@ export default function ContactPage() {
           {/* KOLOM KIRI: Customer & Ops Support */}
           <div>
             <h3 className="font-black text-xl text-[#0a2a66] mb-6 uppercase italic tracking-tight flex items-center">
-              Customer & Operational Support
+              {t("contact_us_left_title")}
             </h3>
             
             <ul className="space-y-6 text-base text-gray-700">
@@ -66,7 +72,7 @@ export default function ContactPage() {
           {/* KOLOM KANAN: Head Office */}
           <div>
             <h3 className="font-black text-xl text-[#0a2a66] mb-6 uppercase italic tracking-tight flex items-center">
-              Head Office
+              {t("contact_us_right_title")}
             </h3>
             
             <div className="flex items-start bg-slate-50 p-6 rounded-2xl border border-gray-200 shadow-sm">
