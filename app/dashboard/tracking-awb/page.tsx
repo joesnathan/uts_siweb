@@ -86,10 +86,10 @@ export default function TrackingAwbPage() {
       if (json.success) {
         setCargoList(json.data || []);
       } else {
-        showToast(json.error || "Gagal menyelaraskan data dengan database.", "error");
+        showToast(json.error || "Failed to synchronize data with database.", "error");
       }
     } catch (err) {
-      showToast("Gagal terhubung ke database. Periksa koneksi internet Anda.", "error");
+      showToast("Failed to connect to database. Check your internet connection.", "error");
     } finally {
       setLoadingCargos(false);
     }
@@ -108,10 +108,10 @@ export default function TrackingAwbPage() {
       if (json.success) {
         setTrackingHistory(json.data || []);
       } else {
-        showToast(json.error || "Gagal mengambil data pelacakan.", "error");
+        showToast(json.error || "Failed to retrieve tracking data.", "error");
       }
     } catch (err) {
-      showToast("Gagal mengambil data pelacakan dari server.", "error");
+      showToast("Failed to retrieve tracking data from server.", "error");
     } finally {
       setLoadingHistory(false);
     }
@@ -119,7 +119,7 @@ export default function TrackingAwbPage() {
 
   const handleSearch = () => {
     if (!searchInput.trim()) {
-      showToast("Masukkan Manifest ID terlebih dahulu!", "error");
+      showToast("Please enter Manifest ID first!", "error");
       return;
     }
     const searchIdClean = searchInput.trim().toUpperCase();
@@ -132,7 +132,7 @@ export default function TrackingAwbPage() {
       setNewDescription("");
       setErrorCargoId(null);
     } else {
-      showToast(`Manifest ID "${searchIdClean}" tidak ditemukan dalam sistem.`, "error");
+      showToast(`Manifest ID "${searchIdClean}" not found in the system.`, "error");
       setSelectedCargo(null);
       setTrackingHistory([]);
       setErrorCargoId(searchIdClean);
@@ -143,7 +143,7 @@ export default function TrackingAwbPage() {
     e.preventDefault();
     if (!selectedCargo) return;
     if (!newLocation.trim() || !newDescription.trim()) {
-      showToast("Lokasi dan Deskripsi wajib diisi!", "error");
+      showToast("Location and description are required!", "error");
       return;
     }
 
@@ -162,15 +162,15 @@ export default function TrackingAwbPage() {
       });
       const json = await res.json();
       if (json.success) {
-        showToast("Checkpoint pelacakan berhasil ditambahkan!", "success");
+        showToast("Tracking checkpoint successfully added!", "success");
         setNewLocation("");
         setNewDescription("");
         fetchHistory(selectedCargo.id);
       } else {
-        showToast(json.error || "Gagal menambahkan checkpoint.", "error");
+        showToast(json.error || "Failed to add checkpoint.", "error");
       }
     } catch (err) {
-      showToast("Terjadi kesalahan koneksi saat menyimpan checkpoint.", "error");
+      showToast("Connection error occurred while saving checkpoint.", "error");
     } finally {
       setSavingHistory(false);
     }
@@ -265,7 +265,7 @@ export default function TrackingAwbPage() {
             type="text"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            placeholder="Masukkan Manifest ID (Contoh: MNF-2026-001)"
+            placeholder="Enter Manifest ID (Example: MNF-2026-001)"
             className="flex-1 px-6 py-4 bg-white border-2 border-[#2563EB] text-gray-900 placeholder-slate-400 rounded-2xl font-mono focus:outline-none text-base font-bold shadow-sm"
             onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
           />
@@ -318,7 +318,7 @@ export default function TrackingAwbPage() {
               {/* General specifications */}
               <div className="grid grid-cols-2 gap-4 text-xs font-sans text-gray-600">
                 <div>
-                  <p className="text-[8px] font-black uppercase text-gray-400 tracking-wider">Airline / Maskapai</p>
+                  <p className="text-[8px] font-black uppercase text-gray-400 tracking-wider">Airline</p>
                   <p className="font-bold text-gray-800">{selectedCargo.airline_name} ({selectedCargo.flight_code})</p>
                 </div>
                 <div>
@@ -326,7 +326,7 @@ export default function TrackingAwbPage() {
                   <p className="font-bold text-gray-800">{selectedCargo.route}</p>
                 </div>
                 <div>
-                  <p className="text-[8px] font-black uppercase text-gray-400 tracking-wider">Weight / Berat</p>
+                  <p className="text-[8px] font-black uppercase text-gray-400 tracking-wider">Weight</p>
                   <p className="font-bold text-gray-800 font-mono">{selectedCargo.weight} kg</p>
                 </div>
                 <div>
@@ -334,19 +334,19 @@ export default function TrackingAwbPage() {
                   <p className="font-bold text-gray-800">{selectedCargo.items ? `${selectedCargo.items} Pcs` : "-"}</p>
                 </div>
                 <div>
-                  <p className="text-[8px] font-black uppercase text-gray-400 tracking-wider">Sender / Pengirim</p>
+                  <p className="text-[8px] font-black uppercase text-gray-400 tracking-wider">Sender</p>
                   <p className="font-bold text-gray-800">{selectedCargo.sender_name || "-"}</p>
                 </div>
                 <div>
-                  <p className="text-[8px] font-black uppercase text-gray-400 tracking-wider">Receiver / Penerima</p>
+                  <p className="text-[8px] font-black uppercase text-gray-400 tracking-wider">Receiver</p>
                   <p className="font-bold text-gray-800">{selectedCargo.receiver_name || "-"}</p>
                 </div>
                 <div>
-                  <p className="text-[8px] font-black uppercase text-gray-400 tracking-wider">Contact / No Telepon</p>
+                  <p className="text-[8px] font-black uppercase text-gray-400 tracking-wider">Contact Number</p>
                   <p className="font-bold text-gray-800">{selectedCargo.phone_number || "-"}</p>
                 </div>
                 <div>
-                  <p className="text-[8px] font-black uppercase text-gray-400 tracking-wider">Price / Harga</p>
+                  <p className="text-[8px] font-black uppercase text-gray-400 tracking-wider">Shipping Price</p>
                   <p className="font-bold text-emerald-600 font-mono">
                     {selectedCargo.shipping_price ? `Rp ${Number(selectedCargo.shipping_price).toLocaleString("id-ID")}` : "-"}
                   </p>
@@ -372,14 +372,14 @@ export default function TrackingAwbPage() {
                 <svg className="w-4 h-4 text-blue-600 shrink-0 inline-block align-middle" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <span>RIWAYAT PELACAKAN CHECKPOINT</span>
+                <span>CHECKPOINT TRACKING HISTORY</span>
               </h3>
 
               <div className="space-y-4">
                 {loadingHistory ? (
                   <div className="flex items-center gap-2 text-xs font-bold text-gray-500 py-4 font-mono">
                     <span className="w-4 h-4 border-2 border-[#0a2a66] border-t-transparent rounded-full animate-spin"></span>
-                    Memuat riwayat pelacakan...
+                    Loading tracking history...
                   </div>
                 ) : trackingHistory.length > 0 ? (
                   <div className="relative border-l border-gray-200 ml-2.5 pl-6 space-y-5">
@@ -389,7 +389,7 @@ export default function TrackingAwbPage() {
                         <span className="absolute -left-[31px] top-1.5 w-3.5 h-3.5 rounded-full bg-blue-600 border-2 border-white ring-4 ring-blue-50"></span>
                         
                         <p className="text-[10px] text-gray-400 font-mono font-bold leading-none">
-                          {new Date(h.update_time).toLocaleString("id-ID")}
+                          {new Date(h.update_time).toLocaleString("en-US")}
                         </p>
                         <p className="text-xs font-black text-gray-800 mt-1">{h.description}</p>
                         <p className="text-[10px] text-blue-600 font-black uppercase tracking-wider mt-0.5">{h.current_location}</p>
@@ -397,7 +397,7 @@ export default function TrackingAwbPage() {
                     ))}
                   </div>
                 ) : (
-                  <p className="text-xs italic text-gray-400 py-3 font-bold uppercase text-center">Belum ada riwayat pelacakan untuk kargo ini.</p>
+                  <p className="text-xs italic text-gray-400 py-3 font-bold uppercase text-center">No tracking history found for this cargo yet.</p>
                 )}
               </div>
             </div>
@@ -408,15 +408,15 @@ export default function TrackingAwbPage() {
                 <svg className="w-4 h-4 text-blue-600 shrink-0 inline-block align-middle" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                 </svg>
-                <span>TAMBAH CHECKPOINT BARU</span>
+                <span>ADD NEW CHECKPOINT</span>
               </h3>
 
               <form onSubmit={handleAddCheckpoint} className="space-y-4">
                 <div>
-                  <label className="text-[8px] font-black uppercase tracking-wider text-gray-400 block mb-1">Lokasi Checkpoint</label>
+                  <label className="text-[8px] font-black uppercase tracking-wider text-gray-400 block mb-1">Checkpoint Location</label>
                   <input
                     type="text"
-                    placeholder="Contoh: CGK Sorting Area"
+                    placeholder="Example: CGK Sorting Area"
                     value={newLocation}
                     onChange={(e) => setNewLocation(e.target.value)}
                     className="w-full px-4 py-3 text-xs font-bold bg-slate-50 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 transition-all text-gray-800"
@@ -424,10 +424,10 @@ export default function TrackingAwbPage() {
                   />
                 </div>
                 <div>
-                  <label className="text-[8px] font-black uppercase tracking-wider text-gray-400 block mb-1">Keterangan / Aktivitas</label>
+                  <label className="text-[8px] font-black uppercase tracking-wider text-gray-400 block mb-1">Description / Activity</label>
                   <input
                     type="text"
-                    placeholder="Contoh: Dokumen manifestasi kargo diproses"
+                    placeholder="Example: Cargo manifestation documents processed"
                     value={newDescription}
                     onChange={(e) => setNewDescription(e.target.value)}
                     className="w-full px-4 py-3 text-xs font-bold bg-slate-50 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 transition-all text-gray-800"
@@ -441,7 +441,7 @@ export default function TrackingAwbPage() {
                     disabled={savingHistory}
                     className="w-full px-6 py-3.5 bg-[#0a2a66] hover:bg-[#124294] disabled:opacity-50 text-white font-bold rounded-xl text-[10px] uppercase tracking-wider transition-all shadow-md active:scale-95 flex items-center justify-center gap-1.5"
                   >
-                    {savingHistory ? "Menyimpan..." : "Simpan Checkpoint"}
+                    {savingHistory ? "Saving..." : "Save Checkpoint"}
                   </button>
                 </div>
               </form>
@@ -504,7 +504,7 @@ export default function TrackingAwbPage() {
           </div>
         ) : (
           <div className="text-center py-16 border-2 border-dashed border-gray-250 rounded-[2rem] bg-white shadow-sm">
-            <p className="text-slate-400 text-xs uppercase tracking-wider font-bold">Silakan masukkan Manifest ID di atas untuk melacak atau menambahkan log checkpoint baru.</p>
+            <p className="text-slate-400 text-xs uppercase tracking-wider font-bold">Please enter a Manifest ID above to track or add a new checkpoint log.</p>
           </div>
         )
       )}

@@ -120,10 +120,10 @@ export default function DashboardOperationalPage() {
         setCargoList(json.data || []);
         setFilteredList(json.data || []);
       } else {
-        setError(json.error || "Gagal menyelaraskan data dengan database Neon.");
+        setError(json.error || "Failed to synchronize data with Neon database.");
       }
     } catch (err) {
-      setError("Gagal terhubung ke database. Periksa koneksi internet Anda.");
+      setError("Failed to connect to the database. Check your internet connection.");
       console.error(err);
     } finally {
       setIsLoading(false);
@@ -173,11 +173,11 @@ export default function DashboardOperationalPage() {
       if (json.success) {
         setTrackingHistory(json.data || []);
       } else {
-        addToast(json.error || "Gagal mengambil data pelacakan.", "error");
+        addToast(json.error || "Failed to retrieve tracking data.", "error");
       }
     } catch (err) {
       console.error(err);
-      addToast("Gagal mengambil data pelacakan dari server.", "error");
+      addToast("Failed to retrieve tracking data from server.", "error");
     } finally {
       setLoadingHistory(false);
     }
@@ -197,7 +197,7 @@ export default function DashboardOperationalPage() {
     e.preventDefault();
     if (!detailCargo || !detailCargo.id) return;
     if (!newLocation.trim() || !newDescription.trim()) {
-      addToast("Lokasi dan Deskripsi wajib diisi!", "warning");
+      addToast("Location and Description are required!", "warning");
       return;
     }
 
@@ -216,16 +216,16 @@ export default function DashboardOperationalPage() {
       });
       const json = await res.json();
       if (json.success) {
-        addToast("✅ Checkpoint pelacakan berhasil ditambahkan!", "success");
+        addToast("✅ Tracking checkpoint successfully added!", "success");
         setNewLocation("");
         setNewDescription("");
         fetchTrackingHistory(detailCargo.id);
       } else {
-        addToast(json.error || "Gagal menambahkan checkpoint.", "error");
+        addToast(json.error || "Failed to add checkpoint.", "error");
       }
     } catch (err) {
       console.error(err);
-      addToast("Terjadi kesalahan koneksi saat menyimpan checkpoint.", "error");
+      addToast("A connection error occurred while saving the checkpoint.", "error");
     } finally {
       setSavingHistory(false);
     }
@@ -280,69 +280,69 @@ export default function DashboardOperationalPage() {
     const newErrors: Record<string, string> = {};
 
     if (!formData.airline_name.trim()) {
-      newErrors.airline_name = "Nama maskapai wajib diisi";
+      newErrors.airline_name = "Airline name is required";
     }
 
     if (!formData.flight_code.trim()) {
-      newErrors.flight_code = "Kode penerbangan wajib diisi";
+      newErrors.flight_code = "Flight code is required";
     }
 
     if (!formData.route_from) {
-      newErrors.route_from = "Bandara asal wajib dipilih";
+      newErrors.route_from = "Origin airport is required";
     }
     if (!formData.route_to) {
-      newErrors.route_to = "Bandara tujuan wajib dipilih";
+      newErrors.route_to = "Destination airport is required";
     }
     if (formData.route_from && formData.route_to && formData.route_from === formData.route_to) {
-      newErrors.route_to = "Bandara tujuan tidak boleh sama dengan bandara asal";
+      newErrors.route_to = "Destination airport cannot be the same as origin airport";
     }
 
     if (!formData.weight) {
-      newErrors.weight = "Berat wajib diisi";
+      newErrors.weight = "Weight is required";
     } else {
       const w = Number(formData.weight);
       if (isNaN(w) || w <= 0) {
-        newErrors.weight = "Berat harus berupa angka positif";
+        newErrors.weight = "Weight must be a positive number";
       }
     }
 
     if (!formData.date) {
-      newErrors.date = "Tanggal pengiriman wajib diisi";
+      newErrors.date = "Shipping date is required";
     }
 
     if (!formData.items) {
-      newErrors.items = "Jumlah item wajib diisi";
+      newErrors.items = "Quantity is required";
     } else {
       const itemNum = Number(formData.items);
       if (isNaN(itemNum) || itemNum <= 0 || !Number.isInteger(itemNum)) {
-        newErrors.items = "Jumlah item harus berupa bilangan bulat positif";
+        newErrors.items = "Quantity must be a positive integer";
       }
     }
 
     if (!formData.sender_name.trim()) {
-      newErrors.sender_name = "Nama pengirim wajib diisi";
+      newErrors.sender_name = "Sender name is required";
     }
 
     if (!formData.receiver_name.trim()) {
-      newErrors.receiver_name = "Nama penerima wajib diisi";
+      newErrors.receiver_name = "Receiver name is required";
     }
 
     if (!formData.phone_number.trim()) {
-      newErrors.phone_number = "Nomor telepon wajib diisi";
+      newErrors.phone_number = "Phone number is required";
     } else if (!/^[0-9+\s-]{8,15}$/.test(formData.phone_number.trim())) {
-      newErrors.phone_number = "Nomor telepon tidak valid (hanya angka, +, -, spasi, 8-15 digit)";
+      newErrors.phone_number = "Invalid phone number (only numbers, +, -, space, 8-15 digits)";
     }
 
     if (!formData.origin_city.trim()) {
-      newErrors.origin_city = "Kota asal wajib diisi";
+      newErrors.origin_city = "Origin city is required";
     }
 
     if (!formData.destination_city.trim()) {
-      newErrors.destination_city = "Kota tujuan wajib diisi";
+      newErrors.destination_city = "Destination city is required";
     }
 
     if (!formData.item_type.trim()) {
-      newErrors.item_type = "Jenis barang wajib diisi";
+      newErrors.item_type = "Item type is required";
     }
 
     setErrors(newErrors);
@@ -382,74 +382,74 @@ export default function DashboardOperationalPage() {
         const nextErrors = { ...prevErrors };
 
         if (field === "airline_name") {
-          if (!value.trim()) nextErrors.airline_name = "Nama maskapai wajib diisi";
+          if (!value.trim()) nextErrors.airline_name = "Airline name is required";
           else delete nextErrors.airline_name;
         }
 
         if (field === "flight_code") {
-          if (!value.trim()) nextErrors.flight_code = "Kode penerbangan wajib diisi";
+          if (!value.trim()) nextErrors.flight_code = "Flight code is required";
           else delete nextErrors.flight_code;
         }
 
         if (field === "route_from") {
-          if (!value) nextErrors.route_from = "Bandara asal wajib dipilih";
+          if (!value) nextErrors.route_from = "Origin airport is required";
           else delete nextErrors.route_from;
         }
 
         if (field === "route_to") {
-          if (!value) nextErrors.route_to = "Bandara tujuan wajib dipilih";
+          if (!value) nextErrors.route_to = "Destination airport is required";
           else delete nextErrors.route_to;
         }
 
         if (field === "weight") {
           const w = Number(value);
-          if (!value) nextErrors.weight = "Berat wajib diisi";
-          else if (isNaN(w) || w <= 0) nextErrors.weight = "Berat harus berupa angka positif";
+          if (!value) nextErrors.weight = "Weight is required";
+          else if (isNaN(w) || w <= 0) nextErrors.weight = "Weight must be a positive number";
           else delete nextErrors.weight;
         }
 
         if (field === "date") {
-          if (!value) nextErrors.date = "Tanggal pengiriman wajib diisi";
+          if (!value) nextErrors.date = "Shipping date is required";
           else delete nextErrors.date;
         }
 
         if (field === "items") {
           const itemNum = Number(value);
-          if (!value) nextErrors.items = "Jumlah item wajib diisi";
+          if (!value) nextErrors.items = "Quantity is required";
           else if (isNaN(itemNum) || itemNum <= 0 || !Number.isInteger(itemNum)) {
-            nextErrors.items = "Jumlah item harus berupa bilangan bulat positif";
+            nextErrors.items = "Quantity must be a positive integer";
           } else delete nextErrors.items;
         }
 
         if (field === "sender_name") {
-          if (!value.trim()) nextErrors.sender_name = "Nama pengirim wajib diisi";
+          if (!value.trim()) nextErrors.sender_name = "Sender name is required";
           else delete nextErrors.sender_name;
         }
 
         if (field === "receiver_name") {
-          if (!value.trim()) nextErrors.receiver_name = "Nama penerima wajib diisi";
+          if (!value.trim()) nextErrors.receiver_name = "Receiver name is required";
           else delete nextErrors.receiver_name;
         }
 
         if (field === "phone_number") {
-          if (!value.trim()) nextErrors.phone_number = "Nomor telepon wajib diisi";
+          if (!value.trim()) nextErrors.phone_number = "Phone number is required";
           else if (!/^[0-9+\s-]{8,15}$/.test(value.trim())) {
-            nextErrors.phone_number = "Nomor telepon tidak valid (8-15 digit)";
+            nextErrors.phone_number = "Invalid phone number (8-15 digits)";
           } else delete nextErrors.phone_number;
         }
 
         if (field === "origin_city") {
-          if (!value.trim()) nextErrors.origin_city = "Kota asal wajib diisi";
+          if (!value.trim()) nextErrors.origin_city = "Origin city is required";
           else delete nextErrors.origin_city;
         }
 
         if (field === "destination_city") {
-          if (!value.trim()) nextErrors.destination_city = "Kota tujuan wajib diisi";
+          if (!value.trim()) nextErrors.destination_city = "Destination city is required";
           else delete nextErrors.destination_city;
         }
 
         if (field === "item_type") {
-          if (!value.trim()) nextErrors.item_type = "Jenis barang wajib diisi";
+          if (!value.trim()) nextErrors.item_type = "Item type is required";
           else delete nextErrors.item_type;
         }
 
@@ -535,7 +535,7 @@ export default function DashboardOperationalPage() {
     setTouched(allTouched);
 
     if (!validateForm()) {
-      addToast("Silakan perbaiki kesalahan input pada formulir.", "warning");
+      addToast("Please correct the input errors on the form.", "warning");
       const formElement = document.getElementById("cargoFormTitle");
       if (formElement) {
         formElement.scrollIntoView({ behavior: "smooth" });
@@ -569,8 +569,8 @@ export default function DashboardOperationalPage() {
       if (result.success) {
         addToast(
           editingCargo
-            ? "✅ Data kargo berhasil diperbarui!"
-            : "✅ Kargo baru berhasil ditambahkan!",
+            ? "✅ Cargo data successfully updated!"
+            : "✅ New cargo successfully added!",
           "success"
         );
 
@@ -581,12 +581,12 @@ export default function DashboardOperationalPage() {
         setTouched({});
         fetchCargoData();
       } else {
-        setFormError(result.error || "Gagal menyimpan data kargo.");
-        addToast("❌ Gagal menyimpan kargo: " + (result.error || "Terjadi kesalahan"), "error");
+        setFormError(result.error || "Failed to save cargo data.");
+        addToast("❌ Failed to save cargo: " + (result.error || "An error occurred"), "error");
       }
     } catch (err) {
-      setFormError("Terjadi gangguan koneksi jaringan saat menghubungi server.");
-      addToast("❌ Terjadi kesalahan jaringan saat menyimpan.", "error");
+      setFormError("A network connection error occurred while contacting the server.");
+      addToast("❌ Network error occurred while saving.", "error");
       console.error(err);
     } finally {
       setSaving(false);
@@ -686,13 +686,13 @@ export default function DashboardOperationalPage() {
       const result = await res.json();
 
       if (result.success) {
-        addToast(`🗑️ Kargo ${deleteModal.manifestId} berhasil dihapus.`, "success");
+        addToast(`🗑️ Cargo ${deleteModal.manifestId} successfully deleted.`, "success");
         fetchCargoData();
       } else {
-        addToast(`❌ Gagal menghapus kargo: ${result.error || "Terjadi kesalahan"}`, "error");
+        addToast(`❌ Failed to delete cargo: ${result.error || "An error occurred"}`, "error");
       }
     } catch (err) {
-      addToast("❌ Terjadi kesalahan jaringan saat menghapus kargo.", "error");
+      addToast("❌ Network error occurred while deleting cargo.", "error");
     } finally {
       setDeleteModal({ show: false, cargoId: null, manifestId: "" });
     }
@@ -765,7 +765,7 @@ export default function DashboardOperationalPage() {
   };
 
   const getAirportLabel = (code: string) => {
-    return airportNames[code.toUpperCase()] || `${code.toUpperCase()} (Bandara Lain)`;
+    return airportNames[code.toUpperCase()] || `${code.toUpperCase()} (Other Airport)`;
   };
 
   // Ambil opsi unik maskapai, kode penerbangan, dan rute dari database kargo yang ada
@@ -869,7 +869,7 @@ export default function DashboardOperationalPage() {
             <div className="flex gap-3">
               <input
                 type="text"
-                placeholder="Cari Manifest ID / Airline / Route..."
+                placeholder="Search Manifest ID / Airline / Route..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full md:w-80 h-[56px] px-4 border border-gray-300 rounded-xl outline-none"
@@ -879,7 +879,7 @@ export default function DashboardOperationalPage() {
                 onClick={openForm}
                 className="bg-[#0a2a66] text-white px-6 h-[56px] rounded-xl font-bold whitespace-nowrap hover:opacity-90 transition"
               >
-                + Tambah Cargo
+                + Add Cargo
               </button>
             </div>
           </div>
@@ -888,7 +888,7 @@ export default function DashboardOperationalPage() {
           {showForm && (
             <div className="bg-white p-8 rounded-2xl shadow-xl animate-in slide-in-from-top-6 duration-300" id="cargoFormTitle">
               <h3 className="text-xl font-black text-[#0a2a66] uppercase tracking-tight mb-6">
-                {editingCargo ? "⚡ Edit Cargo Manifest" : "📦 Tambah Cargo Baru"}
+                {editingCargo ? "⚡ Edit Cargo Manifest" : "📦 Add New Cargo"}
               </h3>
 
               {/* Form-level Error Banner */}
@@ -898,7 +898,7 @@ export default function DashboardOperationalPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                   </svg>
                   <div className="space-y-1">
-                    <p className="text-xs font-black uppercase tracking-wider">Kesalahan Server / Database</p>
+                    <p className="text-xs font-black uppercase tracking-wider">Server / Database Error</p>
                     <p className="text-xs text-rose-700/90 font-medium leading-relaxed uppercase">{formError}</p>
                   </div>
                 </div>
@@ -910,7 +910,7 @@ export default function DashboardOperationalPage() {
               >
                 {/* Manifest ID */}
                 <div className="w-full">
-                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Manifest ID (Otomatis)</label>
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Manifest ID (Auto)</label>
                   <input
                     type="text"
                     value={formData.manifest_id}
@@ -921,7 +921,7 @@ export default function DashboardOperationalPage() {
 
                 {/* Airline Name */}
                 <div className="w-full">
-                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Nama Maskapai *</label>
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Airline Name *</label>
                   <select
                     value={formData.airline_name}
                     onChange={(e) => handleFieldChange("airline_name", e.target.value)}
@@ -931,7 +931,7 @@ export default function DashboardOperationalPage() {
                         : "border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100/50"
                       }`}
                   >
-                    <option value="">-- Pilih Maskapai --</option>
+                    <option value="">-- Select Airline --</option>
                     {airlineOptions.map((airline) => (
                       <option key={airline} value={airline}>{airline}</option>
                     ))}
@@ -946,7 +946,7 @@ export default function DashboardOperationalPage() {
 
                 {/* Flight Code */}
                 <div className="w-full">
-                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Kode Penerbangan *</label>
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Flight Code *</label>
                   <select
                     value={formData.flight_code}
                     onChange={(e) => handleFieldChange("flight_code", e.target.value)}
@@ -958,10 +958,10 @@ export default function DashboardOperationalPage() {
                       }`}
                   >
                     {!formData.airline_name ? (
-                      <option value="">-- Pilih Maskapai Terlebih Dahulu --</option>
+                      <option value="">-- Select Airline First --</option>
                     ) : (
                       <>
-                        <option value="">-- Pilih Kode Penerbangan --</option>
+                        <option value="">-- Select Flight Code --</option>
                         {flightCodeOptions.map((code) => (
                           <option key={code} value={code}>{code}</option>
                         ))}
@@ -978,7 +978,7 @@ export default function DashboardOperationalPage() {
 
                 {/* Rute Penerbangan Split (Dari - Ke) dalam 1 Kolom Panjang dibagi 2 */}
                 <div className="w-full">
-                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Rute Penerbangan (Asal ➔ Tujuan) *</label>
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Flight Route (Origin ➔ Destination) *</label>
                   <div className="flex items-center gap-2">
                     {/* Bandara Asal */}
                     <div className="flex-1">
@@ -991,7 +991,7 @@ export default function DashboardOperationalPage() {
                             : "border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100/50"
                           }`}
                       >
-                        <option value="">-- Pilih Asal --</option>
+                        <option value="">-- Select Origin --</option>
                         {fromRoutes.map((airport) => (
                           <option key={airport} value={airport}>{getAirportLabel(airport)}</option>
                         ))}
@@ -1012,7 +1012,7 @@ export default function DashboardOperationalPage() {
                             : "border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100/50"
                           }`}
                       >
-                        <option value="">-- Pilih Tujuan --</option>
+                        <option value="">-- Select Destination --</option>
                         {toRoutes.map((airport) => (
                           <option key={airport} value={airport}>{getAirportLabel(airport)}</option>
                         ))}
@@ -1026,13 +1026,13 @@ export default function DashboardOperationalPage() {
                       {touched.route_from && errors.route_from && (
                         <p className="text-[10px] text-rose-600 font-black uppercase tracking-wider flex items-center gap-1">
                           <span className="w-1.5 h-1.5 bg-rose-500 rounded-full shrink-0"></span>
-                          Asal: {errors.route_from}
+                          Origin: {errors.route_from}
                         </p>
                       )}
                       {touched.route_to && errors.route_to && (
                         <p className="text-[10px] text-rose-600 font-black uppercase tracking-wider flex items-center gap-1">
                           <span className="w-1.5 h-1.5 bg-rose-500 rounded-full shrink-0"></span>
-                          Tujuan: {errors.route_to}
+                          Destination: {errors.route_to}
                         </p>
                       )}
                     </div>
@@ -1041,7 +1041,7 @@ export default function DashboardOperationalPage() {
 
                 {/* Weight */}
                 <div className="w-full">
-                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Berat (kg) *</label>
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Weight (kg) *</label>
                   <input
                     type="number"
                     placeholder="Weight (kg)"
@@ -1063,7 +1063,7 @@ export default function DashboardOperationalPage() {
 
                 {/* Date */}
                 <div className="w-full">
-                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Tanggal Pengiriman *</label>
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Shipping Date *</label>
                   <input
                     type="date"
                     value={formData.date}
@@ -1084,7 +1084,7 @@ export default function DashboardOperationalPage() {
 
                 {/* Gate */}
                 <div className="w-full">
-                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Gate (Opsional)</label>
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Gate (Optional)</label>
                   <input
                     type="text"
                     placeholder="Gate (e.g. A12)"
@@ -1096,10 +1096,10 @@ export default function DashboardOperationalPage() {
 
                 {/* Items */}
                 <div className="w-full">
-                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Jumlah Item / Capacity (units) *</label>
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Quantity / Capacity (units) *</label>
                   <input
                     type="number"
-                    placeholder="Jumlah Item / Capacity (units)"
+                    placeholder="Quantity / Capacity (units)"
                     value={formData.items}
                     onChange={(e) => handleFieldChange("items", e.target.value)}
                     onBlur={() => handleBlur("items")}
@@ -1118,10 +1118,10 @@ export default function DashboardOperationalPage() {
 
                 {/* Sender Name */}
                 <div className="w-full">
-                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Nama Pengirim *</label>
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Sender Name *</label>
                   <input
                     type="text"
-                    placeholder="Nama Pengirim"
+                    placeholder="Sender Name"
                     value={formData.sender_name}
                     onChange={(e) => handleFieldChange("sender_name", e.target.value)}
                     onBlur={() => handleBlur("sender_name")}
@@ -1140,10 +1140,10 @@ export default function DashboardOperationalPage() {
 
                 {/* Receiver Name */}
                 <div className="w-full">
-                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Nama Penerima *</label>
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Receiver Name *</label>
                   <input
                     type="text"
-                    placeholder="Nama Penerima"
+                    placeholder="Receiver Name"
                     value={formData.receiver_name}
                     onChange={(e) => handleFieldChange("receiver_name", e.target.value)}
                     onBlur={() => handleBlur("receiver_name")}
@@ -1162,10 +1162,10 @@ export default function DashboardOperationalPage() {
 
                 {/* Phone Number */}
                 <div className="w-full">
-                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">No Telepon *</label>
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Phone Number *</label>
                   <input
                     type="text"
-                    placeholder="No Telepon"
+                    placeholder="Phone Number"
                     value={formData.phone_number}
                     onChange={(e) => handleFieldChange("phone_number", e.target.value)}
                     onBlur={() => handleBlur("phone_number")}
@@ -1184,10 +1184,10 @@ export default function DashboardOperationalPage() {
 
                 {/* Origin City */}
                 <div className="w-full">
-                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Kota Asal *</label>
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Origin City *</label>
                   <input
                     type="text"
-                    placeholder="Kota Asal"
+                    placeholder="Origin City"
                     value={formData.origin_city}
                     onChange={(e) => handleFieldChange("origin_city", e.target.value)}
                     onBlur={() => handleBlur("origin_city")}
@@ -1206,10 +1206,10 @@ export default function DashboardOperationalPage() {
 
                 {/* Destination City */}
                 <div className="w-full">
-                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Kota Tujuan *</label>
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Destination City *</label>
                   <input
                     type="text"
-                    placeholder="Kota Tujuan"
+                    placeholder="Destination City"
                     value={formData.destination_city}
                     onChange={(e) => handleFieldChange("destination_city", e.target.value)}
                     onBlur={() => handleBlur("destination_city")}
@@ -1228,10 +1228,10 @@ export default function DashboardOperationalPage() {
 
                 {/* Item Type */}
                 <div className="w-full">
-                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Jenis Barang *</label>
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Item Type *</label>
                   <input
                     type="text"
-                    placeholder="Jenis Barang"
+                    placeholder="Item Type"
                     value={formData.item_type}
                     onChange={(e) => handleFieldChange("item_type", e.target.value)}
                     onBlur={() => handleBlur("item_type")}
@@ -1250,10 +1250,10 @@ export default function DashboardOperationalPage() {
 
                 {/* Shipping Price */}
                 <div className="w-full">
-                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Harga Pengiriman (Otomatis)</label>
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Shipping Price (Auto)</label>
                   <input
                     type="text"
-                    placeholder="Harga Pengiriman"
+                    placeholder="Shipping Price"
                     value={
                       formData.shipping_price
                         ? `Rp ${Number(formData.shipping_price).toLocaleString("id-ID")}`
@@ -1266,7 +1266,7 @@ export default function DashboardOperationalPage() {
 
                 {/* Shipping Type */}
                 <div className="w-full">
-                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Tipe Pengiriman *</label>
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Shipping Type *</label>
                   <select
                     value={formData.shipping_type}
                     onChange={(e) => handleFieldChange("shipping_type", e.target.value)}
@@ -1280,7 +1280,7 @@ export default function DashboardOperationalPage() {
 
                 {/* Flight Status */}
                 <div className="w-full">
-                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Status Penerbangan *</label>
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Flight Status *</label>
                   <select
                     value={formData.flight_status}
                     onChange={(e) => handleFieldChange("flight_status", e.target.value)}
@@ -1295,7 +1295,7 @@ export default function DashboardOperationalPage() {
 
                 {/* Status Operasional */}
                 <div className="w-full">
-                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Status Operasional *</label>
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Operational Status *</label>
                   <select
                     value={formData.operational_status}
                     onChange={(e) => handleFieldChange("operational_status", e.target.value)}
@@ -1309,9 +1309,9 @@ export default function DashboardOperationalPage() {
 
                 {/* Description */}
                 <div className="col-span-2">
-                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Deskripsi Barang (Opsional)</label>
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Item Description (Optional)</label>
                   <textarea
-                    placeholder="Deskripsi Barang"
+                    placeholder="Item Description"
                     value={formData.description}
                     onChange={(e) => handleFieldChange("description", e.target.value)}
                     className="w-full p-4 border border-gray-300 rounded-xl min-h-[120px] outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100/50 transition-all"
@@ -1331,12 +1331,12 @@ export default function DashboardOperationalPage() {
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
-                        <span>Menyimpan...</span>
+                        <span>Saving...</span>
                       </>
                     ) : editingCargo ? (
                       "Update Cargo"
                     ) : (
-                      "Simpan Cargo Baru"
+                      "Save New Cargo"
                     )}
                   </button>
 
@@ -1351,7 +1351,7 @@ export default function DashboardOperationalPage() {
                     }}
                     className="flex-1 h-[56px] border border-gray-300 hover:bg-gray-50 text-gray-700 font-bold rounded-xl transition-all"
                   >
-                    Batal
+                    Cancel
                   </button>
                 </div>
               </form>
@@ -1479,13 +1479,13 @@ export default function DashboardOperationalPage() {
 
             <div className="space-y-2">
               <span className="text-[9px] font-black uppercase tracking-[0.2em] text-rose-600 bg-rose-50 px-3.5 py-1 rounded-full">
-                Konfirmasi Hapus
+                Confirm Delete
               </span>
               <h3 className="text-xl font-black text-[#0a2a66] uppercase tracking-tight mt-4">
-                Hapus Manifest Ini?
+                Delete This Manifest?
               </h3>
               <p className="text-xs text-gray-400 font-bold leading-relaxed px-4 uppercase">
-                Apakah Anda yakin ingin menghapus kargo dengan manifest ID <span className="text-rose-600 font-mono font-black select-all bg-rose-50 px-1.5 py-0.5 rounded">{deleteModal.manifestId}</span>? Tindakan ini permanen dan tidak dapat dibatalkan.
+                Are you sure you want to delete the cargo with manifest ID <span className="text-rose-600 font-mono font-black select-all bg-rose-50 px-1.5 py-0.5 rounded">{deleteModal.manifestId}</span>? This action is permanent and cannot be undone.
               </p>
             </div>
 
@@ -1495,14 +1495,14 @@ export default function DashboardOperationalPage() {
                 onClick={() => setDeleteModal({ show: false, cargoId: null, manifestId: "" })}
                 className="flex-1 h-[48px] border border-gray-300 hover:bg-gray-50 text-gray-700 font-bold rounded-xl text-xs uppercase tracking-wider transition-all"
               >
-                Batal
+                Cancel
               </button>
               <button
                 type="button"
                 onClick={confirmDelete}
                 className="flex-1 h-[48px] bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl text-xs uppercase tracking-wider transition-all shadow-md active:scale-95"
               >
-                Hapus Kargo
+                Delete Cargo
               </button>
             </div>
           </div>
@@ -1568,11 +1568,11 @@ export default function DashboardOperationalPage() {
               <div>
                 <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3">Sender & Receiver</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <DetailItem label="Nama Pengirim" value={detailCargo.sender_name || "-"} />
-                  <DetailItem label="Nama Penerima" value={detailCargo.receiver_name || "-"} />
-                  <DetailItem label="No Telepon" value={detailCargo.phone_number || "-"} />
-                  <DetailItem label="Kota Asal" value={detailCargo.origin_city || "-"} />
-                  <DetailItem label="Kota Tujuan" value={detailCargo.destination_city || "-"} />
+                  <DetailItem label="Sender Name" value={detailCargo.sender_name || "-"} />
+                  <DetailItem label="Receiver Name" value={detailCargo.receiver_name || "-"} />
+                  <DetailItem label="Phone Number" value={detailCargo.phone_number || "-"} />
+                  <DetailItem label="Origin City" value={detailCargo.origin_city || "-"} />
+                  <DetailItem label="Destination City" value={detailCargo.destination_city || "-"} />
                 </div>
               </div>
 
@@ -1580,12 +1580,12 @@ export default function DashboardOperationalPage() {
               <div>
                 <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3">Cargo Information</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <DetailItem label="Jenis Barang" value={detailCargo.item_type || "-"} />
-                  <DetailItem label="Berat" value={detailCargo.weight ? `${detailCargo.weight} kg` : "-"} />
-                  <DetailItem label="Jumlah Item" value={detailCargo.items ? `${detailCargo.items} Pcs` : "-"} />
-                  <DetailItem label="Tipe Pengiriman" value={detailCargo.shipping_type || "-"} />
+                  <DetailItem label="Item Type" value={detailCargo.item_type || "-"} />
+                  <DetailItem label="Weight" value={detailCargo.weight ? `${detailCargo.weight} kg` : "-"} />
+                  <DetailItem label="Quantity" value={detailCargo.items ? `${detailCargo.items} Pcs` : "-"} />
+                  <DetailItem label="Shipping Type" value={detailCargo.shipping_type || "-"} />
                   <DetailItem
-                    label="Harga Pengiriman"
+                    label="Shipping Price"
                     value={
                       detailCargo.shipping_price
                         ? `Rp ${Number(detailCargo.shipping_price).toLocaleString("id-ID")}`
@@ -1610,7 +1610,7 @@ export default function DashboardOperationalPage() {
               {/* Description */}
               {detailCargo.description && (
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Deskripsi</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Description</p>
                   <p className="text-xs text-gray-700 bg-gray-50 rounded-xl p-4 leading-relaxed whitespace-pre-wrap">{detailCargo.description}</p>
                 </div>
               )}
@@ -1625,7 +1625,7 @@ export default function DashboardOperationalPage() {
                 onClick={() => setDetailCargo(null)}
                 className="px-8 py-3 bg-[#0a2a66] hover:bg-[#124294] text-white font-bold rounded-xl text-xs uppercase tracking-wider transition-all shadow-md active:scale-95"
               >
-                Tutup Detail
+                Close Details
               </button>
             </div>
           </div>

@@ -37,11 +37,11 @@ export default function FlightStatusPage() {
         const data = await res.json();
         setFlights(data || []);
       } else {
-        setError(`Kesalahan server: HTTP ${res.status}`);
+        setError(`Server error: HTTP ${res.status}`);
       }
     } catch (e) {
-      setError("Gagal menyelaraskan jadwal cargo udara dengan database Neon. Periksa koneksi internet.");
-      console.error("Gagal sinkronisasi data cloud:", e);
+      setError("Failed to synchronize flight cargo schedule with Neon database. Check internet connection.");
+      console.error("Cloud data synchronization failed:", e);
     } finally {
       setIsLoading(false);
     }
@@ -203,7 +203,7 @@ export default function FlightStatusPage() {
               ) : (
                 <tr>
                   <td colSpan={8} className="text-center py-10 text-gray-400 italic">
-                    Tidak ada jadwal penerbangan aktif di database cloud Neon.
+                    No active flight schedules found in Neon cloud database.
                   </td>
                 </tr>
               )}

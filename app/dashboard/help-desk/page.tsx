@@ -29,36 +29,36 @@ export default function HelpDeskPage() {
   const [tickets, setTickets] = useState<Ticket[]>([
     {
       id: "TK-9021",
-      title: "Sinkronisasi Database Terhambat pada Neon Postgres",
+      title: "Neon Postgres Database Synchronization Latency",
       category: "Database & System",
       priority: "High",
       status: "Open",
       sender: "Jonathan",
-      role: "Supervisor Operasional",
+      role: "Operations Supervisor",
       date: "2026-06-09 20:15",
-      description: "Terdapat jeda sinkronisasi data kargo aktif sekitar 3 detik pada cluster Neon Postgres Asia. Mohon diperiksa pooler-nya.",
+      description: "There is a database synchronization latency of about 3 seconds on the Neon Postgres Asia cluster. Please verify the connection pooler.",
     },
     {
       id: "TK-8842",
-      title: "Format Status Manifest ID MNF-2026-004 Tidak Sesuai",
+      title: "Inconsistent Status for Flight Manifest ID MNF-2026-004",
       category: "AWB Tracking",
       priority: "Medium",
       status: "In Progress",
       sender: "Budi",
-      role: "Operator Cargo",
+      role: "Cargo Operator",
       date: "2026-06-09 18:30",
-      description: "Saat mencari manifest MNF-2026-004, status penerbangan tertulis Landed tetapi status operasional masih In Transit. Mohon dibantu koreksi.",
+      description: "When searching for manifest MNF-2026-004, the flight status is marked as Landed but operational status is still In Transit. Please correct this.",
     },
     {
       id: "TK-7721",
-      title: "Masalah Printer Label Cargo di Warehouse A",
+      title: "Cargo Label Printer Issue at Warehouse A",
       category: "Hardware / Devices",
       priority: "Low",
       status: "Resolved",
       sender: "Susi",
       role: "Warehouse Staff",
       date: "2026-06-08 14:10",
-      description: "Printer label tidak mencetak barcode untuk manifest baru. Kabel LAN terhubung normal.",
+      description: "The label printer is not printing barcodes for new manifests. LAN cable connection is working normally.",
     },
   ]);
 
@@ -68,6 +68,13 @@ export default function HelpDeskPage() {
   const [ticketDescription, setTicketDescription] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Field validation error states
+  const [fieldErrors, setFieldErrors] = useState<{ title?: string; description?: string }>({});
+
+  // Simulated Server Offline / Connection Outage state
+  const [isOfflineMode, setIsOfflineMode] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
 
   // FAQ Expand state
   const [expandedFaqId, setExpandedFaqId] = useState<number | null>(null);
@@ -99,11 +106,56 @@ export default function HelpDeskPage() {
     return () => clearTimeout(timer);
   }, [router]);
 
-  // Submit New Ticket Form with Automatic Urgency Classification
+  // Submit New Ticket Form with Automatic Urgency Classification & Error Handling
   const handleSubmitTicket = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!ticketTitle.trim() || !ticketDescription.trim()) {
-      showToast("Judul dan deskripsi wajib diisi!", "error");
+    
+    // Clear previous errors
+    setFieldErrors({});
+    setServerError(null);
+
+    let hasError = false;
+    const newFieldErrors: { title?: string; description?: string } = {};
+
+    // 1. Title Validation
+    if (!ticketTitle.trim()) {
+      newFieldErrors.title = "Subject and description are required!";
+      hasError = true;
+    } else if (ticketTitle.trim().length < 5) {
+      newFieldErrors.title = "Issue subject is too short (minimum 5 characters).";
+      hasError = true;
+    }
+
+    // 2. Description Validation
+    if (!ticketDescription.trim()) {
+      newFieldErrors.description = "Subject and description are required!";
+      hasError = true;
+    } else if (ticketDescription.trim().length < 15) {
+      newFieldErrors.description = "Issue description is too short (minimum 15 characters).";
+      hasError = true;
+    }
+
+    // 3. Spam Check
+    const descWords = ticketDescription.toLowerCase().split(/\s+/);
+    const wordCounts: Record<string, number> = {};
+    let isSpam = false;
+    for (const word of descWords) {
+      if (word.length > 3) {
+        wordCounts[word] = (wordCounts[word] || 0) + 1;
+        if (wordCounts[word] > 4) {
+          isSpam = true;
+          break;
+        }
+      }
+    }
+    if (isSpam) {
+      newFieldErrors.description = "Spam detected: Description cannot repeatedly reuse the same word.";
+      hasError = true;
+    }
+
+    if (hasError) {
+      setFieldErrors(newFieldErrors);
+      showToast("Subject and description are required!", "error");
       return;
     }
 
@@ -111,6 +163,14 @@ export default function HelpDeskPage() {
     
     // Simulate API request delay
     setTimeout(() => {
+      // If offline mode is toggled, fail the request
+      if (isOfflineMode) {
+        setServerError("Connection to IT Helpdesk server lost (ERR_CONNECTION_REFUSED). Please turn off Offline Mode or contact the airport network administrator.");
+        showToast("Server Connection Error", "error");
+        setSubmitting(false);
+        return;
+      }
+
       // Automatic Priority Determination based on category and description keywords
       let priority: "Low" | "Medium" | "High" = "Low";
       const searchStr = (ticketTitle + " " + ticketDescription).toLowerCase();
@@ -142,7 +202,7 @@ export default function HelpDeskPage() {
         priority: priority,
         status: "Open",
         sender: user?.full_name || "Jonathan",
-        role: user?.department || "Supervisor Operasional",
+        role: user?.department || "Operations Supervisor",
         date: new Date().toISOString().replace("T", " ").substring(0, 16),
         description: ticketDescription.trim(),
       };
@@ -151,26 +211,28 @@ export default function HelpDeskPage() {
       setTicketTitle("");
       setTicketDescription("");
       setSubmitting(false);
-      showToast(`Tiket ${newTicket.id} dikirim dengan prioritas ${priority}!`, "success");
-    }, 800);
+      
+      const priorityLabel = priority === "High" ? "High" : (priority === "Medium" ? "Medium" : "Low");
+      showToast(`Ticket ${newTicket.id} submitted with ${priorityLabel} priority!`, "success");
+    }, 1000);
   };
 
-  // FAQ dummy data
+  // FAQ data in English
   const faqs: FAQItem[] = [
     {
       id: 1,
-      question: "Bagaimana cara melacak manifest kargo yang tidak ditemukan?",
-      answer: "Pastikan format manifest ID benar (Contoh: MNF-2026-001). Jika format sudah benar namun masih muncul status 'NOT FOUND', periksa apakah data kargo sudah di-input oleh maskapai di database. Jika belum, Anda dapat membuat tiket kendala AWB di sini.",
+      question: "How to track a cargo manifest that is not found?",
+      answer: "Make sure the manifest ID format is correct (Example: MNF-2026-001). If the format is correct but 'NOT FOUND' still appears, check if the cargo data has been entered by the airline in the database. If not, you can open an AWB issue ticket here.",
     },
     {
       id: 2,
-      question: "Bagaimana cara mengubah status operasional penerbangan?",
-      answer: "Masuk ke halaman 'Operational', cari manifest ID kargo yang ingin Anda ubah, lalu klik baris kargo tersebut untuk membuka formulir edit. Di sana Anda dapat memperbarui flight status (Scheduled, Airborne, Landed, Delayed) dan operational status (In Transit, Completed).",
+      question: "How do I change the flight operational status?",
+      answer: "Go to the 'Operational' page, find the manifest ID of the cargo you want to modify, and click the cargo row to open the edit form. There you can update the flight status (Scheduled, Airborne, Landed, Delayed) and operational status (In Transit, Completed).",
     },
     {
       id: 3,
-      question: "Siapa yang harus dihubungi dalam kondisi IT darurat?",
-      answer: "Anda dapat mengirimkan tiket dengan tingkat prioritas 'High' untuk respon cepat dalam waktu 15 menit dari tim IT Shift Bandara Soedirman.",
+      question: "Who should be contacted in case of an IT emergency?",
+      answer: "You can submit a ticket with a 'High' priority level for a rapid response within 15 minutes from the Soedirman Airport IT Shift team.",
     },
   ];
 
@@ -227,6 +289,18 @@ export default function HelpDeskPage() {
     );
   }
 
+  const getPriorityLabel = (pri: string) => {
+    if (pri === "High") return "High";
+    if (pri === "Medium") return "Medium";
+    return "Low";
+  };
+
+  const getStatusLabel = (stat: string) => {
+    if (stat === "Open") return "Open";
+    if (stat === "In Progress") return "In Progress";
+    return "Resolved";
+  };
+
   return (
     <div className="space-y-8 animate-in fade-in duration-500 max-w-7xl mx-auto pb-12 font-sans">
       
@@ -248,28 +322,101 @@ export default function HelpDeskPage() {
         <div className="lg:col-span-7">
           <div className="bg-white border border-gray-150 rounded-[2rem] p-6 md:p-8 shadow-sm space-y-6">
             
-            <div className="border-b border-gray-100 pb-4">
-              <h3 className="text-lg font-black text-[#0a2a66] uppercase italic tracking-tight">Buka Tiket Bantuan Baru</h3>
-              <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-1">
-                Kirim kendala teknis atau permintaan peralatan kepada Tim IT Support Bandara
-              </p>
+            <div className="border-b border-gray-100 pb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div>
+                <h3 className="text-lg font-black text-[#0a2a66] uppercase italic tracking-tight">Open a New Support Ticket</h3>
+                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-1">
+                  Submit technical issues or equipment requests to the Airport IT Support Team
+                </p>
+              </div>
+
+              {/* SIMULATE OFFLINE TOGGLE */}
+              <div className="flex items-center gap-2.5 bg-slate-50 dark:bg-slate-900 px-4 py-2 rounded-2xl border border-gray-150 self-start md:self-auto shrink-0 shadow-sm transition-all duration-300">
+                <span className={`text-[9px] font-black uppercase tracking-wider ${isOfflineMode ? 'text-rose-600 animate-pulse' : 'text-emerald-600'}`}>
+                  {isOfflineMode ? "Offline Mode Active" : "Server Normal"}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsOfflineMode(!isOfflineMode);
+                    if (!isOfflineMode) {
+                      setServerError(null);
+                    }
+                  }}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 focus:outline-none ${isOfflineMode ? 'bg-rose-500' : 'bg-slate-300'}`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300 ${isOfflineMode ? 'translate-x-6' : 'translate-x-1'}`}
+                  />
+                </button>
+              </div>
             </div>
+
+            {/* Simulated Server Offline Error Card */}
+            {serverError && (
+              <div className="p-4 bg-rose-50 border border-rose-200 rounded-2xl flex flex-col gap-2.5 animate-in slide-in-from-top-4 duration-300">
+                <div className="flex items-center gap-2 text-rose-800">
+                  <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                  </svg>
+                  <span className="text-xs font-black uppercase tracking-wider">Server Connection Error</span>
+                </div>
+                <p className="text-[11px] font-bold text-rose-600 leading-relaxed">
+                  {serverError}
+                </p>
+                <div className="flex gap-2 mt-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const dummyEvent = {
+                        preventDefault: () => {}
+                      } as React.FormEvent;
+                      handleSubmitTicket(dummyEvent);
+                    }}
+                    className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors shadow-md"
+                  >
+                    Retry
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setServerError(null)}
+                    className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors"
+                  >
+                    Hide Error Message
+                  </button>
+                </div>
+              </div>
+            )}
 
             <form onSubmit={handleSubmitTicket} className="space-y-4">
               <div>
-                <label className="text-[8px] font-black uppercase tracking-wider text-gray-400 block mb-1">Subjek / Judul Kendala</label>
+                <label className="text-[8px] font-black uppercase tracking-wider text-gray-400 block mb-1">Subject / Issue Title</label>
                 <input
                   type="text"
-                  placeholder="Contoh: Koneksi Scanner Barcode Warehouse B Terputus"
+                  placeholder="Example: Warehouse B Barcode Scanner Connection Disconnected"
                   value={ticketTitle}
-                  onChange={(e) => setTicketTitle(e.target.value)}
-                  className="w-full px-4 py-3 text-xs font-bold bg-slate-50 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:bg-white text-gray-800"
-                  required
+                  onChange={(e) => {
+                    setTicketTitle(e.target.value);
+                    if (fieldErrors.title) {
+                      setFieldErrors(prev => ({ ...prev, title: undefined }));
+                    }
+                  }}
+                  className={`w-full px-4 py-3 text-xs font-bold bg-slate-50 border rounded-xl focus:outline-none focus:bg-white text-gray-800 transition-colors ${
+                    fieldErrors.title 
+                      ? 'border-rose-500 bg-rose-50/10 focus:border-rose-600' 
+                      : 'border-gray-200 focus:border-blue-500'
+                  }`}
                 />
+                {fieldErrors.title && (
+                  <p className="text-[10px] font-bold text-rose-500 mt-1 flex items-center gap-1 animate-in fade-in duration-200">
+                    <span className="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                    {fieldErrors.title}
+                  </p>
+                )}
               </div>
 
               <div>
-                <label className="text-[8px] font-black uppercase tracking-wider text-gray-400 block mb-1">Kategori Masalah</label>
+                <label className="text-[8px] font-black uppercase tracking-wider text-gray-400 block mb-1">Problem Category</label>
                 <select
                   value={ticketCategory}
                   onChange={(e) => setTicketCategory(e.target.value)}
@@ -283,15 +430,29 @@ export default function HelpDeskPage() {
               </div>
 
               <div>
-                <label className="text-[8px] font-black uppercase tracking-wider text-gray-400 block mb-1">Detail Rincian Kendala</label>
+                <label className="text-[8px] font-black uppercase tracking-wider text-gray-400 block mb-1">Detailed Issue Description</label>
                 <textarea
                   rows={6}
-                  placeholder="Jelaskan secara detail kronologi masalah, manifest kargo terdampak, atau lokasi fisik alat yang bermasalah..."
+                  placeholder="Describe in detail the timeline of the issue, affected cargo manifest, or physical location of the malfunctioning equipment..."
                   value={ticketDescription}
-                  onChange={(e) => setTicketDescription(e.target.value)}
-                  className="w-full px-4 py-3 text-xs font-bold bg-slate-50 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:bg-white text-gray-800 leading-relaxed"
-                  required
+                  onChange={(e) => {
+                    setTicketDescription(e.target.value);
+                    if (fieldErrors.description) {
+                      setFieldErrors(prev => ({ ...prev, description: undefined }));
+                    }
+                  }}
+                  className={`w-full px-4 py-3 text-xs font-bold bg-slate-50 border rounded-xl focus:outline-none focus:bg-white text-gray-800 leading-relaxed transition-colors ${
+                    fieldErrors.description 
+                      ? 'border-rose-500 bg-rose-50/10 focus:border-rose-600' 
+                      : 'border-gray-200 focus:border-blue-500'
+                  }`}
                 />
+                {fieldErrors.description && (
+                  <p className="text-[10px] font-bold text-rose-500 mt-1 flex items-center gap-1 animate-in fade-in duration-200">
+                    <span className="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                    {fieldErrors.description}
+                  </p>
+                )}
               </div>
 
               <div className="pt-2">
@@ -300,7 +461,7 @@ export default function HelpDeskPage() {
                   disabled={submitting}
                   className="w-full bg-[#0a2a66] hover:bg-blue-900 disabled:opacity-55 text-white py-4 rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-md active:scale-95 flex items-center justify-center gap-1.5"
                 >
-                  {submitting ? "Mengirim Tiket..." : "Kirim Tiket Bantuan"}
+                  {submitting ? "Submitting Ticket..." : "Submit Support Ticket"}
                 </button>
               </div>
             </form>
@@ -310,26 +471,33 @@ export default function HelpDeskPage() {
 
         {/* RIGHT COLUMN: Ticket History List */}
         <div className="lg:col-span-5 space-y-6">
-          <div className="bg-white border border-gray-150 rounded-[2rem] p-6 shadow-sm flex flex-col h-[520px]">
+          <div className="bg-white border border-gray-155 rounded-[2rem] p-6 shadow-sm flex flex-col h-[520px]">
             
-            <div className="border-b border-gray-100 pb-4 mb-4">
-              <h3 className="text-sm font-black text-[#0a2a66] uppercase italic tracking-wider">Histori Tiket Bantuan Anda</h3>
-              <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">List of support requests opened by you</p>
+            <div className="border-b border-gray-100 pb-4 mb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+              <div>
+                <h3 className="text-sm font-black text-[#0a2a66] uppercase italic tracking-wider">Your Support Ticket History</h3>
+                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">List of support requests opened by you</p>
+              </div>
+              {isOfflineMode && (
+                <span className="text-[8px] font-black uppercase text-rose-500 bg-rose-50 px-2 py-0.5 rounded-md border border-rose-100 self-start md:self-auto shrink-0">
+                  Offline
+                </span>
+              )}
             </div>
 
             {/* Ticket List Scrollable Container */}
             <div className="flex-1 overflow-y-auto space-y-3 pr-1">
               {tickets.length > 0 ? (
-                tickets.map((t) => (
+                tickets.map((tItem) => (
                   <div
-                    key={t.id}
+                    key={tItem.id}
                     className="p-4 border border-gray-100 rounded-2xl flex flex-col space-y-2.5 relative overflow-hidden bg-white"
                   >
                     {/* Urgency side indicator */}
                     <span className={`absolute left-0 top-0 bottom-0 w-1 ${
-                      t.priority === "High"
+                      tItem.priority === "High"
                         ? "bg-red-500"
-                        : t.priority === "Medium"
+                        : tItem.priority === "Medium"
                           ? "bg-amber-400"
                           : "bg-blue-400"
                     }`}></span>
@@ -337,42 +505,42 @@ export default function HelpDeskPage() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1.5">
                         <span className="text-[9px] font-mono font-black text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">
-                          {t.id}
+                          {tItem.id}
                         </span>
                         <span className="text-[8px] font-black text-gray-400 uppercase tracking-wider">
-                          {t.category}
+                          {tItem.category}
                         </span>
                       </div>
                       <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-wider ${
-                        t.status === "Open"
+                        tItem.status === "Open"
                           ? "bg-blue-100 text-blue-800"
-                          : t.status === "In Progress"
+                          : tItem.status === "In Progress"
                             ? "bg-amber-100 text-amber-800"
                             : "bg-emerald-100 text-emerald-800"
                       }`}>
-                        {t.status}
+                        {getStatusLabel(tItem.status)}
                       </span>
                     </div>
 
                     <h4 className="text-xs font-black text-gray-800 leading-snug">
-                      {t.title}
+                      {tItem.title}
                     </h4>
 
                     <p className="text-[10px] text-gray-500 font-medium leading-relaxed line-clamp-2">
-                      {t.description}
+                      {tItem.description}
                     </p>
 
                     <div className="flex items-center justify-between text-[9px] text-gray-400 font-bold border-t border-gray-50 pt-2">
                       <span className="text-gray-500 uppercase">
-                        Urgensi: <b className={t.priority === "High" ? "text-red-600" : "text-gray-600"}>{t.priority}</b>
+                        Urgency: <b className={tItem.priority === "High" ? "text-red-600" : "text-gray-600"}>{getPriorityLabel(tItem.priority)}</b>
                       </span>
-                      <span>{t.date}</span>
+                      <span>{tItem.date}</span>
                     </div>
                   </div>
                 ))
               ) : (
                 <div className="text-center py-16 text-gray-400 border border-dashed border-gray-200 rounded-2xl">
-                  <p className="text-xs font-bold uppercase">Belum ada tiket bantuan yang dibuka</p>
+                  <p className="text-xs font-bold uppercase">No support tickets opened yet</p>
                 </div>
               )}
             </div>
@@ -383,13 +551,13 @@ export default function HelpDeskPage() {
       </div>
 
       {/* BOTTOM SECTION: FAQ Accordion */}
-      <div className="bg-white border border-gray-150 rounded-[2rem] p-6 md:p-8 shadow-sm space-y-6">
+      <div className="bg-white border border-gray-155 rounded-[2rem] p-6 md:p-8 shadow-sm space-y-6">
         <div className="border-b border-gray-100 pb-3">
           <h3 className="text-sm font-black text-[#0a2a66] uppercase italic tracking-wider flex items-center gap-1.5">
             <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
             </svg>
-            Tanya Jawab Kendala Umum (FAQ)
+            Frequently Asked Questions (FAQ)
           </h3>
           <p className="text-[10px] text-gray-400 font-bold uppercase mt-1">Frequently asked questions & SOP documentation</p>
         </div>

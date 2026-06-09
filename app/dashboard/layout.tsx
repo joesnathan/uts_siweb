@@ -13,7 +13,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [theme, setTheme] = useState<string>("light");
 
-  // OPERASIONAL: Menyelaraskan tema visual antarmuka (light/dark mode) yang dipilih pengguna saat halaman dimuat.
+  // Theme synchronization
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme") || "light";
     setTheme(savedTheme);
@@ -36,7 +36,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     router.push('/login');
   };
 
-  // OPERASIONAL: Sistem proteksi rute di sisi klien. Memeriksa keberadaan data sesi pengguna di localStorage. Jika kosong, akses ditolak dan dialihkan ke login.
+  // Client-side authentication gate
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
@@ -44,12 +44,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         setUser(JSON.parse(storedUser));
         setIsAuthenticated(true);
       } catch (err) {
-        console.error("Gagal parse data user:", err);
+        console.error("Failed to parse user data:", err);
         setIsAuthenticated(false);
       }
     } else {
       setIsAuthenticated(false);
-      // OPERASIONAL: Mengalihkan pengguna tidak dikenal ke halaman masuk (login) secara otomatis dalam waktu 2.5 detik.
       const redirectTimer = setTimeout(() => {
         router.push("/login");
       }, 2500);
@@ -57,7 +56,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
   }, [router]);
 
-  // OPERASIONAL: Menampilkan dan memperbarui jam sistem operasional bandara secara real-time setiap detik.
+  // Operational clock display
   useEffect(() => {
     const updateTime = () => {
       const date = new Date();
@@ -93,7 +92,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     return () => clearInterval(interval);
   }, []);
 
-  // OPERASIONAL: Mengubah judul halaman di header bagian atas secara dinamis berdasarkan rute URL aktif.
   const getPageTitle = () => {
     if (pathname === "/dashboard") {
       return `Welcome, ${user ? user.full_name : "Jonathan"}`;
@@ -111,7 +109,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       : "hover:bg-[#0b3b82]/50";
 
   if (isAuthenticated === null) {
-    // OPERASIONAL: Mencegah efek berkedip (flashing) pada tata letak halaman ketika sistem sedang memverifikasi token sesi pengguna.
     return null;
   }
 
@@ -134,13 +131,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           {/* Heading */}
           <div className="space-y-2">
             <span className="text-[9px] font-black uppercase tracking-[0.2em] text-blue-600 bg-blue-50 px-3.5 py-1 rounded-full">
-              Autentikasi Diperlukan
+              Authentication Required
             </span>
             <h1 className="text-xl font-black text-[#0a2a66] uppercase italic tracking-tight mt-4">
-              Silakan Login Terlebih Dahulu
+              Please Login First
             </h1>
             <p className="text-xs text-gray-400 font-bold leading-relaxed px-2 uppercase">
-              Untuk mengakses halaman operasional kargo, radar penerbangan, dan logistik, silakan masuk ke akun Anda terlebih dahulu.
+              To access the cargo operations, flight radar, and logistics pages, please log in to your account first.
             </p>
           </div>
 
@@ -150,10 +147,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               href="/login"
               className="block w-full bg-[#0a2a66] hover:opacity-90 text-white font-bold py-3.5 rounded-xl text-xs transition-all shadow-md active:scale-95 uppercase tracking-wider"
             >
-              Masuk ke Halaman Login
+              Go to Login Page
             </Link>
             <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest animate-pulse font-mono">
-              Mengarahkan otomatis dalam 2.5 detik...
+              Redirecting automatically in 2.5 seconds...
             </p>
           </div>
 
@@ -165,7 +162,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <div className={`flex h-screen bg-gray-100 dark:bg-[#090d16] font-sans overflow-hidden ${theme === 'dark' ? 'dark' : ''}`}>
       
-      {/* OPERASIONAL: Komponen navigasi utama (sidebar) untuk berpindah rute di panel dasbor admin kargo. */}
+      {/* Sidebar Nav */}
       <aside className={`relative bg-[#0a2a66] text-white flex flex-col justify-between h-full flex-shrink-0 transition-all duration-300 ease-in-out ${isOpen ? 'w-64' : 'w-20'}`}>
         <button 
           onClick={() => setIsOpen(!isOpen)}
@@ -175,7 +172,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </button>
 
         <div>
-          {/* OPERASIONAL: Bagian logo maskapai penerbangan kargo. */}
+          {/* Logo Section */}
           <div className={`flex items-center border-b border-white/10 h-40 justify-center font-[Arial,sans-serif]`}>
             {isOpen ? (
               <div className="flex items-center justify-center w-full p-0 animate-in fade-in zoom-in duration-300">
@@ -223,8 +220,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </svg>
               {isOpen && <span className="whitespace-nowrap font-[Arial] font-bold">Help Desk</span>}
             </Link>
-
-
           </nav>
         </div>
 
@@ -258,13 +253,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
       </aside>
 
-      {/* OPERASIONAL: Area konten utama di sisi kanan dasbor. */}
+      {/* Main Content Area */}
       <main className="flex-1 flex flex-col h-full overflow-hidden bg-white font-[Arial,sans-serif]">
         
-        {/* OPERASIONAL: Header atas dasbor untuk menampilkan nama rute aktif, jam kerja, dan kontrol profil. */}
+        {/* Top Header */}
         <header className="h-24 border-b border-gray-200 flex items-center justify-between px-8 flex-shrink-0 bg-white z-10">
             
-            {/* OPERASIONAL: Teks judul halaman dinamis yang berubah sesuai dengan navigasi yang dipilih. */}
             <div className="flex flex-col animate-in slide-in-from-left duration-500">
               <h1 className="text-2xl font-black tracking-tighter text-[#0a2a66] leading-none uppercase italic">
                 {getPageTitle()}
@@ -274,7 +268,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </p>
             </div>
 
-            {/* SISI KANAN: INFO TANGGAL & LOGOUT */}
             <div className="flex items-center">
               {/* THEME TOGGLE BUTTON */}
               <button
@@ -303,7 +296,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 onClick={handleLogout}
                 className="border-2 border-gray-100 rounded-xl px-4 py-2 text-xs font-black flex items-center gap-2 hover:bg-gray-50 bg-white transition-all uppercase text-gray-700 cursor-pointer"
               >
-                Log Out 
+                Logout
                 <svg className="w-4 h-4 text-red-500 shrink-0" fill="none" stroke="currentColor" strokeWidth="3.5" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 01-3-3h4a3 3 0 013 3v1" />
                 </svg>
@@ -311,7 +304,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
         </header>
 
-        {/* Konten Spesifik Halaman */}
         <div className="flex-1 overflow-auto p-8 bg-gray-50/30">
           {children}
         </div>

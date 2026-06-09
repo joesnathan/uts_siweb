@@ -13,6 +13,7 @@ async function run() {
       await tx`DROP TABLE IF EXISTS cargo_tracking CASCADE;`;
       await tx`DROP TABLE IF EXISTS users CASCADE;`;
       await tx`DROP TABLE IF EXISTS cargo CASCADE;`;
+      await tx`DROP TABLE IF EXISTS tickets CASCADE;`;
 
       console.log("Creating cargo table...");
       await tx`
@@ -76,6 +77,22 @@ async function run() {
           department VARCHAR(100) NOT NULL,
           issue_detail TEXT NOT NULL,
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+      `;
+
+      console.log("Creating tickets table...");
+      await tx`
+        CREATE TABLE tickets (
+          id SERIAL PRIMARY KEY,
+          ticket_id VARCHAR(50) UNIQUE NOT NULL,
+          title VARCHAR(255) NOT NULL,
+          category VARCHAR(100) NOT NULL,
+          priority VARCHAR(50) NOT NULL,
+          status VARCHAR(50) NOT NULL,
+          sender VARCHAR(100) NOT NULL,
+          role VARCHAR(100) NOT NULL,
+          date VARCHAR(100) NOT NULL,
+          description TEXT NOT NULL
         );
       `;
 
@@ -165,6 +182,14 @@ async function run() {
         (1, 'System Administrator', 'ADM-2026-001', 'HQ Operations Control', 'IT support memohon pergantian email superadmin utama.'),
         (2, 'Jonathan Operator', 'OP-2026-001', 'Air Freight Support', 'Akun terblokir setelah salah memasukkan password sebanyak 3 kali.'),
         (3, 'User Nextmail', 'OP-2026-002', 'Cargo Manifest Admin', 'Pesan warning database pooler penuh muncul di log dashboard.');
+      `;
+
+      console.log("Inserting tickets dummy data...");
+      await tx`
+        INSERT INTO tickets (ticket_id, title, category, priority, status, sender, role, date, description) VALUES
+        ('TK-9021', 'Neon Postgres Database Synchronization Latency', 'Database & System', 'High', 'Open', 'Jonathan', 'Operations Supervisor', '2026-06-09 20:15', 'There is a database synchronization latency of about 3 seconds on the Neon Postgres Asia cluster. Please verify the connection pooler.'),
+        ('TK-8842', 'Inconsistent Status for Flight Manifest ID MNF-2026-004', 'AWB Tracking', 'Medium', 'In Progress', 'Budi', 'Cargo Operator', '2026-06-09 18:30', 'When searching for manifest MNF-2026-004, the flight status is marked as Landed but operational status is still In Transit. Please correct this.'),
+        ('TK-7721', 'Cargo Label Printer Issue at Warehouse A', 'Hardware / Devices', 'Low', 'Resolved', 'Susi', 'Warehouse Staff', '2026-06-08 14:10', 'The label printer is not printing barcodes for new manifests. LAN cable connection is working normally.');
       `;
       
       console.log("MIGRATION COMPLETE!");

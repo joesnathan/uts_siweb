@@ -145,9 +145,58 @@ const translations: Record<Language, Record<string, string>> = {
     sec6_bullet1: "Mengakses dan meninjau informasi profil yang kami simpan tentang Anda.",
     sec6_bullet2: "Meminta koreksi atau pembaruan pada data kontak yang tidak akurat.",
     sec6_bullet3: "Menghubungi layanan pelanggan kami terkait pengelolaan data kargo Anda.",
-
+    
     sec7_title: "Perubahan pada Kebijakan Privasi",
-    sec7_desc: "Kami dapat memperbarui Kebijakan Privasi ini dari waktu ke waktu untuk mematuhi peraturan hukum atau peningkatan sistem operasional kami. Perubahan akan diumumkan melalui portal web Ekspedisi Terbanginaja."
+    sec7_desc: "Kami dapat memperbarui Kebijakan Privasi ini dari waktu ke waktu untuk mematuhi peraturan hukum atau peningkatan sistem operasional kami. Perubahan akan diumumkan melalui portal web Ekspedisi Terbanginaja.",
+
+    // Dashboard Layout & Sidebar
+    db_dashboard: "Dashboard",
+    db_operational: "Operasional",
+    db_flight_status: "Status Penerbangan",
+    db_tracking_awb: "Pelacakan AWB",
+    db_help_desk: "Pusat Bantuan",
+    db_welcome: "Selamat Datang,",
+    db_logout: "Keluar",
+    db_theme_light: "Ubah ke Mode Terang",
+    db_theme_dark: "Ubah ke Mode Gelap",
+    db_auth_required: "Autentikasi Diperlukan",
+    db_login_first: "Silakan Login Terlebih Dahulu",
+    db_login_first_desc: "Untuk mengakses halaman operasional kargo, radar penerbangan, dan logistik, silakan masuk ke akun Anda terlebih dahulu.",
+    db_login_btn: "Masuk ke Halaman Login",
+    db_redirecting: "Mengarahkan otomatis dalam 2.5 detik...",
+    db_airport: "BANDARA SOEDIRMAN (CGK)",
+
+    // Help Desk Page
+    hd_toast_success: "Tiket {id} dikirim dengan prioritas {priority}!",
+    hd_toast_required: "Judul dan deskripsi wajib diisi!",
+    hd_title: "Buka Tiket Bantuan Baru",
+    hd_desc: "Kirim kendala teknis atau permintaan peralatan kepada Tim IT Support Bandara",
+    hd_sub_title: "Subjek / Judul Kendala",
+    hd_sub_placeholder: "Contoh: Koneksi Scanner Barcode Warehouse B Terputus",
+    hd_cat_title: "Kategori Masalah",
+    hd_det_title: "Detail Rincian Kendala",
+    hd_det_placeholder: "Jelaskan secara detail kronologi masalah, manifest kargo terdampak, atau lokasi fisik alat yang bermasalah...",
+    hd_btn_submit: "Kirim Tiket Bantuan",
+    hd_btn_submitting: "Mengirim Tiket...",
+    hd_history_title: "Histori Tiket Bantuan Anda",
+    hd_history_desc: "Daftar permintaan bantuan yang Anda buka",
+    hd_urgency: "Urgensi:",
+    hd_empty_tickets: "Belum ada tiket bantuan yang dibuka",
+    hd_faq_title: "Tanya Jawab Kendala Umum (FAQ)",
+    hd_faq_desc: "Tanya jawab umum & dokumentasi SOP",
+    
+    // Help Desk Page Error Handling Simulation
+    hd_offline_mode: "Simulasi Offline / Gangguan Server",
+    hd_offline_active: "Mode Offline Aktif",
+    hd_offline_inactive: "Server Normal",
+    hd_error_offline_title: "Kesalahan Koneksi Server",
+    hd_error_offline_desc: "Koneksi ke server IT Helpdesk terputus (ERR_CONNECTION_REFUSED). Silakan matikan Mode Offline atau hubungi administrator jaringan bandara.",
+    hd_error_title_min: "Judul kendala terlalu pendek (minimal 5 karakter).",
+    hd_error_desc_min: "Deskripsi kendala terlalu pendek (minimal 15 karakter).",
+    hd_error_spam: "Deteksi spam: Deskripsi tidak boleh mengulang kata yang sama terus-menerus.",
+    hd_error_category_select: "Silakan pilih kategori masalah yang valid.",
+    hd_retry: "Coba Lagi",
+    hd_clear_error: "Sembunyikan Pesan Kesalahan"
   },
   en: {
     // Navbar
@@ -283,9 +332,58 @@ const translations: Record<Language, Record<string, string>> = {
     sec6_bullet1: "Access and review the profile information we store about you.",
     sec6_bullet2: "Request corrections or updates to inaccurate contact data.",
     sec6_bullet3: "Contact our customer service regarding the management of your cargo data.",
-
+    
     sec7_title: "Changes to the Privacy Policy",
-    sec7_desc: "We may update this Privacy Policy from time to time to comply with legal regulations or improvements to our operational systems. Changes will be announced through the Ekspedisi Terbanginaja web portal."
+    sec7_desc: "We may update this Privacy Policy from time to time to comply with legal regulations or improvements to our operational systems. Changes will be announced through the Ekspedisi Terbanginaja web portal.",
+
+    // Dashboard Layout & Sidebar
+    db_dashboard: "Dashboard",
+    db_operational: "Operational",
+    db_flight_status: "Flight Status",
+    db_tracking_awb: "Tracking AWB",
+    db_help_desk: "Help Desk",
+    db_welcome: "Welcome,",
+    db_logout: "Log Out",
+    db_theme_light: "Switch to Light Mode",
+    db_theme_dark: "Switch to Dark Mode",
+    db_auth_required: "Authentication Required",
+    db_login_first: "Please Login First",
+    db_login_first_desc: "To access the cargo operations, flight radar, and logistics pages, please log in to your account first.",
+    db_login_btn: "Go to Login Page",
+    db_redirecting: "Redirecting automatically in 2.5 seconds...",
+    db_airport: "SOEDIRMAN AIRPORT (CGK)",
+
+    // Help Desk Page
+    hd_toast_success: "Ticket {id} submitted with {priority} priority!",
+    hd_toast_required: "Subject and description are required!",
+    hd_title: "Open a New Support Ticket",
+    hd_desc: "Submit technical issues or equipment requests to the Airport IT Support Team",
+    hd_sub_title: "Subject / Issue Title",
+    hd_sub_placeholder: "Example: Warehouse B Barcode Scanner Connection Disconnected",
+    hd_cat_title: "Problem Category",
+    hd_det_title: "Detailed Issue Description",
+    hd_det_placeholder: "Describe in detail the timeline of the issue, affected cargo manifest, or physical location of the malfunctioning equipment...",
+    hd_btn_submit: "Submit Support Ticket",
+    hd_btn_submitting: "Submitting Ticket...",
+    hd_history_title: "Your Support Ticket History",
+    hd_history_desc: "List of support requests opened by you",
+    hd_urgency: "Urgency:",
+    hd_empty_tickets: "No support tickets opened yet",
+    hd_faq_title: "Frequently Asked Questions (FAQ)",
+    hd_faq_desc: "Frequently asked questions & SOP documentation",
+
+    // Help Desk Page Error Handling Simulation
+    hd_offline_mode: "Simulate Offline / Server Outage",
+    hd_offline_active: "Offline Mode Active",
+    hd_offline_inactive: "Server Normal",
+    hd_error_offline_title: "Server Connection Error",
+    hd_error_offline_desc: "Connection to IT Helpdesk server lost (ERR_CONNECTION_REFUSED). Please turn off Offline Mode or contact the airport network administrator.",
+    hd_error_title_min: "Issue subject is too short (minimum 5 characters).",
+    hd_error_desc_min: "Issue description is too short (minimum 15 characters).",
+    hd_error_spam: "Spam detected: Description cannot repeatedly reuse the same word.",
+    hd_error_category_select: "Please select a valid problem category.",
+    hd_retry: "Retry",
+    hd_clear_error: "Hide Error Message"
   }
 };
 

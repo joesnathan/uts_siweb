@@ -116,13 +116,13 @@ export default function DashboardOperationalPage() {
 
           setStats({ total, onTime, delayed, departed });
         } else {
-          setError(jsonResult.error || "Gagal menyelaraskan data dengan database Neon.");
+          setError(jsonResult.error || "Failed to synchronize data with Neon database.");
         }
       } else {
-        setError(`Kesalahan server: HTTP ${res.status}`);
+        setError(`Server error: HTTP ${res.status}`);
       }
     } catch (err) {
-      setError("Gagal menyelaraskan data dengan database Neon. Periksa koneksi internet.");
+      setError("Failed to synchronize data with Neon database. Check your internet connection.");
       console.error("Dashboard database cloud sync failed:", err);
     } finally {
       setIsLoading(false);
@@ -343,14 +343,14 @@ export default function DashboardOperationalPage() {
               <div className="flex-1 w-full">
                 <div className="flex items-center justify-between mb-1">
                   <h3 className="font-black text-gray-800 uppercase text-xs tracking-wider">
-                    Pusat Analisis & Informasi Grafik Real-time
+                    Real-time Analytics & Chart Information Center
                   </h3>
                   <span className="text-[9px] font-black uppercase bg-blue-100 text-[#0a2a66] dark:bg-blue-950/40 dark:text-blue-400 dark:border-blue-900/50 px-2.5 py-1 rounded-full border border-blue-200">
                     Neon DB Connected
                   </span>
                 </div>
                 <p className="text-[10px] text-gray-500 font-bold mb-4">
-                  Sistem menyajikan <span className="text-[#0a2a66] dark:text-blue-400 font-black">2 grafik analitis</span> yang terintegrasi secara langsung dengan data kargo aktif:
+                  The system presents <span className="text-[#0a2a66] dark:text-blue-400 font-black">2 analytical charts</span> directly integrated with active cargo data:
                 </p>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -359,11 +359,11 @@ export default function DashboardOperationalPage() {
                     <div className="flex items-center gap-2 mb-2">
                       <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
                       <h4 className="font-extrabold text-[#0a2a66] dark:text-blue-400 text-[11px] uppercase tracking-wider">
-                        1. Grafik Tren Volume Cargo Harian
+                        1. Daily Cargo Volume Trend Chart
                       </h4>
                     </div>
                     <p className="text-[10px] text-gray-400 font-bold leading-normal mb-3">
-                      Menampilkan status operasional dari kargo yang masuk dalam manifestasi.
+                      Displays the operational status of cargo included in the manifest.
                     </p>
                     <div className="grid grid-cols-2 gap-2 text-[9px] font-black text-gray-700">
                       <div className="flex items-center justify-between bg-slate-50/80 dark:bg-[#070b12]/60 px-2.5 py-2 rounded-xl border border-slate-100/50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-[#070b12]/80 transition-colors">
@@ -373,7 +373,7 @@ export default function DashboardOperationalPage() {
                           </svg>
                           <span>SCHED:</span>
                         </div>
-                        <span className="text-blue-600 font-extrabold">{stats.total - stats.onTime - stats.delayed - stats.departed} data</span>
+                        <span className="text-blue-600 font-extrabold">{stats.total - stats.onTime - stats.delayed - stats.departed} records</span>
                       </div>
                       
                       <div className="flex items-center justify-between bg-slate-50/80 dark:bg-[#070b12]/60 px-2.5 py-2 rounded-xl border border-slate-100/50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-[#070b12]/80 transition-colors">
@@ -383,7 +383,7 @@ export default function DashboardOperationalPage() {
                           </svg>
                           <span>ACTIVE:</span>
                         </div>
-                        <span className="text-sky-600 font-extrabold">{stats.departed} data</span>
+                        <span className="text-sky-600 font-extrabold">{stats.departed} records</span>
                       </div>
                       
                       <div className="flex items-center justify-between bg-slate-50/80 dark:bg-[#070b12]/60 px-2.5 py-2 rounded-xl border border-slate-100/50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-[#070b12]/80 transition-colors">
@@ -393,7 +393,7 @@ export default function DashboardOperationalPage() {
                           </svg>
                           <span>LANDED:</span>
                         </div>
-                        <span className="text-emerald-600 font-extrabold">{stats.onTime} data</span>
+                        <span className="text-emerald-600 font-extrabold">{stats.onTime} records</span>
                       </div>
                       
                       <div className="flex items-center justify-between bg-slate-50/80 dark:bg-[#070b12]/60 px-2.5 py-2 rounded-xl border border-slate-100/50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-[#070b12]/80 transition-colors">
@@ -403,21 +403,21 @@ export default function DashboardOperationalPage() {
                           </svg>
                           <span>DELAYED:</span>
                         </div>
-                        <span className="text-amber-600 font-extrabold">{stats.delayed} data</span>
+                        <span className="text-amber-600 font-extrabold">{stats.delayed} records</span>
                       </div>
                     </div>
                   </div>
-
+ 
                   {/* Grafik 2 Info: Flight On-Time Performance */}
                   <div className="bg-white/80 dark:bg-[#0d1527]/50 backdrop-blur-sm p-4 rounded-2xl border border-blue-50/50 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
                     <div className="flex items-center gap-2 mb-2">
                       <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                       <h4 className="font-extrabold text-[#0a2a66] dark:text-blue-400 text-[11px] uppercase tracking-wider">
-                        2. Grafik Performa Ketepatan Waktu
+                        2. Flight On-Time Performance Chart
                       </h4>
                     </div>
                     <p className="text-[10px] text-gray-400 font-bold leading-normal mb-3">
-                      Mengukur rasio ketepatan waktu keberangkatan dan pendaratan penerbangan kargo.
+                      Measures the on-time departure and landing ratio of cargo flights.
                     </p>
                     <div className="grid grid-cols-2 gap-2 text-[9px] font-black text-gray-700">
                       <div className="flex items-center justify-between bg-slate-50/80 dark:bg-[#070b12]/60 px-2.5 py-2 rounded-xl border border-slate-100/50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-[#070b12]/80 transition-colors">
@@ -429,7 +429,7 @@ export default function DashboardOperationalPage() {
                           </svg>
                           <span>ON TIME:</span>
                         </div>
-                        <span className="text-emerald-600 font-extrabold">{stats.onTime} data</span>
+                        <span className="text-emerald-600 font-extrabold">{stats.onTime} records</span>
                       </div>
                       
                       <div className="flex items-center justify-between bg-slate-50/80 dark:bg-[#070b12]/60 px-2.5 py-2 rounded-xl border border-slate-100/50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-[#070b12]/80 transition-colors">
@@ -439,18 +439,18 @@ export default function DashboardOperationalPage() {
                           </svg>
                           <span>DELAYED:</span>
                         </div>
-                        <span className="text-red-600 font-extrabold">{stats.delayed} data</span>
+                        <span className="text-red-600 font-extrabold">{stats.delayed} records</span>
                       </div>
                     </div>
                   </div>
                 </div>
-
+ 
                 <div className="mt-4 flex items-center gap-2 text-[10px] text-slate-500 dark:text-slate-300 font-bold bg-[#0a2a66]/5 dark:bg-blue-950/20 px-3.5 py-2.5 rounded-xl border border-[#0a2a66]/10 dark:border-blue-900/30">
                   <svg className="w-4 h-4 text-[#0a2a66] dark:text-blue-400 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 111.063.852l-.708 2.836a.75.75 0 001.063.852l.041-.028M12 18.75h.007v.008H12v-.008zM12 3a9 9 0 110 18 9 9 0 010-18z" />
                   </svg>
                   <span>
-                    Tips Interaktif: Arahkan kursor Anda ke masing-masing batang grafik di bawah untuk memunculkan detail data secara instan.
+                    Interactive Tips: Hover over each chart bar below to view data details instantly.
                   </span>
                 </div>
               </div>
@@ -478,13 +478,13 @@ export default function DashboardOperationalPage() {
                           {/* Tooltip Kustom */}
                           <div className="absolute bottom-full mb-2.5 hidden group-hover:flex flex-col items-center z-50 animate-in fade-in zoom-in duration-200">
                             <div className="bg-[#0b1329] text-white text-[9px] font-black px-2.5 py-1.5 rounded-xl whitespace-nowrap shadow-xl border border-slate-800">
-                              {schedVal} Cargo Dijadwalkan
+                              {schedVal} Cargo Scheduled
                             </div>
                             <div className="w-1.5 h-1.5 bg-[#0b1329] rotate-45 -mt-1 border-r border-b border-slate-800"></div>
                           </div>
 
                           <div 
-                            title={`${schedVal} Cargo Dijadwalkan`}
+                            title={`${schedVal} Cargo Scheduled`}
                             className="w-8 bg-blue-400/35 border border-blue-400/20 rounded-t-lg transition-all duration-1000 ease-out cursor-pointer hover:bg-blue-400/50" 
                             style={{ height: `${Math.max(hSched * 1.2, 10)}px` }}
                           ></div>
@@ -495,13 +495,13 @@ export default function DashboardOperationalPage() {
                           {/* Tooltip Kustom */}
                           <div className="absolute bottom-full mb-2.5 hidden group-hover:flex flex-col items-center z-50 animate-in fade-in zoom-in duration-200">
                             <div className="bg-[#0b1329] text-white text-[9px] font-black px-2.5 py-1.5 rounded-xl whitespace-nowrap shadow-xl border border-slate-800">
-                              {stats.departed} Kargo Sedang Terbang
+                              {stats.departed} Cargo Airborne
                             </div>
                             <div className="w-1.5 h-1.5 bg-[#0b1329] rotate-45 -mt-1 border-r border-b border-slate-800"></div>
                           </div>
 
                           <div 
-                            title={`${stats.departed} Kargo Sedang Terbang`}
+                            title={`${stats.departed} Cargo Airborne`}
                             className="w-8 bg-sky-500/70 border border-sky-400/20 rounded-t-lg transition-all duration-1000 ease-out cursor-pointer hover:bg-sky-500/90" 
                             style={{ height: `${Math.max(hAirborne * 1.2, 10)}px` }}
                           ></div>
@@ -512,13 +512,13 @@ export default function DashboardOperationalPage() {
                           {/* Tooltip Kustom */}
                           <div className="absolute bottom-full mb-2.5 hidden group-hover:flex flex-col items-center z-50 animate-in fade-in zoom-in duration-200">
                             <div className="bg-[#0b1329] text-white text-[9px] font-black px-2.5 py-1.5 rounded-xl whitespace-nowrap shadow-xl border border-slate-800">
-                              {stats.onTime} Kargo Tiba / Selesai
+                              {stats.onTime} Cargo Landed / Completed
                             </div>
                             <div className="w-1.5 h-1.5 bg-[#0b1329] rotate-45 -mt-1 border-r border-b border-slate-800"></div>
                           </div>
 
                           <div 
-                            title={`${stats.onTime} Kargo Tiba / Selesai`}
+                            title={`${stats.onTime} Cargo Landed / Completed`}
                             className="w-8 bg-blue-700 border border-blue-600 rounded-t-lg transition-all duration-1000 ease-out cursor-pointer hover:bg-blue-800" 
                             style={{ height: `${Math.max(hLanded * 1.2, 10)}px` }}
                           ></div>
@@ -529,13 +529,13 @@ export default function DashboardOperationalPage() {
                           {/* Tooltip Kustom */}
                           <div className="absolute bottom-full mb-2.5 hidden group-hover:flex flex-col items-center z-50 animate-in fade-in zoom-in duration-200">
                             <div className="bg-[#0b1329] text-white text-[9px] font-black px-2.5 py-1.5 rounded-xl whitespace-nowrap shadow-xl border border-slate-800">
-                              {stats.delayed} Penerbangan Ditunda
+                              {stats.delayed} Flights Delayed
                             </div>
                             <div className="w-1.5 h-1.5 bg-[#0b1329] rotate-45 -mt-1 border-r border-b border-slate-800"></div>
                           </div>
 
                           <div 
-                            title={`${stats.delayed} Penerbangan Ditunda`}
+                            title={`${stats.delayed} Flights Delayed`}
                             className="w-8 bg-yellow-500/80 border border-yellow-400/20 rounded-t-lg transition-all duration-1000 ease-out cursor-pointer hover:bg-yellow-500" 
                             style={{ height: `${Math.max(hDelayed * 1.2, 10)}px` }}
                           ></div>
@@ -564,13 +564,13 @@ export default function DashboardOperationalPage() {
                           {/* Tooltip Kustom */}
                           <div className="absolute bottom-full mb-2.5 hidden group-hover:flex flex-col items-center z-50 animate-in fade-in zoom-in duration-200">
                             <div className="bg-[#0b1329] text-white text-[9px] font-black px-2.5 py-1.5 rounded-xl whitespace-nowrap shadow-xl border border-slate-800">
-                              {stats.onTime} Tepat Waktu (Landed)
+                              {stats.onTime} On Time (Landed)
                             </div>
                             <div className="w-1.5 h-1.5 bg-[#0b1329] rotate-45 -mt-1 border-r border-b border-slate-800"></div>
                           </div>
 
                           <div 
-                            title={`${stats.onTime} Tepat Waktu (Landed)`}
+                            title={`${stats.onTime} On Time (Landed)`}
                             className="w-10 bg-emerald-600 rounded-t-lg transition-all duration-1000 ease-out cursor-pointer hover:bg-emerald-700 animate-pulse" 
                             style={{ height: `${Math.max(hOnTime * 1.3, 15)}px` }}
                           ></div>
@@ -581,13 +581,13 @@ export default function DashboardOperationalPage() {
                           {/* Tooltip Kustom */}
                           <div className="absolute bottom-full mb-2.5 hidden group-hover:flex flex-col items-center z-50 animate-in fade-in zoom-in duration-200">
                             <div className="bg-[#0b1329] text-white text-[9px] font-black px-2.5 py-1.5 rounded-xl whitespace-nowrap shadow-xl border border-slate-800">
-                              {stats.delayed} Terlambat (Delayed)
+                              {stats.delayed} Delayed
                             </div>
                             <div className="w-1.5 h-1.5 bg-[#0b1329] rotate-45 -mt-1 border-r border-b border-slate-800"></div>
                           </div>
 
                           <div 
-                            title={`${stats.delayed} Terlambat (Delayed)`}
+                            title={`${stats.delayed} Delayed`}
                             className="w-10 bg-red-500/80 rounded-t-lg transition-all duration-1000 ease-out cursor-pointer hover:bg-red-500" 
                             style={{ height: `${Math.max(hDelayed * 1.3, 10)}px` }}
                           ></div>
