@@ -130,10 +130,12 @@ export default function TrackingAwbPage() {
       fetchHistory(cargo.id);
       setNewLocation("");
       setNewDescription("");
+      setErrorCargoId(null);
     } else {
       showToast(`Manifest ID "${searchIdClean}" tidak ditemukan dalam sistem.`, "error");
       setSelectedCargo(null);
       setTrackingHistory([]);
+      setErrorCargoId(searchIdClean);
     }
   };
 
@@ -176,9 +178,53 @@ export default function TrackingAwbPage() {
 
   if (loadingCargos) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px]">
-        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-        <p className="mt-4 text-xs font-bold text-gray-500 uppercase tracking-widest font-mono">Memuat database kargo...</p>
+      <div className="flex flex-col items-center justify-center min-h-[480px] w-full bg-white border border-gray-100 rounded-[2.5rem] p-12 relative overflow-hidden shadow-xl shadow-gray-100/50 animate-in fade-in duration-500">
+        
+        {/* Subtle grid background */}
+        <div className="absolute inset-0 z-0 opacity-[0.04] pointer-events-none">
+          <div className="w-full h-full bg-[linear-gradient(to_right,#0a2a66_1px,transparent_1px),linear-gradient(to_bottom,#0a2a66_1px,transparent_1px)] bg-[size:30px_30px]"></div>
+        </div>
+
+        {/* Concentric radar loading pulses */}
+        <div className="relative z-10 w-24 h-24 mb-8 flex items-center justify-center">
+          <div className="absolute inset-0 border border-blue-500/20 rounded-full animate-ping" style={{ animationDuration: '2s' }}></div>
+          <div className="absolute inset-3 border-2 border-blue-500/15 rounded-full animate-ping" style={{ animationDuration: '3s' }}></div>
+          <div className="absolute inset-6 border border-blue-400/20 rounded-full animate-pulse"></div>
+          
+          {/* Glowing Glassmorphic Cargo Scope */}
+          <div className="w-16 h-16 bg-gradient-to-tr from-[#0a2a66] to-blue-700 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-900/30 relative overflow-hidden">
+            <div className="absolute inset-0 bg-[conic-gradient(from_0deg,transparent_45%,rgba(255,255,255,0.35)_100%)] animate-spin" style={{ animationDuration: '2.5s' }}></div>
+            {/* Clean Cargo Plane SVG */}
+            <svg className="w-8 h-8 text-white relative z-10 drop-shadow-[0_2px_6px_rgba(255,255,255,0.4)]" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 19.5h16.5M21 12l-5-2-4-5H9l2 5-5 1-2-2H2l1 3 3 1 12 3 5-3z" />
+            </svg>
+          </div>
+        </div>
+
+        {/* Dynamic status text */}
+        <div className="relative z-10 text-center max-w-sm">
+          <span className="text-[9px] font-black uppercase tracking-[0.25em] text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
+            Securing Connection
+          </span>
+          <h2 className="text-[#0a2a66] font-black text-xl tracking-tighter mt-4 uppercase italic">Terbanginaja Logistics</h2>
+          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-2.5 flex items-center justify-center gap-1.5 font-mono">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+            Syncing cargo flight GPS from Neon database...
+          </p>
+        </div>
+
+        {/* Glowing Dynamic Slide Progress bar */}
+        <div className="relative z-10 w-60 h-1.5 bg-gray-100 rounded-full overflow-hidden mt-8 border border-gray-200/50 p-[1px]">
+          <div className="h-full bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full animate-[loadingSlide_2.5s_ease-in-out_infinite]"></div>
+        </div>
+
+        <style>{`
+          @keyframes loadingSlide {
+            0% { width: 0%; margin-left: 0%; }
+            50% { width: 60%; margin-left: 20%; }
+            100% { width: 0%; margin-left: 100%; }
+          }
+        `}</style>
       </div>
     );
   }
@@ -197,23 +243,37 @@ export default function TrackingAwbPage() {
         </div>
       )}
 
-      {/* Manifest Selector Card */}
-      <div className="bg-white border border-gray-155 rounded-[2rem] p-6 md:p-8 shadow-sm">
-        <h2 className="text-lg font-black text-[#0a2a66] uppercase italic tracking-tight mb-4">LACAK MANIFEST ID / AWB</h2>
-        <div className="flex flex-col sm:flex-row gap-3">
+      {/* Mockup Title Header */}
+      <div className="flex flex-col items-center justify-center text-center space-y-3 pt-4">
+        <div className="inline-flex items-center px-4 py-1.5 bg-[#EFF6FF] border border-[#DBEAFE] rounded-full">
+          <span className="text-[10px] font-black text-[#2563EB] tracking-[0.2em] uppercase font-mono">
+            CARGO AIRSPACE RADAR
+          </span>
+        </div>
+        <h1 className="text-4xl md:text-5xl font-black tracking-tight text-[#0A2A66] uppercase font-sans">
+          TRACK <span className="text-[#2563EB]">YOUR CARGO</span>
+        </h1>
+        <p className="text-[10px] font-black text-gray-400 tracking-[0.15em] uppercase">
+          ENTER MANIFEST ID TO TRACK SHIPMENT
+        </p>
+      </div>
+
+      {/* Manifest Selector Card / Search Box */}
+      <div className="max-w-4xl mx-auto w-full">
+        <div className="flex flex-col sm:flex-row gap-4">
           <input
             type="text"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             placeholder="Masukkan Manifest ID (Contoh: MNF-2026-001)"
-            className="flex-1 px-5 py-3.5 bg-slate-50 border border-gray-200 text-gray-900 placeholder-slate-400 rounded-xl font-mono focus:outline-none focus:border-blue-500 text-sm font-bold"
+            className="flex-1 px-6 py-4 bg-white border-2 border-[#2563EB] text-gray-900 placeholder-slate-400 rounded-2xl font-mono focus:outline-none text-base font-bold shadow-sm"
             onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
           />
           <button
             onClick={handleSearch}
-            className="bg-[#0a2a66] hover:bg-[#124294] text-white px-8 py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all shadow-md active:scale-95 whitespace-nowrap"
+            className="bg-[#1C3D7D] hover:bg-[#122852] text-white px-10 py-4 rounded-2xl font-black text-sm uppercase tracking-wider transition-all shadow-md active:scale-95 whitespace-nowrap"
           >
-            Cari Manifest
+            TRACK NOW
           </button>
         </div>
       </div>
@@ -392,12 +452,55 @@ export default function TrackingAwbPage() {
         </div>
       ) : (
         errorCargoId ? (
-          <div className="bg-white border border-gray-155 rounded-[2rem] p-6 md:p-8 shadow-sm space-y-4">
-            <h3 className="text-lg font-black text-[#0a2a66] uppercase italic mb-2">Manifest ID: {errorCargoId}</h3>
-            <span className="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-rose-100 text-rose-700 border border-rose-200">
-              NOT FOUND
-            </span>
-            <p className="text-xs text-gray-600 mt-2">Search failed – manifest not found. Please verify the ID or contact support.</p>
+          <div className="bg-[#F8FAFC] border border-gray-100 rounded-[2rem] p-6 md:p-8 space-y-6">
+            
+            {/* Manifest ID Info Card */}
+            <div className="bg-white border border-gray-150 rounded-[2rem] p-8 shadow-sm">
+              <div className="space-y-3">
+                <h3 className="text-2xl md:text-3xl font-black text-[#0a2a66] uppercase tracking-tight">
+                  MANIFEST ID: <span className="text-[#2563EB]">{errorCargoId}</span>
+                </h3>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-bold text-gray-500">Status:</span>
+                  <span className="px-3.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-[#FFF1F2] text-[#991B1B] border border-[#FECDD3]">
+                    NOT FOUND
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-wider">OPERATIONAL:</span>
+                  <span className="text-[10px] font-black text-[#EF4444] uppercase tracking-wider">
+                    ERROR
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Tracking History Label */}
+            <div className="flex items-center gap-2 px-2 pt-2">
+              <svg className="w-5 h-5 text-[#2563EB]" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+              </svg>
+              <span className="text-xs font-black text-[#0a2a66] uppercase tracking-wider font-sans">
+                TRACKING HISTORY
+              </span>
+            </div>
+
+            {/* Error Message Box */}
+            <div className="bg-[#FFF1F2] border border-[#FECDD3] rounded-[1.5rem] p-8 text-center flex flex-col items-center justify-center space-y-4">
+              <div className="flex items-center justify-center gap-2 text-[#991B1B]">
+                <svg className="w-6 h-6 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <h4 className="text-xs font-black uppercase tracking-wider">
+                  SEARCH FAILED / ERROR HANDLING
+                </h4>
+              </div>
+              <p className="text-xs text-[#B91C1C] leading-relaxed max-w-2xl font-bold font-sans">
+                The Manifest ID you entered is not registered in our database. Please make sure the format entered is correct (Example: MNF-2026-001) or contact the airline support administrator.
+              </p>
+            </div>
+
           </div>
         ) : (
           <div className="text-center py-16 border-2 border-dashed border-gray-250 rounded-[2rem] bg-white shadow-sm">
