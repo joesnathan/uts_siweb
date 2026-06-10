@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation"; // 1. IMPORT USEROUTER UNTUK NAVIGASI
+import { useLanguage } from "../LanguageContext";
 
 // Struktur data terintegrasi presisi dengan database Neon Postgres
 interface CargoRow {
@@ -33,6 +34,7 @@ interface FlightCargoType {
 }
 
 export default function DashboardOperationalPage() {
+  const { language, t } = useLanguage();
   const router = useRouter(); // 2. INISIALISASI ROUTER
   const [cargoList, setCargoList] = useState<CargoRow[]>([]);
 
@@ -134,6 +136,57 @@ export default function DashboardOperationalPage() {
   }, []);
 
   const handleExport = () => {
+    if (!cargoList || cargoList.length === 0) {
+      return;
+    }
+
+    const headers = [
+      "ID",
+      "Manifest ID",
+      "Airline Name",
+      "Flight Code",
+      "Route",
+      "Weight",
+      "Flight Status",
+      "Operational Status",
+      "Departure Date",
+      "Scheduled Time",
+      "Actual Time",
+      "Gate",
+      "Total Items"
+    ];
+
+    const rows = cargoList.map(item => [
+      item.id,
+      `"${(item.manifest_id || '').replace(/"/g, '""')}"`,
+      `"${(item.airline_name || '').replace(/"/g, '""')}"`,
+      `"${(item.flight_code || '').replace(/"/g, '""')}"`,
+      `"${(item.route || '').replace(/"/g, '""')}"`,
+      item.weight,
+      `"${(item.flight_status || '').replace(/"/g, '""')}"`,
+      `"${(item.operational_status || item.status || 'Pending').replace(/"/g, '""')}"`,
+      `"${(item.date || '').replace(/"/g, '""')}"`,
+      `"${(item.scheduled_time || '').replace(/"/g, '""')}"`,
+      `"${(item.actual_time || '').replace(/"/g, '""')}"`,
+      `"${(item.gate || '').replace(/"/g, '""')}"`,
+      item.items || 0
+    ]);
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map(e => e.join(","))
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `cargo_manifest_export_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
     setShowExportNotif(true);
     setTimeout(() => setShowExportNotif(false), 3000);
   };
@@ -175,14 +228,14 @@ export default function DashboardOperationalPage() {
         {/* Preloader Subtext & Branding */}
         <div className="relative z-10 text-center max-w-sm">
           <span className="text-[8.5px] font-black uppercase tracking-[0.28em] text-blue-400 bg-blue-950/80 border border-blue-900/50 px-4 py-1.5 rounded-full backdrop-blur-md">
-            Establishing Cloud Connection
+            {t("db_main_loading_title")}
           </span>
           <h1 className="text-3xl font-black tracking-tighter mt-6 uppercase italic text-white leading-none">
             Terbanginaja <span className="text-blue-500">Dashboard</span>
           </h1>
           <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-3.5 flex items-center justify-center gap-1.5 font-mono">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
-            Securing connection & downloading real-time manifests...
+            {t("db_main_loading_desc")}
           </p>
         </div>
 
@@ -258,12 +311,12 @@ export default function DashboardOperationalPage() {
         {/* Dynamic status text */}
         <div className="relative z-10 text-center max-w-sm">
           <span className="text-[9px] font-black uppercase tracking-[0.25em] text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
-            Securing Connection
+            {t("db_main_securing_conn")}
           </span>
           <h2 className="text-[#0a2a66] font-black text-xl tracking-tighter mt-4 uppercase italic">Terbanginaja Logistics</h2>
           <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-2.5 flex items-center justify-center gap-1.5 font-mono">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
-            Syncing cargo flight GPS from Neon database...
+            {t("db_main_syncing")}
           </p>
         </div>
 
@@ -295,16 +348,16 @@ export default function DashboardOperationalPage() {
             </svg>
           </div>
           <h2 className="text-2xl font-black text-gray-800 tracking-tight leading-none uppercase italic">
-            Database Sync Failed
+            {t("db_main_sync_failed")}
           </h2>
           <p className="text-sm font-bold text-gray-500">
-            {error || "Could not complete handshake with Neon cloud Postgres Singapore cluster."}
+            {error === t("db_main_syncing") ? t("db_main_handshake_err") : error}
           </p>
           <button
             onClick={fetchDashboardData}
             className="bg-[#0a2a66] hover:opacity-90 text-white font-bold px-8 py-3 rounded-xl text-xs transition-all shadow-md active:scale-95 uppercase tracking-wider"
           >
-            Retry Connection
+            {t("db_main_retry")}
           </button>
         </div>
       )}
@@ -317,8 +370,8 @@ export default function DashboardOperationalPage() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
             </svg>
             <div>
-              <p className="font-black text-xs uppercase tracking-widest">Export Success!</p>
-              <p className="text-[10px] font-bold opacity-90">Manifest data has been downloaded.</p>
+              <p className="font-black text-xs uppercase tracking-widest">{language === 'id' ? "Ekspor Berhasil!" : "Export Success!"}</p>
+              <p className="text-[10px] font-bold opacity-90">{language === 'id' ? "Data manifes telah berhasil diunduh." : "Manifest data has been downloaded."}</p>
             </div>
           </div>
         </div>
@@ -343,14 +396,14 @@ export default function DashboardOperationalPage() {
               <div className="flex-1 w-full">
                 <div className="flex items-center justify-between mb-1">
                   <h3 className="font-black text-gray-800 uppercase text-xs tracking-wider">
-                    Real-time Analytics & Chart Information Center
+                    {t("radar_chart_center")}
                   </h3>
                   <span className="text-[9px] font-black uppercase bg-blue-100 text-[#0a2a66] dark:bg-blue-950/40 dark:text-blue-400 dark:border-blue-900/50 px-2.5 py-1 rounded-full border border-blue-200">
-                    Neon DB Connected
+                    {t("radar_neon_connected")}
                   </span>
                 </div>
                 <p className="text-[10px] text-gray-500 font-bold mb-4">
-                  The system presents <span className="text-[#0a2a66] dark:text-blue-400 font-black">2 analytical charts</span> directly integrated with active cargo data:
+                  {t("radar_chart_desc")}
                 </p>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -359,11 +412,11 @@ export default function DashboardOperationalPage() {
                     <div className="flex items-center gap-2 mb-2">
                       <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
                       <h4 className="font-extrabold text-[#0a2a66] dark:text-blue-400 text-[11px] uppercase tracking-wider">
-                        1. Daily Cargo Volume Trend Chart
+                        {t("radar_chart1_title")}
                       </h4>
                     </div>
                     <p className="text-[10px] text-gray-400 font-bold leading-normal mb-3">
-                      Displays the operational status of cargo included in the manifest.
+                      {t("radar_chart1_desc")}
                     </p>
                     <div className="grid grid-cols-2 gap-2 text-[9px] font-black text-gray-700">
                       <div className="flex items-center justify-between bg-slate-50/80 dark:bg-[#070b12]/60 px-2.5 py-2 rounded-xl border border-slate-100/50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-[#070b12]/80 transition-colors">
@@ -371,9 +424,9 @@ export default function DashboardOperationalPage() {
                           <svg className="w-3.5 h-3.5 text-blue-500 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
                           </svg>
-                          <span>SCHED:</span>
+                          <span>{language === 'id' ? "RENCANA:" : "SCHED:"}</span>
                         </div>
-                        <span className="text-blue-600 font-extrabold">{stats.total - stats.onTime - stats.delayed - stats.departed} records</span>
+                        <span className="text-blue-600 font-extrabold">{stats.total - stats.onTime - stats.delayed - stats.departed} {language === 'id' ? 'catatan' : 'records'}</span>
                       </div>
                       
                       <div className="flex items-center justify-between bg-slate-50/80 dark:bg-[#070b12]/60 px-2.5 py-2 rounded-xl border border-slate-100/50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-[#070b12]/80 transition-colors">
@@ -381,9 +434,9 @@ export default function DashboardOperationalPage() {
                           <svg className="w-3.5 h-3.5 text-sky-500 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
                           </svg>
-                          <span>ACTIVE:</span>
+                          <span>{language === 'id' ? "AKTIF:" : "ACTIVE:"}</span>
                         </div>
-                        <span className="text-sky-600 font-extrabold">{stats.departed} records</span>
+                        <span className="text-sky-600 font-extrabold">{stats.departed} {language === 'id' ? 'catatan' : 'records'}</span>
                       </div>
                       
                       <div className="flex items-center justify-between bg-slate-50/80 dark:bg-[#070b12]/60 px-2.5 py-2 rounded-xl border border-slate-100/50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-[#070b12]/80 transition-colors">
@@ -391,9 +444,9 @@ export default function DashboardOperationalPage() {
                           <svg className="w-3.5 h-3.5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296a3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
                           </svg>
-                          <span>LANDED:</span>
+                          <span>{language === 'id' ? "TIBA:" : "LANDED:"}</span>
                         </div>
-                        <span className="text-emerald-600 font-extrabold">{stats.onTime} records</span>
+                        <span className="text-emerald-600 font-extrabold">{stats.onTime} {language === 'id' ? 'catatan' : 'records'}</span>
                       </div>
                       
                       <div className="flex items-center justify-between bg-slate-50/80 dark:bg-[#070b12]/60 px-2.5 py-2 rounded-xl border border-slate-100/50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-[#070b12]/80 transition-colors">
@@ -401,9 +454,9 @@ export default function DashboardOperationalPage() {
                           <svg className="w-3.5 h-3.5 text-amber-500 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
                           </svg>
-                          <span>DELAYED:</span>
+                          <span>{language === 'id' ? "TERLAMBAT:" : "DELAYED:"}</span>
                         </div>
-                        <span className="text-amber-600 font-extrabold">{stats.delayed} records</span>
+                        <span className="text-amber-600 font-extrabold">{stats.delayed} {language === 'id' ? 'catatan' : 'records'}</span>
                       </div>
                     </div>
                   </div>
@@ -413,23 +466,23 @@ export default function DashboardOperationalPage() {
                     <div className="flex items-center gap-2 mb-2">
                       <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                       <h4 className="font-extrabold text-[#0a2a66] dark:text-blue-400 text-[11px] uppercase tracking-wider">
-                        2. Flight On-Time Performance Chart
+                        {t("radar_chart2_title")}
                       </h4>
                     </div>
                     <p className="text-[10px] text-gray-400 font-bold leading-normal mb-3">
-                      Measures the on-time departure and landing ratio of cargo flights.
+                      {t("radar_chart2_desc")}
                     </p>
                     <div className="grid grid-cols-2 gap-2 text-[9px] font-black text-gray-700">
                       <div className="flex items-center justify-between bg-slate-50/80 dark:bg-[#070b12]/60 px-2.5 py-2 rounded-xl border border-slate-100/50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-[#070b12]/80 transition-colors">
                         <div className="flex items-center gap-1.5">
-                          <svg className="w-3.5 h-3.5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                          <svg className="w-3.5 h-3.5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" strokeWidth="2">
                             <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
                             <circle cx="12" cy="12" r="6" stroke="currentColor" strokeWidth="2" />
                             <circle cx="12" cy="12" r="2" fill="currentColor" />
                           </svg>
-                          <span>ON TIME:</span>
+                          <span>{language === 'id' ? "TEPAT WAKTU:" : "ON TIME:"}</span>
                         </div>
-                        <span className="text-emerald-600 font-extrabold">{stats.onTime} records</span>
+                        <span className="text-emerald-600 font-extrabold">{stats.onTime} {language === 'id' ? 'catatan' : 'records'}</span>
                       </div>
                       
                       <div className="flex items-center justify-between bg-slate-50/80 dark:bg-[#070b12]/60 px-2.5 py-2 rounded-xl border border-slate-100/50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-[#070b12]/80 transition-colors">
@@ -437,9 +490,9 @@ export default function DashboardOperationalPage() {
                           <svg className="w-3.5 h-3.5 text-red-500 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
                           </svg>
-                          <span>DELAYED:</span>
+                          <span>{language === 'id' ? "TERLAMBAT:" : "DELAYED:"}</span>
                         </div>
-                        <span className="text-red-600 font-extrabold">{stats.delayed} records</span>
+                        <span className="text-red-600 font-extrabold">{stats.delayed} {language === 'id' ? 'catatan' : 'records'}</span>
                       </div>
                     </div>
                   </div>
@@ -450,7 +503,7 @@ export default function DashboardOperationalPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 111.063.852l-.708 2.836a.75.75 0 001.063.852l.041-.028M12 18.75h.007v.008H12v-.008zM12 3a9 9 0 110 18 9 9 0 010-18z" />
                   </svg>
                   <span>
-                    Interactive Tips: Hover over each chart bar below to view data details instantly.
+                    {t("radar_tips")}
                   </span>
                 </div>
               </div>
@@ -461,8 +514,8 @@ export default function DashboardOperationalPage() {
             {/* Daily Cargo Volume Trend (DYNAMIC BAR HEIGHTS FROM ACTUAL DATABASE RECORDS) */}
             <div className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-xl">
               <div className="mb-4">
-                <h3 className="font-black text-gray-800 uppercase text-sm">Daily Cargo Volume Trend</h3>
-                <p className="text-[10px] text-gray-400 font-bold">Cargo received, processed, and departed</p>
+                <h3 className="font-black text-gray-800 uppercase text-sm">{t("db_main_volume_trend")}</h3>
+                <p className="text-[10px] text-gray-400 font-bold">{t("db_main_volume_trend_desc")}</p>
               </div>
               <div className="h-48 w-full bg-blue-50/30 rounded-2xl border border-dashed border-blue-200 flex items-end justify-around px-8 pb-4 relative">
                  {(() => {
@@ -478,68 +531,68 @@ export default function DashboardOperationalPage() {
                           {/* Tooltip Kustom */}
                           <div className="absolute bottom-full mb-2.5 hidden group-hover:flex flex-col items-center z-50 animate-in fade-in zoom-in duration-200">
                             <div className="bg-[#0b1329] text-white text-[9px] font-black px-2.5 py-1.5 rounded-xl whitespace-nowrap shadow-xl border border-slate-800">
-                              {schedVal} Cargo Scheduled
+                              {schedVal} {language === 'id' ? "Kargo Terjadwal" : "Cargo Scheduled"}
                             </div>
                             <div className="w-1.5 h-1.5 bg-[#0b1329] rotate-45 -mt-1 border-r border-b border-slate-800"></div>
                           </div>
 
                           <div 
-                            title={`${schedVal} Cargo Scheduled`}
+                            title={`${schedVal} ${language === 'id' ? "Kargo Terjadwal" : "Cargo Scheduled"}`}
                             className="w-8 bg-blue-400/35 border border-blue-400/20 rounded-t-lg transition-all duration-1000 ease-out cursor-pointer hover:bg-blue-400/50" 
                             style={{ height: `${Math.max(hSched * 1.2, 10)}px` }}
                           ></div>
-                          <span className="text-[7.5px] font-black text-slate-400">SCHED</span>
+                          <span className="text-[7.5px] font-black text-slate-400">{language === 'id' ? 'RENCANA' : 'SCHED'}</span>
                         </div>
 
                         <div className="flex flex-col items-center gap-1.5 w-12 z-10 relative group">
                           {/* Tooltip Kustom */}
                           <div className="absolute bottom-full mb-2.5 hidden group-hover:flex flex-col items-center z-50 animate-in fade-in zoom-in duration-200">
                             <div className="bg-[#0b1329] text-white text-[9px] font-black px-2.5 py-1.5 rounded-xl whitespace-nowrap shadow-xl border border-slate-800">
-                              {stats.departed} Cargo Airborne
+                              {stats.departed} {language === 'id' ? "Kargo Mengudara" : "Cargo Airborne"}
                             </div>
                             <div className="w-1.5 h-1.5 bg-[#0b1329] rotate-45 -mt-1 border-r border-b border-slate-800"></div>
                           </div>
 
                           <div 
-                            title={`${stats.departed} Cargo Airborne`}
+                            title={`${stats.departed} ${language === 'id' ? "Kargo Mengudara" : "Cargo Airborne"}`}
                             className="w-8 bg-sky-500/70 border border-sky-400/20 rounded-t-lg transition-all duration-1000 ease-out cursor-pointer hover:bg-sky-500/90" 
                             style={{ height: `${Math.max(hAirborne * 1.2, 10)}px` }}
                           ></div>
-                          <span className="text-[7.5px] font-black text-slate-400">ACTIVE</span>
+                          <span className="text-[7.5px] font-black text-slate-400">{language === 'id' ? 'AKTIF' : 'ACTIVE'}</span>
                         </div>
 
                         <div className="flex flex-col items-center gap-1.5 w-12 z-10 relative group">
                           {/* Tooltip Kustom */}
                           <div className="absolute bottom-full mb-2.5 hidden group-hover:flex flex-col items-center z-50 animate-in fade-in zoom-in duration-200">
                             <div className="bg-[#0b1329] text-white text-[9px] font-black px-2.5 py-1.5 rounded-xl whitespace-nowrap shadow-xl border border-slate-800">
-                              {stats.onTime} Cargo Landed / Completed
+                              {stats.onTime} {language === 'id' ? "Kargo Mendarat / Selesai" : "Cargo Landed / Completed"}
                             </div>
                             <div className="w-1.5 h-1.5 bg-[#0b1329] rotate-45 -mt-1 border-r border-b border-slate-800"></div>
                           </div>
 
                           <div 
-                            title={`${stats.onTime} Cargo Landed / Completed`}
+                            title={`${stats.onTime} ${language === 'id' ? "Kargo Mendarat / Selesai" : "Cargo Landed / Completed"}`}
                             className="w-8 bg-blue-700 border border-blue-600 rounded-t-lg transition-all duration-1000 ease-out cursor-pointer hover:bg-blue-800" 
                             style={{ height: `${Math.max(hLanded * 1.2, 10)}px` }}
                           ></div>
-                          <span className="text-[7.5px] font-black text-slate-400">LANDED</span>
+                          <span className="text-[7.5px] font-black text-slate-400">{language === 'id' ? 'TIBA' : 'LANDED'}</span>
                         </div>
 
                         <div className="flex flex-col items-center gap-1.5 w-12 z-10 relative group">
                           {/* Tooltip Kustom */}
                           <div className="absolute bottom-full mb-2.5 hidden group-hover:flex flex-col items-center z-50 animate-in fade-in zoom-in duration-200">
                             <div className="bg-[#0b1329] text-white text-[9px] font-black px-2.5 py-1.5 rounded-xl whitespace-nowrap shadow-xl border border-slate-800">
-                              {stats.delayed} Flights Delayed
+                              {stats.delayed} {language === 'id' ? "Penerbangan Terlambat" : "Flights Delayed"}
                             </div>
                             <div className="w-1.5 h-1.5 bg-[#0b1329] rotate-45 -mt-1 border-r border-b border-slate-800"></div>
                           </div>
 
                           <div 
-                            title={`${stats.delayed} Flights Delayed`}
+                            title={`${stats.delayed} ${language === 'id' ? "Penerbangan Terlambat" : "Flights Delayed"}`}
                             className="w-8 bg-yellow-500/80 border border-yellow-400/20 rounded-t-lg transition-all duration-1000 ease-out cursor-pointer hover:bg-yellow-500" 
                             style={{ height: `${Math.max(hDelayed * 1.2, 10)}px` }}
                           ></div>
-                          <span className="text-[7.5px] font-black text-slate-400">DELAYED</span>
+                          <span className="text-[7.5px] font-black text-slate-400">{language === 'id' ? 'TERLAMBAT' : 'DELAYED'}</span>
                         </div>
                       </>
                     );
@@ -550,8 +603,8 @@ export default function DashboardOperationalPage() {
             {/* Flight On-Time Performance (DYNAMIC MONTHLY VS HOURLY METRICS) */}
             <div className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-xl">
               <div className="mb-4">
-                <h3 className="font-black text-gray-800 uppercase text-sm">Flight On-Time Performance</h3>
-                <p className="text-[10px] text-gray-400 font-bold">Monthly comparison of flight punctuality</p>
+                <h3 className="font-black text-gray-800 uppercase text-sm">{t("db_main_on_time_performance")}</h3>
+                <p className="text-[10px] text-gray-400 font-bold">{t("db_main_on_time_performance_desc")}</p>
               </div>
               <div className="h-48 w-full bg-green-50/30 rounded-2xl border border-dashed border-green-200 flex items-end justify-around px-8 pb-4 relative">
                  {(() => {
@@ -564,34 +617,34 @@ export default function DashboardOperationalPage() {
                           {/* Tooltip Kustom */}
                           <div className="absolute bottom-full mb-2.5 hidden group-hover:flex flex-col items-center z-50 animate-in fade-in zoom-in duration-200">
                             <div className="bg-[#0b1329] text-white text-[9px] font-black px-2.5 py-1.5 rounded-xl whitespace-nowrap shadow-xl border border-slate-800">
-                              {stats.onTime} On Time (Landed)
+                              {stats.onTime} {language === 'id' ? "Tepat Waktu (Mendarat)" : "On Time (Landed)"}
                             </div>
                             <div className="w-1.5 h-1.5 bg-[#0b1329] rotate-45 -mt-1 border-r border-b border-slate-800"></div>
                           </div>
 
                           <div 
-                            title={`${stats.onTime} On Time (Landed)`}
+                            title={`${stats.onTime} ${language === 'id' ? "Tepat Waktu (Mendarat)" : "On Time (Landed)"}`}
                             className="w-10 bg-emerald-600 rounded-t-lg transition-all duration-1000 ease-out cursor-pointer hover:bg-emerald-700 animate-pulse" 
                             style={{ height: `${Math.max(hOnTime * 1.3, 15)}px` }}
                           ></div>
-                          <span className="text-[7.5px] font-black text-slate-400">ON TIME</span>
+                          <span className="text-[7.5px] font-black text-slate-400">{language === 'id' ? 'TEPAT WAKTU' : 'ON TIME'}</span>
                         </div>
 
                         <div className="flex flex-col items-center gap-1.5 w-16 z-10 relative group">
                           {/* Tooltip Kustom */}
                           <div className="absolute bottom-full mb-2.5 hidden group-hover:flex flex-col items-center z-50 animate-in fade-in zoom-in duration-200">
                             <div className="bg-[#0b1329] text-white text-[9px] font-black px-2.5 py-1.5 rounded-xl whitespace-nowrap shadow-xl border border-slate-800">
-                              {stats.delayed} Delayed
+                              {stats.delayed} {language === 'id' ? "Terlambat" : "Delayed"}
                             </div>
                             <div className="w-1.5 h-1.5 bg-[#0b1329] rotate-45 -mt-1 border-r border-b border-slate-800"></div>
                           </div>
 
                           <div 
-                            title={`${stats.delayed} Delayed`}
+                            title={`${stats.delayed} ${language === 'id' ? "Terlambat" : "Delayed"}`}
                             className="w-10 bg-red-500/80 rounded-t-lg transition-all duration-1000 ease-out cursor-pointer hover:bg-red-500" 
                             style={{ height: `${Math.max(hDelayed * 1.3, 10)}px` }}
                           ></div>
-                          <span className="text-[7.5px] font-black text-slate-400">DELAYED</span>
+                          <span className="text-[7.5px] font-black text-slate-400">{language === 'id' ? 'TERLAMBAT' : 'DELAYED'}</span>
                         </div>
                       </>
                     );
@@ -603,27 +656,27 @@ export default function DashboardOperationalPage() {
           {/* TODAY'S SUMMARY GRID */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
             <div className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm">
-               <h3 className="font-black text-gray-800 uppercase text-xs mb-6 tracking-tighter">Today's Cargo Summary</h3>
+               <h3 className="font-black text-gray-800 uppercase text-xs mb-6 tracking-tighter">{t("db_main_summary")}</h3>
                <div className="grid grid-cols-2 gap-4">
                   <div className="border-r border-gray-100 pr-4">
-                     <p className="text-[10px] font-black text-gray-400 uppercase mb-1">Total Active Records</p>
+                     <p className="text-[10px] font-black text-gray-400 uppercase mb-1">{t("db_main_total_active")}</p>
                      <div className="flex items-baseline gap-2">
                         <span className="text-3xl font-black">{stats.total}</span>
-                        <span className="text-xs font-bold text-gray-400 uppercase">manifest</span>
+                        <span className="text-xs font-bold text-gray-400 uppercase">{language === 'id' ? "manifes" : "manifest"}</span>
                      </div>
                   </div>
                   <div className="pl-4">
-                     <p className="text-[10px] font-black text-gray-400 uppercase mb-1">Processed</p>
+                     <p className="text-[10px] font-black text-gray-400 uppercase mb-1">{t("db_main_processed")}</p>
                      <div className="flex items-baseline gap-2">
                         <span className="text-3xl font-black">{stats.onTime}</span>
-                        <span className="text-xs font-bold text-gray-400 uppercase">rows</span>
+                        <span className="text-xs font-bold text-gray-400 uppercase">{language === 'id' ? "baris" : "rows"}</span>
                      </div>
                   </div>
                </div>
             </div>
 
             <div className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm">
-                <h3 className="font-black text-gray-800 uppercase text-xs mb-6 tracking-tighter">Flight Status Counter</h3>
+                <h3 className="font-black text-gray-800 uppercase text-xs mb-6 tracking-tighter">{t("db_main_flight_counter")}</h3>
                 <div className="flex justify-between items-center px-4">
                    <div className="flex flex-col items-center text-center">
                       <div className="w-12 h-12 bg-green-50 rounded-2xl flex items-center justify-center shadow-sm mb-2">
@@ -632,7 +685,7 @@ export default function DashboardOperationalPage() {
                         </svg>
                       </div>
                       <span className="text-lg font-black leading-none">{stats.onTime}</span>
-                      <span className="text-[8px] font-black text-gray-400 uppercase mt-1">Landed</span>
+                      <span className="text-[8px] font-black text-gray-400 uppercase mt-1">{t("db_main_status_landed")}</span>
                    </div>
                    <div className="flex flex-col items-center text-center">
                       <div className="w-12 h-12 bg-yellow-50 rounded-2xl flex items-center justify-center shadow-sm mb-2">
@@ -641,7 +694,7 @@ export default function DashboardOperationalPage() {
                         </svg>
                       </div>
                       <span className="text-lg font-black leading-none">{stats.delayed}</span>
-                      <span className="text-[8px] font-black text-gray-400 uppercase mt-1">Delayed</span>
+                      <span className="text-[8px] font-black text-gray-400 uppercase mt-1">{t("db_main_status_delayed")}</span>
                    </div>
                    <div className="flex flex-col items-center text-center">
                       <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center shadow-sm mb-2">
@@ -650,7 +703,7 @@ export default function DashboardOperationalPage() {
                         </svg>
                       </div>
                       <span className="text-lg font-black leading-none">{stats.departed}</span>
-                      <span className="text-[8px] font-black text-gray-400 uppercase mt-1">Airborne</span>
+                      <span className="text-[8px] font-black text-gray-400 uppercase mt-1">{t("db_main_status_airborne")}</span>
                    </div>
                 </div>
             </div>
@@ -661,27 +714,27 @@ export default function DashboardOperationalPage() {
          <div className="bg-white rounded-[2rem] border border-gray-100 shadow-xl overflow-hidden">
             <div className="p-6 border-b border-gray-50 flex justify-between items-center bg-gray-50/30">
               <div>
-                <h3 className="font-black text-gray-800 uppercase text-xs">Today's Incoming Cloud Cargo</h3>
-                <p className="text-[10px] text-gray-400 font-bold uppercase">Real-time Neon Postgres records integration</p>
+                <h3 className="font-black text-gray-800 uppercase text-xs">{t("db_main_incoming_cargo")}</h3>
+                <p className="text-[10px] text-gray-400 font-bold uppercase">{t("db_main_incoming_cargo_desc")}</p>
               </div>
               <button 
                 onClick={handleExport} 
                 className="bg-[#0a2a66] hover:bg-[#153a8a] text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase shadow-lg flex items-center gap-2"
               >
                 <img src="https://img.icons8.com/ios-filled/50/ffffff/download.png" alt="Download" className="w-3 h-3" />
-                Export
+                {t("db_main_export_btn")}
               </button>
             </div>
             <div className="overflow-x-auto">
                 <table className="w-full text-left">
                     <thead>
                       <tr className="text-[9px] font-black text-gray-400 uppercase tracking-widest bg-gray-50/50">
-                        <th className="py-4 px-6">AWB / Manifest</th>
-                        <th className="py-4 px-4">Airline</th>
-                        <th className="py-4 px-4">Route</th>
-                        <th className="py-4 px-4 text-center">Weight</th>
-                        <th className="py-4 px-4 text-center">Current Status</th>
-                        <th className="py-4 px-6 text-right">Departure Date</th>
+                        <th className="py-4 px-6">{t("db_main_table_awb")}</th>
+                        <th className="py-4 px-4">{t("db_main_table_airline")}</th>
+                        <th className="py-4 px-4">{t("db_main_table_route")}</th>
+                        <th className="py-4 px-4 text-center">{t("db_main_table_weight")}</th>
+                        <th className="py-4 px-4 text-center">{t("db_main_table_status")}</th>
+                        <th className="py-4 px-6 text-right">{t("db_main_table_date")}</th>
                       </tr>
                     </thead>
                     <tbody className="text-[11px] font-bold">
@@ -707,7 +760,16 @@ export default function DashboardOperationalPage() {
                                   ? 'bg-green-100 text-green-700' 
                                   : 'bg-blue-100 text-blue-700'
                               }`}>
-                                {displayStatus}
+                                {displayStatus === 'Completed' 
+                                  ? (language === 'id' ? 'Selesai' : 'Completed') 
+                                  : displayStatus === 'Landed' 
+                                    ? (language === 'id' ? 'Mendarat' : 'Landed')
+                                    : displayStatus === 'In progress' || displayStatus === 'Processing'
+                                      ? (language === 'id' ? 'Sedang Diproses' : 'In Progress')
+                                      : displayStatus === 'Pending'
+                                        ? (language === 'id' ? 'Tertunda' : 'Pending')
+                                        : displayStatus
+                                }
                               </span>
                             </td>
                             <td className="py-4 px-6 text-right text-gray-400">{item.date}</td>
@@ -727,18 +789,30 @@ export default function DashboardOperationalPage() {
 
 // ================= STYLED HIGH-FIDELITY VECTOR RADAR MAP =================
 function RadarMap({ flights }: { flights: FlightCargoType[] }) {
+  const { language, t } = useLanguage();
   const [selectedFlightCode, setSelectedFlightCode] = useState<string | null>(null);
   const [radarTick, setRadarTick] = useState(0);
   const [filterStatus, setFilterStatus] = useState<'ALL' | 'AIRBORNE' | 'LANDED' | 'DELAYED'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   
   // Real-time scrolling cargo transit logs
-  const [scanLogs, setScanLogs] = useState<string[]>([
-    "SYS: Cargo Airspace Tracking Active.",
-    "SCAN: Sweeping cargo air corridors...",
-    "NET: Neon Cloud Database synced with 20 cargo manifests.",
-    "LOG: Transit Hub CGK Terminal 3 operational."
-  ]);
+  const [scanLogs, setScanLogs] = useState<string[]>([]);
+
+  useEffect(() => {
+    setScanLogs(
+      language === 'id' ? [
+        "SYS: Pelacakan Wilayah Udara Kargo Aktif.",
+        "SCAN: Memindai koridor udara kargo...",
+        "NET: Database Cloud Neon disinkronkan dengan 20 manifes kargo.",
+        "LOG: Hub Transit CGK Terminal 3 beroperasi."
+      ] : [
+        "SYS: Cargo Airspace Tracking Active.",
+        "SCAN: Sweeping cargo air corridors...",
+        "NET: Neon Cloud Database synced with 20 cargo manifests.",
+        "LOG: Transit Hub CGK Terminal 3 operational."
+      ]
+    );
+  }, [language]);
 
   // Telemetry updates simulation ticking
   useEffect(() => {
@@ -756,7 +830,14 @@ function RadarMap({ flights }: { flights: FlightCargoType[] }) {
         const randomF = airborne[Math.floor(Math.random() * airborne.length)];
         const mId = 10 + (randomF.flight_code.charCodeAt(2) % 30);
         
-        const possibleLogs = [
+        const possibleLogs = language === 'id' ? [
+          `MANIFEST: Izin transit MNF-2026-0${mId} disetujui oleh Bea Cukai.`,
+          `GPS: Uplink nominal untuk penerbangan kargo ${randomF.flight_code} di atas Laut Jawa.`,
+          `HUB: Pusat Logistik Kargo Udara KNO mempersiapkan pembongkaran manifes.`,
+          `MONITOR: Pemeriksaan suhu nominal (+4.2°C) untuk paket rantai dingin penerbangan ${randomF.flight_code}.`,
+          `NET: Pelacakan telemetri stabil. kecepatan darat ${780 + (randomF.flight_code.charCodeAt(2) % 110)}kt.`,
+          `SYS: Berat kargo diverifikasi (${randomF.items} unit) untuk penerbangan ${randomF.flight_code}.`
+        ] : [
           `MANIFEST: MNF-2026-0${mId} transit clearance approved by Customs.`,
           `GPS: Uplink nominal for cargo flight ${randomF.flight_code} over Java Sea.`,
           `HUB: KNO Air Cargo Logistics center preparing manifest unloading.`,
@@ -769,7 +850,7 @@ function RadarMap({ flights }: { flights: FlightCargoType[] }) {
         setScanLogs(prev => [newLog, ...prev.slice(0, 15)]);
       }
     }
-  }, [radarTick, flights]);
+  }, [radarTick, flights, language]);
 
   // Geografis Coordinate Maps (Centered at CGK: 380, 412)
   const routeMap: Record<string, { x: number; y: number; name: string; heading: number }> = {
@@ -782,7 +863,15 @@ function RadarMap({ flights }: { flights: FlightCargoType[] }) {
     'PNK': { x: 425, y: 250, name: 'Pontianak (PNK)', heading: 10 },
   };
 
-  const cargoCategories = [
+  const cargoCategories = language === 'id' ? [
+    "Suku Cadang Elektronik & Teknologi",
+    "Persediaan Medis Prioritas",
+    "Kargo Ritel E-Commerce",
+    "Suku Cadang Otomotif",
+    "Barang Mewah Nilai Tinggi",
+    "Logistik Segar Mudah Rusak",
+    "Paket Kilat Standar"
+  ] : [
     "Electronics & Tech Spares",
     "Priority Medical Supplies",
     "E-Commerce Retail Cargo",
@@ -900,8 +989,8 @@ function RadarMap({ flights }: { flights: FlightCargoType[] }) {
               <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-blue-500"></span>
             </div>
             <div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-slate-300">Cargo Airspace GPS Tracker</span>
-              <p className="text-[8px] font-mono text-blue-400 mt-0.5 uppercase tracking-wider">Fleet Tracking active | Realtime GPS Uplink</p>
+              <span className="text-[10px] font-black uppercase tracking-widest text-slate-300">{t("radar_title")}</span>
+              <p className="text-[8px] font-mono text-blue-400 mt-0.5 uppercase tracking-wider">{t("radar_desc")}</p>
             </div>
           </div>
 
@@ -915,7 +1004,7 @@ function RadarMap({ flights }: { flights: FlightCargoType[] }) {
                   : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
               }`}
             >
-              All Cargo ({totalTracked})
+              {t("radar_filter_all")} ({totalTracked})
             </button>
             <button 
               onClick={() => setFilterStatus('AIRBORNE')}
@@ -925,7 +1014,7 @@ function RadarMap({ flights }: { flights: FlightCargoType[] }) {
                   : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
               }`}
             >
-              En Route ({countAirborne})
+              {t("radar_filter_en_route")} ({countAirborne})
             </button>
             <button 
               onClick={() => setFilterStatus('LANDED')}
@@ -935,7 +1024,7 @@ function RadarMap({ flights }: { flights: FlightCargoType[] }) {
                   : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
               }`}
             >
-              Arrived ({countLanded})
+              {t("radar_filter_arrived")} ({countLanded})
             </button>
           </div>
         </div>
@@ -950,7 +1039,7 @@ function RadarMap({ flights }: { flights: FlightCargoType[] }) {
             </svg>
             <input 
               type="text" 
-              placeholder="Search Target Code / Route..." 
+              placeholder={t("radar_search_placeholder")} 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="bg-transparent text-[10px] text-white font-black w-full border-none focus:outline-none placeholder-slate-500 uppercase"
@@ -1206,10 +1295,10 @@ function RadarMap({ flights }: { flights: FlightCargoType[] }) {
 
           {/* Coordinate status indicators overlays */}
           <div className="absolute bottom-4 left-6 text-[8.5px] font-black tracking-widest text-slate-500 uppercase font-mono bg-[#030712]/80 px-2 py-1 rounded border border-slate-800">
-            RADAR GPS STAT: ACTIVE | MANIFEST TRACKED: {filteredFlights.length} / {flights.length}
+            {t("radar_gps_status")} {filteredFlights.length} / {flights.length}
           </div>
           <div className="absolute bottom-4 right-6 text-[8.5px] font-black tracking-widest text-blue-400 uppercase font-mono bg-[#030712]/80 px-2 py-1 rounded border border-blue-500/20">
-            CGK FREIGHT GATEWAY 3
+            {t("radar_freight_gateway")}
           </div>
         </div>
       </div>
@@ -1221,25 +1310,25 @@ function RadarMap({ flights }: { flights: FlightCargoType[] }) {
           <div className="flex items-center justify-between border-b border-slate-800/80 pb-4 mb-6">
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse shadow-[0_0_6px_#3b82f6]"></span>
-              <span className="text-[10px] font-black uppercase tracking-widest text-slate-300">CARGO FLEET MONITOR</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-slate-300">{t("radar_fleet_monitor")}</span>
             </div>
             <span className="bg-blue-500/10 text-blue-400 border border-blue-500/25 font-black text-[7.5px] px-2 py-0.5 rounded uppercase">
-              GPS Nominal
+              {t("radar_gps_nominal")}
             </span>
           </div>
 
           {/* DOCK COUNTERS */}
           <div className="grid grid-cols-3 gap-2.5 mb-6 text-center">
             <div className="bg-slate-900/60 rounded-xl p-2.5 border border-slate-800/50">
-              <p className="text-[8px] font-black text-slate-500 uppercase">TRACKED</p>
+              <p className="text-[8px] font-black text-slate-500 uppercase">{t("radar_tracked")}</p>
               <p className="text-sm font-black mt-0.5 text-blue-400">{totalTracked}</p>
             </div>
             <div className="bg-slate-900/60 rounded-xl p-2.5 border border-slate-800/50">
-              <p className="text-[8px] font-black text-slate-500 uppercase">EN ROUTE</p>
+              <p className="text-[8px] font-black text-slate-500 uppercase">{t("radar_en_route")}</p>
               <p className="text-sm font-black mt-0.5 text-amber-500">{countAirborne}</p>
             </div>
             <div className="bg-slate-900/60 rounded-xl p-2.5 border border-slate-800/50">
-              <p className="text-[8px] font-black text-slate-500 uppercase">ARRIVED</p>
+              <p className="text-[8px] font-black text-slate-500 uppercase">{t("radar_arrived")}</p>
               <p className="text-sm font-black mt-0.5 text-emerald-500">{countLanded}</p>
             </div>
           </div>
@@ -1250,7 +1339,7 @@ function RadarMap({ flights }: { flights: FlightCargoType[] }) {
               
               {/* Target manifest head card */}
               <div className="bg-slate-900/40 p-4 rounded-2xl border border-slate-800/80">
-                <p className="text-[8px] font-black text-blue-400 uppercase tracking-widest leading-none">PARCEL SHIPMENT VEHICLE</p>
+                <p className="text-[8px] font-black text-blue-400 uppercase tracking-widest leading-none">{t("radar_vehicle_title")}</p>
                 <h4 className="text-2xl font-black tracking-tighter flex items-center justify-between mt-1">
                   <span>{selectedFlight.flight_code}</span>
                   <span className={`text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase border ${
@@ -1258,7 +1347,7 @@ function RadarMap({ flights }: { flights: FlightCargoType[] }) {
                     selectedFlight.status === 'Delayed' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' : 
                     'bg-blue-500/10 text-blue-400 border-blue-500/25'
                   }`}>
-                    {selectedFlight.status === 'Airborne' ? 'EN ROUTE' : selectedFlight.status === 'Landed' ? 'ARRIVED' : selectedFlight.status}
+                    {selectedFlight.status === 'Airborne' ? t("radar_en_route") : selectedFlight.status === 'Landed' ? t("radar_arrived") : selectedFlight.status === 'Delayed' ? t("db_main_status_delayed") : selectedFlight.status === 'Scheduled' ? (language === 'id' ? 'TERJADWAL' : 'SCHEDULED') : selectedFlight.status}
                   </span>
                 </h4>
                 <p className="text-xs font-bold text-slate-400 mt-1 uppercase tracking-tight">{selectedFlight.airline_name}</p>
@@ -1267,7 +1356,7 @@ function RadarMap({ flights }: { flights: FlightCargoType[] }) {
               {/* Transit route progress */}
               <div>
                 <div className="flex justify-between text-[8px] font-black text-slate-400 uppercase mb-1.5 font-mono">
-                  <span>CGK (ORIGIN)</span>
+                  <span>CGK ({language === 'id' ? 'ASAL' : 'ORIGIN'})</span>
                   <span>➔</span>
                   <span>{selectedFlight.route?.split('-')[1] || "DEST"}</span>
                 </div>
@@ -1284,60 +1373,60 @@ function RadarMap({ flights }: { flights: FlightCargoType[] }) {
               {/* Live coordinates telemetry grid */}
               <div className="grid grid-cols-2 gap-3.5 border-t border-b border-slate-800/80 py-4">
                 <div>
-                  <p className="text-[8px] font-black text-slate-500 uppercase tracking-wider">SPEED (SPD)</p>
+                  <p className="text-[8px] font-black text-slate-500 uppercase tracking-wider">{t("radar_speed")}</p>
                   <p className="text-xs font-bold mt-0.5 text-slate-200">
-                    {selectedFlight.status === 'Airborne' ? `${selectedFlightPos.spd} knots` : '0 kts (Arrived)'}
+                    {selectedFlight.status === 'Airborne' ? `${selectedFlightPos.spd} ${t("radar_speed_knots")}` : t("radar_speed_arrived")}
                   </p>
                 </div>
                 <div>
-                  <p className="text-[8px] font-black text-slate-500 uppercase tracking-wider">ALTITUDE (ALT)</p>
+                  <p className="text-[8px] font-black text-slate-500 uppercase tracking-wider">{t("radar_altitude")}</p>
                   <p className="text-xs font-bold mt-0.5 text-slate-200">
-                    {selectedFlight.status === 'Airborne' ? `FL${selectedFlightPos.alt} (${selectedFlightPos.alt * 100} ft)` : 'Ground Terminal'}
+                    {selectedFlight.status === 'Airborne' ? `FL${selectedFlightPos.alt} (${selectedFlightPos.alt * 100} ${t("radar_alt_ft")})` : t("radar_alt_ground")}
                   </p>
                 </div>
                 <div>
-                  <p className="text-[8px] font-black text-slate-500 uppercase tracking-wider">GPS COORDINATES</p>
+                  <p className="text-[8px] font-black text-slate-500 uppercase tracking-wider">{t("radar_gps_coords")}</p>
                   <p className="text-[9.5px] font-mono mt-0.5 text-blue-300 leading-snug">
                     {selectedFlightPos.lat}<br/>
                     {selectedFlightPos.lon}
                   </p>
                 </div>
                 <div>
-                  <p className="text-[8px] font-black text-slate-500 uppercase tracking-wider">CARGO LOAD</p>
-                  <p className="text-xs font-bold mt-0.5 text-slate-200">{selectedFlight.items || 25} parcel units</p>
+                  <p className="text-[8px] font-black text-slate-500 uppercase tracking-wider">{t("radar_cargo_load")}</p>
+                  <p className="text-xs font-bold mt-0.5 text-slate-200">{selectedFlight.items || 25} {t("radar_load_units")}</p>
                 </div>
               </div>
 
               {/* THEMATIC CARGO MANIFEST DETAILS */}
               <div className="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-4 space-y-3.5">
-                <p className="text-[8px] font-black text-blue-400 uppercase tracking-widest leading-none">CARGO MANIFEST PROFILE</p>
+                <p className="text-[8px] font-black text-blue-400 uppercase tracking-widest leading-none">{t("radar_manifest_profile")}</p>
                 
                 <div className="space-y-3 text-[11px] pt-1">
                   <div className="flex justify-between border-b border-slate-900 pb-1.5">
-                    <span className="text-slate-500 font-bold uppercase text-[8px]">MANIFEST ID</span>
+                    <span className="text-slate-500 font-bold uppercase text-[8px]">{t("radar_manifest_id")}</span>
                     <span className="font-mono font-black text-slate-200">
                       MNF-2026-0{10 + (selectedFlight.flight_code.charCodeAt(2) % 30)}
                     </span>
                   </div>
                   <div className="flex justify-between border-b border-slate-900 pb-1.5">
-                    <span className="text-slate-500 font-bold uppercase text-[8px]">CARGO CATEGORY</span>
+                    <span className="text-slate-500 font-bold uppercase text-[8px]">{t("radar_cargo_category")}</span>
                     <span className="font-black text-slate-200">
                       {cargoCategories[selectedFlight.flight_code.charCodeAt(3) % cargoCategories.length]}
                     </span>
                   </div>
                   <div className="flex justify-between border-b border-slate-900 pb-1.5">
-                    <span className="text-slate-500 font-bold uppercase text-[8px]">HANDLING SPEC</span>
+                    <span className="text-slate-500 font-bold uppercase text-[8px]">{t("radar_handling_spec")}</span>
                     <span className={`font-black text-[8px] px-2 py-0.5 rounded ${
                       Number(selectedFlight.items || 0) % 2 === 0 
                         ? 'bg-blue-950 text-blue-400 border border-blue-900/40' 
                         : 'bg-emerald-950 text-emerald-400 border border-emerald-900/40'
                     }`}>
-                      {Number(selectedFlight.items || 0) % 2 === 0 ? 'PRIORITY AIR EXPRESS' : 'STANDARD LOGISTICS'}
+                      {Number(selectedFlight.items || 0) % 2 === 0 ? t("radar_handling_express") : t("radar_handling_standard")}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-500 font-bold uppercase text-[8px]">LOGISTICS HUB</span>
-                    <span className="font-bold text-slate-300">CGK CARGO TERMINAL 3</span>
+                    <span className="text-slate-500 font-bold uppercase text-[8px]">{t("radar_logistics_hub")}</span>
+                    <span className="font-bold text-slate-300">CGK {language === 'id' ? 'TERMINAL KARGO 3' : 'CARGO TERMINAL 3'}</span>
                   </div>
                 </div>
               </div>
@@ -1345,11 +1434,11 @@ function RadarMap({ flights }: { flights: FlightCargoType[] }) {
               {/* Transit gate schedule details */}
               <div className="grid grid-cols-2 gap-3 text-xs">
                 <div className="bg-slate-900/60 rounded-xl p-2.5 border border-slate-800/60">
-                  <p className="text-[8px] font-black text-slate-500 uppercase">SCH / ACT LANDING</p>
+                  <p className="text-[8px] font-black text-slate-500 uppercase">{language === 'id' ? 'PENDARATAN JADWAL / AKTUAL' : 'SCH / ACT LANDING'}</p>
                   <p className="font-bold text-slate-300 mt-0.5">{selectedFlight.scheduled} / {selectedFlight.actual}</p>
                 </div>
                 <div className="bg-slate-900/60 rounded-xl p-2.5 border border-slate-800/60">
-                  <p className="text-[8px] font-black text-slate-500 uppercase">DISPATCH GATE</p>
+                  <p className="text-[8px] font-black text-slate-500 uppercase">{t("radar_dispatch_gate")}</p>
                   <p className="font-black text-blue-400 mt-0.5">{selectedFlight.gate || 'TBA'}</p>
                 </div>
               </div>
@@ -1365,9 +1454,9 @@ function RadarMap({ flights }: { flights: FlightCargoType[] }) {
                 </svg>
               </div>
               <div>
-                <p className="text-xs font-black uppercase tracking-wider text-slate-200">STANDBY - SCANNING CARGO FLEETS</p>
+                <p className="text-xs font-black uppercase tracking-wider text-slate-200">{t("radar_standby_title")}</p>
                 <p className="text-[9px] text-slate-400 font-bold leading-relaxed mt-2 uppercase">
-                  Click on any interactive cargo flight silhouette on the map grid to intercept delivery manifest tracking logs and parcel load details.
+                  {t("radar_standby_desc")}
                 </p>
               </div>
             </div>
@@ -1375,7 +1464,7 @@ function RadarMap({ flights }: { flights: FlightCargoType[] }) {
 
           {/* REALTIME SCROLLING CARGO LOGISTICS SYSTEM LOGS */}
           <div className="mt-6 border-t border-slate-800/80 pt-4">
-            <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-2.5">LIVE LOGISTICS HUB LOGS</p>
+            <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-2.5">{t("radar_live_logs")}</p>
             <div className="bg-slate-950/90 rounded-xl p-3 border border-slate-800/60 h-28 overflow-y-auto font-mono text-[8px] text-slate-400 space-y-1.5 scrollbar-thin scrollbar-thumb-slate-800">
               {scanLogs.map((log, index) => (
                 <div key={index} className="flex gap-1.5 leading-normal">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLanguage } from "../../LanguageContext";
 
 // Struktur data super ketat agar pnpm run build langsung lolos tanpa complaint!
 interface FlightCargoType {
@@ -15,6 +16,7 @@ interface FlightCargoType {
 }
 
 export default function FlightStatusPage() {
+  const { t } = useLanguage();
   const [flights, setFlights] = useState<FlightCargoType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -40,7 +42,7 @@ export default function FlightStatusPage() {
         setError(`Server error: HTTP ${res.status}`);
       }
     } catch (e) {
-      setError("Failed to synchronize flight cargo schedule with Neon database. Check internet connection.");
+      setError(t("fs_syncing"));
       console.error("Cloud data synchronization failed:", e);
     } finally {
       setIsLoading(false);
@@ -81,12 +83,12 @@ export default function FlightStatusPage() {
         {/* Dynamic status text */}
         <div className="relative z-10 text-center max-w-sm">
           <span className="text-[9px] font-black uppercase tracking-[0.25em] text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
-            Securing Connection
+            {t("fs_securing_conn")}
           </span>
           <h2 className="text-[#0a2a66] font-black text-xl tracking-tighter mt-4 uppercase italic">Terbanginaja Logistics</h2>
           <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-2.5 flex items-center justify-center gap-1.5 font-mono">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
-            Syncing cargo flight GPS from Neon database...
+            {t("fs_syncing")}
           </p>
         </div>
 
@@ -118,16 +120,16 @@ export default function FlightStatusPage() {
             </svg>
           </div>
           <h2 className="text-2xl font-black text-gray-800 tracking-tight leading-none uppercase italic">
-            Database Sync Failed
+            {t("fs_sync_failed")}
           </h2>
           <p className="text-sm font-bold text-gray-500">
-            {error || "Could not complete handshake with Neon cloud Postgres Singapore cluster."}
+            {error === t("fs_syncing") ? t("fs_handshake_err") : error}
           </p>
           <button
             onClick={fetchFlights}
             className="bg-[#0a2a66] hover:opacity-90 text-white font-bold px-8 py-3 rounded-xl text-xs transition-all shadow-md active:scale-95 uppercase tracking-wider"
           >
-            Retry Connection
+            {t("fs_retry")}
           </button>
         </div>
        : 
@@ -137,13 +139,13 @@ export default function FlightStatusPage() {
       <div className="bg-white border border-gray-100 rounded-[2rem] p-8 shadow-xl shadow-gray-200/50 mt-8">
         <div className="mb-8 border-b border-gray-50 pb-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h4 className="font-black text-xl text-[#0a2a66] uppercase italic tracking-tighter">Live Cargo Flight Schedule - CGK Hub</h4>
-            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">Realtime Connection: Cloud Neon Database</p>
+            <h4 className="font-black text-xl text-[#0a2a66] uppercase italic tracking-tighter">{t("fs_title")}</h4>
+            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">{t("fs_desc")}</p>
           </div>
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-green-500 animate-ping"></span>
             <span className="text-[9px] font-black text-[#0a2a66] uppercase tracking-widest bg-blue-50 px-3 py-1.5 rounded-xl">
-              Logistics Feed Active
+              {t("fs_feed_active")}
             </span>
           </div>
         </div>
@@ -152,14 +154,14 @@ export default function FlightStatusPage() {
           <table className="w-full text-sm text-left">
             <thead>
               <tr className="text-[10px] text-gray-400 uppercase tracking-[0.15em] font-black border-b border-gray-100">
-                <th className="px-4 py-4">Flight Number</th>
-                <th className="px-4 py-4">Airline</th>
-                <th className="px-4 py-4">Route</th>
-                <th className="px-4 py-4">Scheduled</th>
-                <th className="px-4 py-4">Actual</th>
-                <th className="px-4 py-4 text-blue-600 font-black">Gate</th>
-                <th className="px-4 py-4 text-gray-500">Cargo Items</th>
-                <th className="px-4 py-4 text-center">Status</th>
+                <th className="px-4 py-4">{t("fs_table_flight")}</th>
+                <th className="px-4 py-4">{t("fs_table_airline")}</th>
+                <th className="px-4 py-4">{t("fs_table_route")}</th>
+                <th className="px-4 py-4">{t("fs_table_scheduled")}</th>
+                <th className="px-4 py-4">{t("fs_table_actual")}</th>
+                <th className="px-4 py-4 text-blue-600 font-black">{t("fs_table_gate")}</th>
+                <th className="px-4 py-4 text-gray-500">{t("fs_table_items")}</th>
+                <th className="px-4 py-4 text-center">{t("fs_table_status")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50 text-[13px] font-bold">
@@ -194,7 +196,7 @@ export default function FlightStatusPage() {
                               <path strokeLinecap="round" strokeLinejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                             </svg>
                           )}
-                          {f.status}
+                          {f.status === 'Landed' ? t("db_main_status_landed") : f.status === 'Delayed' ? t("db_main_status_delayed") : f.status === 'Airborne' ? t("db_main_status_airborne") : f.status}
                         </span>
                       </div>
                     </td>
@@ -203,7 +205,7 @@ export default function FlightStatusPage() {
               ) : (
                 <tr>
                   <td colSpan={8} className="text-center py-10 text-gray-400 italic">
-                    No active flight schedules found in Neon cloud database.
+                    {t("fs_no_records")}
                   </td>
                 </tr>
               )}
@@ -215,11 +217,11 @@ export default function FlightStatusPage() {
         {flights.length > 0 && (
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-6 border-t border-gray-50">
             <div className="text-xs text-gray-500 font-bold uppercase tracking-wider">
-              Showing <span className="text-[#0a2a66] font-black">{indexOfFirstFlight + 1}</span> to{" "}
+              {t("fs_showing")} <span className="text-[#0a2a66] font-black">{indexOfFirstFlight + 1}</span> {t("fs_to")}{" "}
               <span className="text-[#0a2a66] font-black">
                 {Math.min(indexOfLastFlight, flights.length)}
               </span>{" "}
-              of <span className="text-[#0a2a66] font-black">{flights.length}</span> flights
+              {t("fs_of")} <span className="text-[#0a2a66] font-black">{flights.length}</span> {t("fs_flights")}
             </div>
             
             <div className="flex items-center gap-1.5">

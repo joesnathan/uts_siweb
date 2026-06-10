@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "../../LanguageContext";
 
 interface Ticket {
   id: string;
@@ -24,43 +25,9 @@ interface FAQItem {
 export default function HelpDeskPage() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
+  const { language, t } = useLanguage();
 
-  // Initial mock tickets
-  const [tickets, setTickets] = useState<Ticket[]>([
-    {
-      id: "TK-9021",
-      title: "Neon Postgres Database Synchronization Latency",
-      category: "Database & System",
-      priority: "High",
-      status: "Open",
-      sender: "Jonathan",
-      role: "Operations Supervisor",
-      date: "2026-06-09 20:15",
-      description: "There is a database synchronization latency of about 3 seconds on the Neon Postgres Asia cluster. Please verify the connection pooler.",
-    },
-    {
-      id: "TK-8842",
-      title: "Inconsistent Status for Flight Manifest ID MNF-2026-004",
-      category: "AWB Tracking",
-      priority: "Medium",
-      status: "In Progress",
-      sender: "Budi",
-      role: "Cargo Operator",
-      date: "2026-06-09 18:30",
-      description: "When searching for manifest MNF-2026-004, the flight status is marked as Landed but operational status is still In Transit. Please correct this.",
-    },
-    {
-      id: "TK-7721",
-      title: "Cargo Label Printer Issue at Warehouse A",
-      category: "Hardware / Devices",
-      priority: "Low",
-      status: "Resolved",
-      sender: "Susi",
-      role: "Warehouse Staff",
-      date: "2026-06-08 14:10",
-      description: "The label printer is not printing barcodes for new manifests. LAN cable connection is working normally.",
-    },
-  ]);
+  const [tickets, setTickets] = useState<Ticket[]>([]);
 
   // Form states
   const [ticketTitle, setTicketTitle] = useState("");
@@ -87,6 +54,41 @@ export default function HelpDeskPage() {
     setTimeout(() => setToast(null), 3000);
   };
 
+  // Fetch tickets from database or fallback to localStorage
+  const fetchTickets = async () => {
+    try {
+      const res = await fetch("/api/tickets");
+      const json = await res.json();
+      if (json.success) {
+        const mapped = json.data.map((tItem: any) => ({
+          id: tItem.ticket_id || tItem.id,
+          title: tItem.title,
+          category: tItem.category,
+          priority: tItem.priority,
+          status: tItem.status,
+          sender: tItem.sender,
+          role: tItem.role,
+          date: tItem.date,
+          description: tItem.description
+        }));
+        setTickets(mapped);
+        localStorage.setItem("help_desk_tickets", JSON.stringify(mapped));
+      } else {
+        // Fallback to local storage
+        const saved = localStorage.getItem("help_desk_tickets");
+        if (saved) {
+          setTickets(JSON.parse(saved));
+        }
+      }
+    } catch (err) {
+      console.error("Failed to fetch tickets from database:", err);
+      const saved = localStorage.getItem("help_desk_tickets");
+      if (saved) {
+        setTickets(JSON.parse(saved));
+      }
+    }
+  };
+
   // Auth Protection Check & Simulated Loading Timer
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -100,6 +102,8 @@ export default function HelpDeskPage() {
       router.push("/login");
     }
 
+    fetchTickets();
+
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 1200);
@@ -107,7 +111,7 @@ export default function HelpDeskPage() {
   }, [router]);
 
   // Submit New Ticket Form with Automatic Urgency Classification & Error Handling
-  const handleSubmitTicket = (e: React.FormEvent) => {
+  const handleSubmitTicket = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Clear previous errors
@@ -119,19 +123,19 @@ export default function HelpDeskPage() {
 
     // 1. Title Validation
     if (!ticketTitle.trim()) {
-      newFieldErrors.title = "Subject and description are required!";
+      newFieldErrors.title = t("hd_toast_required");
       hasError = true;
     } else if (ticketTitle.trim().length < 5) {
-      newFieldErrors.title = "Issue subject is too short (minimum 5 characters).";
+      newFieldErrors.title = t("hd_error_title_min");
       hasError = true;
     }
 
     // 2. Description Validation
     if (!ticketDescription.trim()) {
-      newFieldErrors.description = "Subject and description are required!";
+      newFieldErrors.description = t("hd_toast_required");
       hasError = true;
     } else if (ticketDescription.trim().length < 15) {
-      newFieldErrors.description = "Issue description is too short (minimum 15 characters).";
+      newFieldErrors.description = t("hd_error_desc_min");
       hasError = true;
     }
 
@@ -149,90 +153,127 @@ export default function HelpDeskPage() {
       }
     }
     if (isSpam) {
-      newFieldErrors.description = "Spam detected: Description cannot repeatedly reuse the same word.";
+      newFieldErrors.description = t("hd_error_spam");
       hasError = true;
     }
 
     if (hasError) {
       setFieldErrors(newFieldErrors);
-      showToast("Subject and description are required!", "error");
+      showToast(t("hd_toast_required"), "error");
       return;
     }
 
     setSubmitting(true);
     
     // Simulate API request delay
-    setTimeout(() => {
-      // If offline mode is toggled, fail the request
-      if (isOfflineMode) {
-        setServerError("Connection to IT Helpdesk server lost (ERR_CONNECTION_REFUSED). Please turn off Offline Mode or contact the airport network administrator.");
-        showToast("Server Connection Error", "error");
-        setSubmitting(false);
-        return;
+    await new Promise((resolve) => setTimeout(resolve, 800));
+
+    // If offline mode is toggled, fail the request
+    if (isOfflineMode) {
+      setServerError(t("hd_error_offline_desc"));
+      showToast(t("hd_error_offline_title"), "error");
+      setSubmitting(false);
+      return;
+    }
+
+    // Automatic Priority Determination based on category and description keywords
+    let priority: "Low" | "Medium" | "High" = "Low";
+    const searchStr = (ticketTitle + " " + ticketDescription).toLowerCase();
+    const highPriorityKeywords = [
+      "error", "down", "mati", "terhambat", "darurat", "urgent", "db", "database", "neon", "server", "terputus", "rusak", "critical"
+    ];
+    const mediumPriorityKeywords = [
+      "format", "printer", "sync", "scanner", "lan", "kabel", "status", "tidak sesuai", "hambatan"
+    ];
+    
+    if (
+      ticketCategory === "Database & System" || 
+      highPriorityKeywords.some(keyword => searchStr.includes(keyword))
+    ) {
+      priority = "High";
+    } else if (
+      ticketCategory === "AWB Tracking" || 
+      ticketCategory === "Hardware / Devices" ||
+      mediumPriorityKeywords.some(keyword => searchStr.includes(keyword))
+    ) {
+      priority = "Medium";
+    }
+
+    const nextIdNum = Math.floor(1000 + Math.random() * 9000);
+    const newTicket: Ticket = {
+      id: `TK-${nextIdNum}`,
+      title: ticketTitle.trim(),
+      category: ticketCategory,
+      priority: priority,
+      status: "Open",
+      sender: user?.full_name || "Jonathan",
+      role: user?.department || t("db_operational"),
+      date: new Date().toISOString().replace("T", " ").substring(0, 16),
+      description: ticketDescription.trim(),
+    };
+
+    try {
+      const res = await fetch("/api/tickets", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ticket_id: newTicket.id,
+          title: newTicket.title,
+          category: newTicket.category,
+          priority: newTicket.priority,
+          status: newTicket.status,
+          sender: newTicket.sender,
+          role: newTicket.role,
+          date: newTicket.date,
+          description: newTicket.description,
+        }),
+      });
+
+      const json = await res.json();
+      if (json.success) {
+        const updated = [newTicket, ...tickets];
+        setTickets(updated);
+        localStorage.setItem("help_desk_tickets", JSON.stringify(updated));
+        setTicketTitle("");
+        setTicketDescription("");
+        const priorityLabel = priority === "High" ? "High" : (priority === "Medium" ? "Medium" : "Low");
+        showToast(t("hd_toast_success").replace("{id}", newTicket.id).replace("{priority}", priorityLabel), "success");
+      } else {
+        throw new Error(json.error || "Failed to save ticket to database");
       }
-
-      // Automatic Priority Determination based on category and description keywords
-      let priority: "Low" | "Medium" | "High" = "Low";
-      const searchStr = (ticketTitle + " " + ticketDescription).toLowerCase();
-      const highPriorityKeywords = [
-        "error", "down", "mati", "terhambat", "darurat", "urgent", "db", "database", "neon", "server", "terputus", "rusak", "critical"
-      ];
-      const mediumPriorityKeywords = [
-        "format", "printer", "sync", "scanner", "lan", "kabel", "status", "tidak sesuai", "hambatan"
-      ];
-      
-      if (
-        ticketCategory === "Database & System" || 
-        highPriorityKeywords.some(keyword => searchStr.includes(keyword))
-      ) {
-        priority = "High";
-      } else if (
-        ticketCategory === "AWB Tracking" || 
-        ticketCategory === "Hardware / Devices" ||
-        mediumPriorityKeywords.some(keyword => searchStr.includes(keyword))
-      ) {
-        priority = "Medium";
-      }
-
-      const nextIdNum = Math.floor(1000 + Math.random() * 9000);
-      const newTicket: Ticket = {
-        id: `TK-${nextIdNum}`,
-        title: ticketTitle.trim(),
-        category: ticketCategory,
-        priority: priority,
-        status: "Open",
-        sender: user?.full_name || "Jonathan",
-        role: user?.department || "Operations Supervisor",
-        date: new Date().toISOString().replace("T", " ").substring(0, 16),
-        description: ticketDescription.trim(),
-      };
-
-      setTickets([newTicket, ...tickets]);
+    } catch (err: any) {
+      console.error("Failed to save ticket online, saving to local storage:", err);
+      // Fallback
+      const updated = [newTicket, ...tickets];
+      setTickets(updated);
+      localStorage.setItem("help_desk_tickets", JSON.stringify(updated));
       setTicketTitle("");
       setTicketDescription("");
-      setSubmitting(false);
-      
       const priorityLabel = priority === "High" ? "High" : (priority === "Medium" ? "Medium" : "Low");
-      showToast(`Ticket ${newTicket.id} submitted with ${priorityLabel} priority!`, "success");
-    }, 1000);
+      showToast(t("hd_toast_success").replace("{id}", newTicket.id).replace("{priority}", priorityLabel), "success");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  // FAQ data in English
+  // FAQ data translated dynamically
   const faqs: FAQItem[] = [
     {
       id: 1,
-      question: "How to track a cargo manifest that is not found?",
-      answer: "Make sure the manifest ID format is correct (Example: MNF-2026-001). If the format is correct but 'NOT FOUND' still appears, check if the cargo data has been entered by the airline in the database. If not, you can open an AWB issue ticket here.",
+      question: t("faq_q1"),
+      answer: t("faq_a1"),
     },
     {
       id: 2,
-      question: "How do I change the flight operational status?",
-      answer: "Go to the 'Operational' page, find the manifest ID of the cargo you want to modify, and click the cargo row to open the edit form. There you can update the flight status (Scheduled, Airborne, Landed, Delayed) and operational status (In Transit, Completed).",
+      question: t("faq_q2"),
+      answer: t("faq_a2"),
     },
     {
       id: 3,
-      question: "Who should be contacted in case of an IT emergency?",
-      answer: "You can submit a ticket with a 'High' priority level for a rapid response within 15 minutes from the Soedirman Airport IT Shift team.",
+      question: t("faq_q3"),
+      answer: t("faq_a3"),
     },
   ];
 
@@ -320,36 +361,17 @@ export default function HelpDeskPage() {
         
         {/* LEFT COLUMN: Open Ticket Form (Centerpiece) */}
         <div className="lg:col-span-7">
-          <div className="bg-white border border-gray-150 rounded-[2rem] p-6 md:p-8 shadow-sm space-y-6">
+          <div className="bg-white dark:bg-[#111c35] border border-gray-150 dark:border-slate-800 rounded-[2rem] p-6 md:p-8 shadow-sm space-y-6">
             
-            <div className="border-b border-gray-100 pb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div className="border-b border-gray-100 dark:border-slate-800 pb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div>
-                <h3 className="text-lg font-black text-[#0a2a66] uppercase italic tracking-tight">Open a New Support Ticket</h3>
+                <h3 className="text-lg font-black text-[#0a2a66] dark:text-white uppercase italic tracking-tight">{t("hd_title")}</h3>
                 <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-1">
-                  Submit technical issues or equipment requests to the Airport IT Support Team
+                  {t("hd_desc")}
                 </p>
               </div>
 
-              {/* SIMULATE OFFLINE TOGGLE */}
-              <div className="flex items-center gap-2.5 bg-slate-50 dark:bg-slate-900 px-4 py-2 rounded-2xl border border-gray-150 self-start md:self-auto shrink-0 shadow-sm transition-all duration-300">
-                <span className={`text-[9px] font-black uppercase tracking-wider ${isOfflineMode ? 'text-rose-600 animate-pulse' : 'text-emerald-600'}`}>
-                  {isOfflineMode ? "Offline Mode Active" : "Server Normal"}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsOfflineMode(!isOfflineMode);
-                    if (!isOfflineMode) {
-                      setServerError(null);
-                    }
-                  }}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 focus:outline-none ${isOfflineMode ? 'bg-rose-500' : 'bg-slate-300'}`}
-                >
-                  <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300 ${isOfflineMode ? 'translate-x-6' : 'translate-x-1'}`}
-                  />
-                </button>
-              </div>
+
             </div>
 
             {/* Simulated Server Offline Error Card */}
@@ -359,7 +381,7 @@ export default function HelpDeskPage() {
                   <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
                   </svg>
-                  <span className="text-xs font-black uppercase tracking-wider">Server Connection Error</span>
+                  <span className="text-xs font-black uppercase tracking-wider">{t("hd_error_offline_title")}</span>
                 </div>
                 <p className="text-[11px] font-bold text-rose-600 leading-relaxed">
                   {serverError}
@@ -375,14 +397,14 @@ export default function HelpDeskPage() {
                     }}
                     className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors shadow-md"
                   >
-                    Retry
+                    {t("hd_retry")}
                   </button>
                   <button
                     type="button"
                     onClick={() => setServerError(null)}
                     className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors"
                   >
-                    Hide Error Message
+                    {t("hd_clear_error")}
                   </button>
                 </div>
               </div>
@@ -390,10 +412,10 @@ export default function HelpDeskPage() {
 
             <form onSubmit={handleSubmitTicket} className="space-y-4">
               <div>
-                <label className="text-[8px] font-black uppercase tracking-wider text-gray-400 block mb-1">Subject / Issue Title</label>
+                <label className="text-[8px] font-black uppercase tracking-wider text-gray-400 block mb-1">{t("hd_sub_title")}</label>
                 <input
                   type="text"
-                  placeholder="Example: Warehouse B Barcode Scanner Connection Disconnected"
+                  placeholder={t("hd_sub_placeholder")}
                   value={ticketTitle}
                   onChange={(e) => {
                     setTicketTitle(e.target.value);
@@ -416,7 +438,7 @@ export default function HelpDeskPage() {
               </div>
 
               <div>
-                <label className="text-[8px] font-black uppercase tracking-wider text-gray-400 block mb-1">Problem Category</label>
+                <label className="text-[8px] font-black uppercase tracking-wider text-gray-400 block mb-1">{t("hd_cat_title")}</label>
                 <select
                   value={ticketCategory}
                   onChange={(e) => setTicketCategory(e.target.value)}
@@ -430,10 +452,10 @@ export default function HelpDeskPage() {
               </div>
 
               <div>
-                <label className="text-[8px] font-black uppercase tracking-wider text-gray-400 block mb-1">Detailed Issue Description</label>
+                <label className="text-[8px] font-black uppercase tracking-wider text-gray-400 block mb-1">{t("hd_det_title")}</label>
                 <textarea
                   rows={6}
-                  placeholder="Describe in detail the timeline of the issue, affected cargo manifest, or physical location of the malfunctioning equipment..."
+                  placeholder={t("hd_det_placeholder")}
                   value={ticketDescription}
                   onChange={(e) => {
                     setTicketDescription(e.target.value);
@@ -461,7 +483,7 @@ export default function HelpDeskPage() {
                   disabled={submitting}
                   className="w-full bg-[#0a2a66] hover:bg-blue-900 disabled:opacity-55 text-white py-4 rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-md active:scale-95 flex items-center justify-center gap-1.5"
                 >
-                  {submitting ? "Submitting Ticket..." : "Submit Support Ticket"}
+                  {submitting ? t("hd_btn_submitting") : t("hd_btn_submit")}
                 </button>
               </div>
             </form>
@@ -471,18 +493,13 @@ export default function HelpDeskPage() {
 
         {/* RIGHT COLUMN: Ticket History List */}
         <div className="lg:col-span-5 space-y-6">
-          <div className="bg-white border border-gray-155 rounded-[2rem] p-6 shadow-sm flex flex-col h-[520px]">
+          <div className="bg-white dark:bg-[#111c35] border border-gray-155 dark:border-slate-800 rounded-[2rem] p-6 shadow-sm flex flex-col h-[520px]">
             
-            <div className="border-b border-gray-100 pb-4 mb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+            <div className="border-b border-gray-100 dark:border-slate-800 pb-4 mb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
               <div>
-                <h3 className="text-sm font-black text-[#0a2a66] uppercase italic tracking-wider">Your Support Ticket History</h3>
-                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">List of support requests opened by you</p>
+                <h3 className="text-sm font-black text-[#0a2a66] dark:text-white uppercase italic tracking-wider">{t("hd_history_title")}</h3>
+                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{t("hd_history_desc")}</p>
               </div>
-              {isOfflineMode && (
-                <span className="text-[8px] font-black uppercase text-rose-500 bg-rose-50 px-2 py-0.5 rounded-md border border-rose-100 self-start md:self-auto shrink-0">
-                  Offline
-                </span>
-              )}
             </div>
 
             {/* Ticket List Scrollable Container */}
@@ -491,7 +508,7 @@ export default function HelpDeskPage() {
                 tickets.map((tItem) => (
                   <div
                     key={tItem.id}
-                    className="p-4 border border-gray-100 rounded-2xl flex flex-col space-y-2.5 relative overflow-hidden bg-white"
+                    className="p-4 border border-gray-100 dark:border-slate-800 rounded-2xl flex flex-col space-y-2.5 relative overflow-hidden bg-white dark:bg-slate-900/20"
                   >
                     {/* Urgency side indicator */}
                     <span className={`absolute left-0 top-0 bottom-0 w-1 ${
@@ -504,7 +521,7 @@ export default function HelpDeskPage() {
 
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1.5">
-                        <span className="text-[9px] font-mono font-black text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">
+                        <span className="text-[9px] font-mono font-black text-blue-600 bg-blue-50 dark:bg-blue-900/20 px-1.5 py-0.5 rounded border border-blue-100 dark:border-blue-900/40">
                           {tItem.id}
                         </span>
                         <span className="text-[8px] font-black text-gray-400 uppercase tracking-wider">
@@ -513,34 +530,34 @@ export default function HelpDeskPage() {
                       </div>
                       <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-wider ${
                         tItem.status === "Open"
-                          ? "bg-blue-100 text-blue-800"
+                          ? "bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300"
                           : tItem.status === "In Progress"
-                            ? "bg-amber-100 text-amber-800"
-                            : "bg-emerald-100 text-emerald-800"
+                            ? "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300"
+                            : "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300"
                       }`}>
                         {getStatusLabel(tItem.status)}
                       </span>
                     </div>
 
-                    <h4 className="text-xs font-black text-gray-800 leading-snug">
+                    <h4 className="text-xs font-black text-gray-800 dark:text-white leading-snug">
                       {tItem.title}
                     </h4>
 
-                    <p className="text-[10px] text-gray-500 font-medium leading-relaxed line-clamp-2">
+                    <p className="text-[10px] text-gray-500 dark:text-gray-400 font-medium leading-relaxed line-clamp-2">
                       {tItem.description}
                     </p>
 
-                    <div className="flex items-center justify-between text-[9px] text-gray-400 font-bold border-t border-gray-50 pt-2">
-                      <span className="text-gray-500 uppercase">
-                        Urgency: <b className={tItem.priority === "High" ? "text-red-600" : "text-gray-600"}>{getPriorityLabel(tItem.priority)}</b>
+                    <div className="flex items-center justify-between text-[9px] text-gray-400 font-bold border-t border-gray-50 dark:border-slate-800/80 pt-2">
+                      <span className="text-gray-500 dark:text-gray-400 uppercase">
+                        {t("hd_urgency")} <b className={tItem.priority === "High" ? "text-red-600" : "text-gray-600 dark:text-gray-300"}>{getPriorityLabel(tItem.priority)}</b>
                       </span>
                       <span>{tItem.date}</span>
                     </div>
                   </div>
                 ))
               ) : (
-                <div className="text-center py-16 text-gray-400 border border-dashed border-gray-200 rounded-2xl">
-                  <p className="text-xs font-bold uppercase">No support tickets opened yet</p>
+                <div className="text-center py-16 text-gray-400 border border-dashed border-gray-250 rounded-2xl">
+                  <p className="text-xs font-bold uppercase">{t("hd_empty_tickets")}</p>
                 </div>
               )}
             </div>
@@ -551,27 +568,27 @@ export default function HelpDeskPage() {
       </div>
 
       {/* BOTTOM SECTION: FAQ Accordion */}
-      <div className="bg-white border border-gray-155 rounded-[2rem] p-6 md:p-8 shadow-sm space-y-6">
-        <div className="border-b border-gray-100 pb-3">
-          <h3 className="text-sm font-black text-[#0a2a66] uppercase italic tracking-wider flex items-center gap-1.5">
+      <div className="bg-white dark:bg-[#111c35] border border-gray-155 dark:border-slate-800 rounded-[2rem] p-6 md:p-8 shadow-sm space-y-6">
+        <div className="border-b border-gray-100 dark:border-slate-800 pb-3">
+          <h3 className="text-sm font-black text-[#0a2a66] dark:text-white uppercase italic tracking-wider flex items-center gap-1.5">
             <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
             </svg>
-            Frequently Asked Questions (FAQ)
+            {t("hd_faq_title")}
           </h3>
-          <p className="text-[10px] text-gray-400 font-bold uppercase mt-1">Frequently asked questions & SOP documentation</p>
+          <p className="text-[10px] text-gray-400 font-bold uppercase mt-1">{t("hd_faq_desc")}</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {faqs.map((faq) => {
             const isOpen = expandedFaqId === faq.id;
             return (
-              <div key={faq.id} className="border border-gray-100 rounded-2xl overflow-hidden bg-slate-50/20">
+              <div key={faq.id} className="border border-gray-100 dark:border-slate-800 rounded-2xl overflow-hidden bg-slate-50/20 dark:bg-slate-900/10">
                 <button
                   onClick={() => setExpandedFaqId(isOpen ? null : faq.id)}
-                  className="w-full text-left p-4 bg-slate-50/50 hover:bg-slate-50 transition-colors flex justify-between items-center"
+                  className="group w-full text-left p-4 bg-slate-50/50 hover:bg-slate-50 dark:bg-slate-900/30 dark:hover:bg-slate-800 transition-colors flex justify-between items-center"
                 >
-                  <span className="text-xs font-black text-gray-800 leading-snug">
+                  <span className="text-xs font-black text-gray-800 dark:text-white group-hover:text-slate-900 dark:group-hover:text-white leading-snug transition-colors">
                     {faq.question}
                   </span>
                   <svg
@@ -587,7 +604,7 @@ export default function HelpDeskPage() {
                   </svg>
                 </button>
                 {isOpen && (
-                  <div className="p-4 bg-white border-t border-gray-50 text-[11px] font-bold text-gray-500 leading-relaxed font-sans">
+                  <div className="p-4 bg-white dark:bg-[#111c35] border-t border-gray-50 dark:border-slate-800 text-[11px] font-bold text-gray-500 dark:text-slate-300 leading-relaxed font-sans">
                     {faq.answer}
                   </div>
                 )}

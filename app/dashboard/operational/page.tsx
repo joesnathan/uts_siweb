@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation"; // 1. IMPORT USEROUTER DARI NEXT.JS
+import { useLanguage } from "../../LanguageContext";
 
 interface Cargo {
   id: number;
@@ -31,6 +32,7 @@ interface Cargo {
 }
 
 export default function DashboardOperationalPage() {
+  const { language, t } = useLanguage();
   const router = useRouter(); // 2. INISIALISASI ROUTER
   const [cargoList, setCargoList] = useState<Cargo[]>([]);
   const [filteredList, setFilteredList] = useState<Cargo[]>([]);
@@ -173,11 +175,11 @@ export default function DashboardOperationalPage() {
       if (json.success) {
         setTrackingHistory(json.data || []);
       } else {
-        addToast(json.error || "Failed to retrieve tracking data.", "error");
+        addToast(json.error || (language === 'id' ? "Gagal memuat data pelacakan." : "Failed to retrieve tracking data."), "error");
       }
     } catch (err) {
       console.error(err);
-      addToast("Failed to retrieve tracking data from server.", "error");
+      addToast(language === 'id' ? "Gagal memuat data pelacakan dari server." : "Failed to retrieve tracking data from server.", "error");
     } finally {
       setLoadingHistory(false);
     }
@@ -197,7 +199,7 @@ export default function DashboardOperationalPage() {
     e.preventDefault();
     if (!detailCargo || !detailCargo.id) return;
     if (!newLocation.trim() || !newDescription.trim()) {
-      addToast("Location and Description are required!", "warning");
+      addToast(language === 'id' ? "Lokasi dan Deskripsi wajib diisi!" : "Location and Description are required!", "warning");
       return;
     }
 
@@ -216,16 +218,16 @@ export default function DashboardOperationalPage() {
       });
       const json = await res.json();
       if (json.success) {
-        addToast("✅ Tracking checkpoint successfully added!", "success");
+        addToast(language === 'id' ? "✅ Pos pemeriksaan pelacakan berhasil ditambahkan!" : "✅ Tracking checkpoint successfully added!", "success");
         setNewLocation("");
         setNewDescription("");
         fetchTrackingHistory(detailCargo.id);
       } else {
-        addToast(json.error || "Failed to add checkpoint.", "error");
+        addToast(json.error || (language === 'id' ? "Gagal menambahkan pos pemeriksaan." : "Failed to add checkpoint."), "error");
       }
     } catch (err) {
       console.error(err);
-      addToast("A connection error occurred while saving the checkpoint.", "error");
+      addToast(language === 'id' ? "Terjadi kesalahan koneksi saat menyimpan pos pemeriksaan." : "A connection error occurred while saving the checkpoint.", "error");
     } finally {
       setSavingHistory(false);
     }
@@ -280,69 +282,69 @@ export default function DashboardOperationalPage() {
     const newErrors: Record<string, string> = {};
 
     if (!formData.airline_name.trim()) {
-      newErrors.airline_name = "Airline name is required";
+      newErrors.airline_name = language === 'id' ? "Nama maskapai wajib diisi" : "Airline name is required";
     }
 
     if (!formData.flight_code.trim()) {
-      newErrors.flight_code = "Flight code is required";
+      newErrors.flight_code = language === 'id' ? "Kode penerbangan wajib diisi" : "Flight code is required";
     }
 
     if (!formData.route_from) {
-      newErrors.route_from = "Origin airport is required";
+      newErrors.route_from = language === 'id' ? "Bandara asal wajib diisi" : "Origin airport is required";
     }
     if (!formData.route_to) {
-      newErrors.route_to = "Destination airport is required";
+      newErrors.route_to = language === 'id' ? "Bandara tujuan wajib diisi" : "Destination airport is required";
     }
     if (formData.route_from && formData.route_to && formData.route_from === formData.route_to) {
-      newErrors.route_to = "Destination airport cannot be the same as origin airport";
+      newErrors.route_to = language === 'id' ? "Bandara tujuan tidak boleh sama dengan bandara asal" : "Destination airport cannot be the same as origin airport";
     }
 
     if (!formData.weight) {
-      newErrors.weight = "Weight is required";
+      newErrors.weight = language === 'id' ? "Berat wajib diisi" : "Weight is required";
     } else {
       const w = Number(formData.weight);
       if (isNaN(w) || w <= 0) {
-        newErrors.weight = "Weight must be a positive number";
+        newErrors.weight = language === 'id' ? "Berat harus berupa angka positif" : "Weight must be a positive number";
       }
     }
 
     if (!formData.date) {
-      newErrors.date = "Shipping date is required";
+      newErrors.date = language === 'id' ? "Tanggal pengiriman wajib diisi" : "Shipping date is required";
     }
 
     if (!formData.items) {
-      newErrors.items = "Quantity is required";
+      newErrors.items = language === 'id' ? "Jumlah wajib diisi" : "Quantity is required";
     } else {
       const itemNum = Number(formData.items);
       if (isNaN(itemNum) || itemNum <= 0 || !Number.isInteger(itemNum)) {
-        newErrors.items = "Quantity must be a positive integer";
+        newErrors.items = language === 'id' ? "Jumlah harus berupa bilangan bulat positif" : "Quantity must be a positive integer";
       }
     }
 
     if (!formData.sender_name.trim()) {
-      newErrors.sender_name = "Sender name is required";
+      newErrors.sender_name = language === 'id' ? "Nama pengirim wajib diisi" : "Sender name is required";
     }
 
     if (!formData.receiver_name.trim()) {
-      newErrors.receiver_name = "Receiver name is required";
+      newErrors.receiver_name = language === 'id' ? "Nama penerima wajib diisi" : "Receiver name is required";
     }
 
     if (!formData.phone_number.trim()) {
-      newErrors.phone_number = "Phone number is required";
+      newErrors.phone_number = language === 'id' ? "Nomor telepon wajib diisi" : "Phone number is required";
     } else if (!/^[0-9+\s-]{8,15}$/.test(formData.phone_number.trim())) {
-      newErrors.phone_number = "Invalid phone number (only numbers, +, -, space, 8-15 digits)";
+      newErrors.phone_number = language === 'id' ? "Nomor telepon tidak valid (hanya angka, +, -, spasi, 8-15 digit)" : "Invalid phone number (only numbers, +, -, space, 8-15 digits)";
     }
 
     if (!formData.origin_city.trim()) {
-      newErrors.origin_city = "Origin city is required";
+      newErrors.origin_city = language === 'id' ? "Kota asal wajib diisi" : "Origin city is required";
     }
 
     if (!formData.destination_city.trim()) {
-      newErrors.destination_city = "Destination city is required";
+      newErrors.destination_city = language === 'id' ? "Kota tujuan wajib diisi" : "Destination city is required";
     }
 
     if (!formData.item_type.trim()) {
-      newErrors.item_type = "Item type is required";
+      newErrors.item_type = language === 'id' ? "Jenis barang wajib diisi" : "Item type is required";
     }
 
     setErrors(newErrors);
@@ -382,74 +384,74 @@ export default function DashboardOperationalPage() {
         const nextErrors = { ...prevErrors };
 
         if (field === "airline_name") {
-          if (!value.trim()) nextErrors.airline_name = "Airline name is required";
+          if (!value.trim()) nextErrors.airline_name = language === 'id' ? "Nama maskapai wajib diisi" : "Airline name is required";
           else delete nextErrors.airline_name;
         }
 
         if (field === "flight_code") {
-          if (!value.trim()) nextErrors.flight_code = "Flight code is required";
+          if (!value.trim()) nextErrors.flight_code = language === 'id' ? "Kode penerbangan wajib diisi" : "Flight code is required";
           else delete nextErrors.flight_code;
         }
 
         if (field === "route_from") {
-          if (!value) nextErrors.route_from = "Origin airport is required";
+          if (!value) nextErrors.route_from = language === 'id' ? "Bandara asal wajib diisi" : "Origin airport is required";
           else delete nextErrors.route_from;
         }
 
         if (field === "route_to") {
-          if (!value) nextErrors.route_to = "Destination airport is required";
+          if (!value) nextErrors.route_to = language === 'id' ? "Bandara tujuan wajib diisi" : "Destination airport is required";
           else delete nextErrors.route_to;
         }
 
         if (field === "weight") {
           const w = Number(value);
-          if (!value) nextErrors.weight = "Weight is required";
-          else if (isNaN(w) || w <= 0) nextErrors.weight = "Weight must be a positive number";
+          if (!value) nextErrors.weight = language === 'id' ? "Berat wajib diisi" : "Weight is required";
+          else if (isNaN(w) || w <= 0) nextErrors.weight = language === 'id' ? "Berat harus berupa angka positif" : "Weight must be a positive number";
           else delete nextErrors.weight;
         }
 
         if (field === "date") {
-          if (!value) nextErrors.date = "Shipping date is required";
+          if (!value) nextErrors.date = language === 'id' ? "Tanggal pengiriman wajib diisi" : "Shipping date is required";
           else delete nextErrors.date;
         }
 
         if (field === "items") {
           const itemNum = Number(value);
-          if (!value) nextErrors.items = "Quantity is required";
+          if (!value) nextErrors.items = language === 'id' ? "Jumlah wajib diisi" : "Quantity is required";
           else if (isNaN(itemNum) || itemNum <= 0 || !Number.isInteger(itemNum)) {
-            nextErrors.items = "Quantity must be a positive integer";
+            nextErrors.items = language === 'id' ? "Jumlah harus berupa bilangan bulat positif" : "Quantity must be a positive integer";
           } else delete nextErrors.items;
         }
 
         if (field === "sender_name") {
-          if (!value.trim()) nextErrors.sender_name = "Sender name is required";
+          if (!value.trim()) nextErrors.sender_name = language === 'id' ? "Nama pengirim wajib diisi" : "Sender name is required";
           else delete nextErrors.sender_name;
         }
 
         if (field === "receiver_name") {
-          if (!value.trim()) nextErrors.receiver_name = "Receiver name is required";
+          if (!value.trim()) nextErrors.receiver_name = language === 'id' ? "Nama penerima wajib diisi" : "Receiver name is required";
           else delete nextErrors.receiver_name;
         }
 
         if (field === "phone_number") {
-          if (!value.trim()) nextErrors.phone_number = "Phone number is required";
+          if (!value.trim()) nextErrors.phone_number = language === 'id' ? "Nomor telepon wajib diisi" : "Phone number is required";
           else if (!/^[0-9+\s-]{8,15}$/.test(value.trim())) {
-            nextErrors.phone_number = "Invalid phone number (8-15 digits)";
+            nextErrors.phone_number = language === 'id' ? "Nomor telepon tidak valid (8-15 digit)" : "Invalid phone number (8-15 digits)";
           } else delete nextErrors.phone_number;
         }
 
         if (field === "origin_city") {
-          if (!value.trim()) nextErrors.origin_city = "Origin city is required";
+          if (!value.trim()) nextErrors.origin_city = language === 'id' ? "Kota asal wajib diisi" : "Origin city is required";
           else delete nextErrors.origin_city;
         }
 
         if (field === "destination_city") {
-          if (!value.trim()) nextErrors.destination_city = "Destination city is required";
+          if (!value.trim()) nextErrors.destination_city = language === 'id' ? "Kota tujuan wajib diisi" : "Destination city is required";
           else delete nextErrors.destination_city;
         }
 
         if (field === "item_type") {
-          if (!value.trim()) nextErrors.item_type = "Item type is required";
+          if (!value.trim()) nextErrors.item_type = language === 'id' ? "Jenis barang wajib diisi" : "Item type is required";
           else delete nextErrors.item_type;
         }
 
@@ -535,7 +537,7 @@ export default function DashboardOperationalPage() {
     setTouched(allTouched);
 
     if (!validateForm()) {
-      addToast("Please correct the input errors on the form.", "warning");
+      addToast(language === 'id' ? "Silakan perbaiki kesalahan input pada formulir." : "Please correct the input errors on the form.", "warning");
       const formElement = document.getElementById("cargoFormTitle");
       if (formElement) {
         formElement.scrollIntoView({ behavior: "smooth" });
@@ -569,8 +571,8 @@ export default function DashboardOperationalPage() {
       if (result.success) {
         addToast(
           editingCargo
-            ? "✅ Cargo data successfully updated!"
-            : "✅ New cargo successfully added!",
+            ? (language === 'id' ? "✅ Data kargo berhasil diperbarui!" : "✅ Cargo data successfully updated!")
+            : (language === 'id' ? "✅ Kargo baru berhasil ditambahkan!" : "✅ New cargo successfully added!"),
           "success"
         );
 
@@ -581,12 +583,12 @@ export default function DashboardOperationalPage() {
         setTouched({});
         fetchCargoData();
       } else {
-        setFormError(result.error || "Failed to save cargo data.");
-        addToast("❌ Failed to save cargo: " + (result.error || "An error occurred"), "error");
+        setFormError(result.error || (language === 'id' ? "Gagal menyimpan data kargo." : "Failed to save cargo data."));
+        addToast((language === 'id' ? "❌ Gagal menyimpan kargo: " : "❌ Failed to save cargo: ") + (result.error || (language === 'id' ? "Terjadi kesalahan" : "An error occurred")), "error");
       }
     } catch (err) {
-      setFormError("A network connection error occurred while contacting the server.");
-      addToast("❌ Network error occurred while saving.", "error");
+      setFormError(language === 'id' ? "Terjadi kesalahan koneksi jaringan saat menghubungi server." : "A network connection error occurred while contacting the server.");
+      addToast(language === 'id' ? "❌ Terjadi kesalahan jaringan saat menyimpan." : "❌ Network error occurred while saving.", "error");
       console.error(err);
     } finally {
       setSaving(false);
@@ -686,16 +688,90 @@ export default function DashboardOperationalPage() {
       const result = await res.json();
 
       if (result.success) {
-        addToast(`🗑️ Cargo ${deleteModal.manifestId} successfully deleted.`, "success");
+        addToast(language === 'id' ? `🗑️ Kargo ${deleteModal.manifestId} berhasil dihapus.` : `🗑️ Cargo ${deleteModal.manifestId} successfully deleted.`, "success");
         fetchCargoData();
       } else {
-        addToast(`❌ Failed to delete cargo: ${result.error || "An error occurred"}`, "error");
+        addToast((language === 'id' ? "❌ Gagal menghapus kargo: " : "❌ Failed to delete cargo: ") + (result.error || (language === 'id' ? "Terjadi kesalahan" : "An error occurred")), "error");
       }
     } catch (err) {
-      addToast("❌ Network error occurred while deleting cargo.", "error");
+      addToast(language === 'id' ? "❌ Terjadi kesalahan jaringan saat menghapus kargo." : "❌ Network error occurred while deleting cargo.", "error");
     } finally {
       setDeleteModal({ show: false, cargoId: null, manifestId: "" });
     }
+  };
+
+  const handleExport = () => {
+    if (!filteredList || filteredList.length === 0) {
+      addToast(language === 'id' ? "Tidak ada data manifes kargo yang tersedia untuk diekspor." : "No cargo manifest data available to export.", "warning");
+      return;
+    }
+
+    const headers = [
+      "ID",
+      "Manifest ID",
+      "Airline Name",
+      "Flight Code",
+      "Route",
+      "Weight",
+      "Flight Status",
+      "Operational Status",
+      "Departure Date",
+      "Scheduled Time",
+      "Actual Time",
+      "Gate",
+      "Total Items",
+      "Sender Name",
+      "Receiver Name",
+      "Phone Number",
+      "Origin City",
+      "Destination City",
+      "Item Type",
+      "Shipping Price",
+      "Shipping Type",
+      "Description"
+    ];
+
+    const rows = filteredList.map(item => [
+      item.id,
+      `"${(item.manifest_id || '').replace(/"/g, '""')}"`,
+      `"${(item.airline_name || '').replace(/"/g, '""')}"`,
+      `"${(item.flight_code || '').replace(/"/g, '""')}"`,
+      `"${(item.route || '').replace(/"/g, '""')}"`,
+      item.weight,
+      `"${(item.flight_status || '').replace(/"/g, '""')}"`,
+      `"${(item.operational_status || 'Pending').replace(/"/g, '""')}"`,
+      `"${(item.date || '').replace(/"/g, '""')}"`,
+      `"${(item.scheduled_time || '').replace(/"/g, '""')}"`,
+      `"${(item.actual_time || '').replace(/"/g, '""')}"`,
+      `"${(item.gate || '').replace(/"/g, '""')}"`,
+      item.items || 0,
+      `"${(item.sender_name || '').replace(/"/g, '""')}"`,
+      `"${(item.receiver_name || '').replace(/"/g, '""')}"`,
+      `"${(item.phone_number || '').replace(/"/g, '""')}"`,
+      `"${(item.origin_city || '').replace(/"/g, '""')}"`,
+      `"${(item.destination_city || '').replace(/"/g, '""')}"`,
+      `"${(item.item_type || '').replace(/"/g, '""')}"`,
+      item.shipping_price || 0,
+      `"${(item.shipping_type || 'Regular').replace(/"/g, '""')}"`,
+      `"${(item.description || '').replace(/"/g, '""')}"`
+    ]);
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map(e => e.join(","))
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `operational_cargo_export_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    addToast(language === 'id' ? "✅ Daftar kargo berhasil diekspor sebagai CSV!" : "✅ Cargo list successfully exported as CSV!", "success");
   };
 
   if (isLoading) {
@@ -848,38 +924,51 @@ export default function DashboardOperationalPage() {
             </svg>
           </div>
           <h2 className="text-2xl font-black text-gray-800 tracking-tight leading-none uppercase">
-            Database Sync Failed
+            {t("fs_sync_failed")}
           </h2>
           <p className="text-sm font-bold text-gray-500">
-            {error || "Could not complete handshake with Neon cloud Postgres Singapore cluster."}
+            {error.includes("handshake") || error.includes("connect")
+              ? (language === 'id' ? "Tidak dapat menyelesaikan jabat tangan dengan kluster Neon cloud Postgres Singapura." : "Could not complete handshake with Neon cloud Postgres Singapore cluster.")
+              : error
+            }
           </p>
           <button
             onClick={fetchCargoData}
             className="bg-[#0a2a66] hover:opacity-90 text-white font-bold px-8 py-3 rounded-xl text-xs transition-all shadow-md active:scale-95 uppercase tracking-wider"
           >
-            Retry Connection
+            {t("db_main_retry")}
           </button>
         </div>
       ) : (
         <>
           {/* HEADER */}
           <div className="flex flex-col md:flex-row justify-between gap-4">
-            <h2 className="text-2xl font-bold">Operational Cargo Management</h2>
+            <h2 className="text-2xl font-bold">{t("op_title")}</h2>
 
             <div className="flex gap-3">
               <input
                 type="text"
-                placeholder="Search Manifest ID / Airline / Route..."
+                placeholder={t("op_search_placeholder")}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full md:w-80 h-[56px] px-4 border border-gray-300 rounded-xl outline-none"
               />
 
               <button
+                onClick={handleExport}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 h-[56px] rounded-xl font-bold whitespace-nowrap transition flex items-center justify-center gap-2 shadow-md"
+              >
+                <svg className="w-4 h-4 text-white shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                </svg>
+                {t("op_export")}
+              </button>
+
+              <button
                 onClick={openForm}
                 className="bg-[#0a2a66] text-white px-6 h-[56px] rounded-xl font-bold whitespace-nowrap hover:opacity-90 transition"
               >
-                + Add Cargo
+                {t("op_add_cargo")}
               </button>
             </div>
           </div>
@@ -888,7 +977,7 @@ export default function DashboardOperationalPage() {
           {showForm && (
             <div className="bg-white p-8 rounded-2xl shadow-xl animate-in slide-in-from-top-6 duration-300" id="cargoFormTitle">
               <h3 className="text-xl font-black text-[#0a2a66] uppercase tracking-tight mb-6">
-                {editingCargo ? "⚡ Edit Cargo Manifest" : "📦 Add New Cargo"}
+                {editingCargo ? t("op_edit_title") : t("op_add_title")}
               </h3>
 
               {/* Form-level Error Banner */}
@@ -898,7 +987,7 @@ export default function DashboardOperationalPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                   </svg>
                   <div className="space-y-1">
-                    <p className="text-xs font-black uppercase tracking-wider">Server / Database Error</p>
+                    <p className="text-xs font-black uppercase tracking-wider">{language === 'id' ? "Kesalahan Server / Database" : "Server / Database Error"}</p>
                     <p className="text-xs text-rose-700/90 font-medium leading-relaxed uppercase">{formError}</p>
                   </div>
                 </div>
@@ -910,7 +999,7 @@ export default function DashboardOperationalPage() {
               >
                 {/* Manifest ID */}
                 <div className="w-full">
-                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Manifest ID (Auto)</label>
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">{t("op_manifest_id")}</label>
                   <input
                     type="text"
                     value={formData.manifest_id}
@@ -921,7 +1010,7 @@ export default function DashboardOperationalPage() {
 
                 {/* Airline Name */}
                 <div className="w-full">
-                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Airline Name *</label>
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">{t("op_airline_name")}</label>
                   <select
                     value={formData.airline_name}
                     onChange={(e) => handleFieldChange("airline_name", e.target.value)}
@@ -931,7 +1020,7 @@ export default function DashboardOperationalPage() {
                         : "border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100/50"
                       }`}
                   >
-                    <option value="">-- Select Airline --</option>
+                    <option value="">{t("op_select_airline")}</option>
                     {airlineOptions.map((airline) => (
                       <option key={airline} value={airline}>{airline}</option>
                     ))}
@@ -946,7 +1035,7 @@ export default function DashboardOperationalPage() {
 
                 {/* Flight Code */}
                 <div className="w-full">
-                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Flight Code *</label>
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">{t("op_flight_code")}</label>
                   <select
                     value={formData.flight_code}
                     onChange={(e) => handleFieldChange("flight_code", e.target.value)}
@@ -958,10 +1047,10 @@ export default function DashboardOperationalPage() {
                       }`}
                   >
                     {!formData.airline_name ? (
-                      <option value="">-- Select Airline First --</option>
+                      <option value="">{t("op_select_airline_first")}</option>
                     ) : (
                       <>
-                        <option value="">-- Select Flight Code --</option>
+                        <option value="">{t("op_select_flight_code")}</option>
                         {flightCodeOptions.map((code) => (
                           <option key={code} value={code}>{code}</option>
                         ))}
@@ -975,10 +1064,9 @@ export default function DashboardOperationalPage() {
                     </p>
                   )}
                 </div>
-
                 {/* Rute Penerbangan Split (Dari - Ke) dalam 1 Kolom Panjang dibagi 2 */}
                 <div className="w-full">
-                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Flight Route (Origin ➔ Destination) *</label>
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">{t("op_flight_route")}</label>
                   <div className="flex items-center gap-2">
                     {/* Bandara Asal */}
                     <div className="flex-1">
@@ -991,7 +1079,7 @@ export default function DashboardOperationalPage() {
                             : "border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100/50"
                           }`}
                       >
-                        <option value="">-- Select Origin --</option>
+                        <option value="">{t("op_select_origin")}</option>
                         {fromRoutes.map((airport) => (
                           <option key={airport} value={airport}>{getAirportLabel(airport)}</option>
                         ))}
@@ -1012,7 +1100,7 @@ export default function DashboardOperationalPage() {
                             : "border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100/50"
                           }`}
                       >
-                        <option value="">-- Select Destination --</option>
+                        <option value="">{t("op_select_destination")}</option>
                         {toRoutes.map((airport) => (
                           <option key={airport} value={airport}>{getAirportLabel(airport)}</option>
                         ))}
@@ -1026,25 +1114,24 @@ export default function DashboardOperationalPage() {
                       {touched.route_from && errors.route_from && (
                         <p className="text-[10px] text-rose-600 font-black uppercase tracking-wider flex items-center gap-1">
                           <span className="w-1.5 h-1.5 bg-rose-500 rounded-full shrink-0"></span>
-                          Origin: {errors.route_from}
+                          {language === 'id' ? "Asal: " : "Origin: "}{errors.route_from}
                         </p>
                       )}
                       {touched.route_to && errors.route_to && (
                         <p className="text-[10px] text-rose-600 font-black uppercase tracking-wider flex items-center gap-1">
                           <span className="w-1.5 h-1.5 bg-rose-500 rounded-full shrink-0"></span>
-                          Destination: {errors.route_to}
+                          {language === 'id' ? "Tujuan: " : "Destination: "}{errors.route_to}
                         </p>
                       )}
                     </div>
                   )}
                 </div>
-
                 {/* Weight */}
                 <div className="w-full">
-                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Weight (kg) *</label>
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">{t("op_weight")}</label>
                   <input
                     type="number"
-                    placeholder="Weight (kg)"
+                    placeholder={language === 'id' ? 'Berat (kg)' : 'Weight (kg)'}
                     value={formData.weight}
                     onChange={(e) => handleFieldChange("weight", e.target.value)}
                     onBlur={() => handleBlur("weight")}
@@ -1063,7 +1150,7 @@ export default function DashboardOperationalPage() {
 
                 {/* Date */}
                 <div className="w-full">
-                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Shipping Date *</label>
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">{t("op_date")}</label>
                   <input
                     type="date"
                     value={formData.date}
@@ -1084,10 +1171,10 @@ export default function DashboardOperationalPage() {
 
                 {/* Gate */}
                 <div className="w-full">
-                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Gate (Optional)</label>
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">{t("op_gate")}</label>
                   <input
                     type="text"
-                    placeholder="Gate (e.g. A12)"
+                    placeholder={language === 'id' ? 'Gerbang (contoh: A12)' : 'Gate (e.g. A12)'}
                     value={formData.gate}
                     onChange={(e) => handleFieldChange("gate", e.target.value)}
                     className="w-full h-[56px] px-4 border border-gray-300 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100/50 transition-all"
@@ -1096,10 +1183,10 @@ export default function DashboardOperationalPage() {
 
                 {/* Items */}
                 <div className="w-full">
-                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Quantity / Capacity (units) *</label>
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">{t("op_quantity")}</label>
                   <input
                     type="number"
-                    placeholder="Quantity / Capacity (units)"
+                    placeholder={language === 'id' ? 'Jumlah / Kapasitas (unit)' : 'Quantity / Capacity (units)'}
                     value={formData.items}
                     onChange={(e) => handleFieldChange("items", e.target.value)}
                     onBlur={() => handleBlur("items")}
@@ -1118,10 +1205,10 @@ export default function DashboardOperationalPage() {
 
                 {/* Sender Name */}
                 <div className="w-full">
-                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Sender Name *</label>
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">{t("op_sender_name")}</label>
                   <input
                     type="text"
-                    placeholder="Sender Name"
+                    placeholder={language === 'id' ? 'Nama Pengirim' : 'Sender Name'}
                     value={formData.sender_name}
                     onChange={(e) => handleFieldChange("sender_name", e.target.value)}
                     onBlur={() => handleBlur("sender_name")}
@@ -1140,10 +1227,10 @@ export default function DashboardOperationalPage() {
 
                 {/* Receiver Name */}
                 <div className="w-full">
-                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Receiver Name *</label>
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">{t("op_receiver_name")}</label>
                   <input
                     type="text"
-                    placeholder="Receiver Name"
+                    placeholder={language === 'id' ? 'Nama Penerima' : 'Receiver Name'}
                     value={formData.receiver_name}
                     onChange={(e) => handleFieldChange("receiver_name", e.target.value)}
                     onBlur={() => handleBlur("receiver_name")}
@@ -1162,10 +1249,10 @@ export default function DashboardOperationalPage() {
 
                 {/* Phone Number */}
                 <div className="w-full">
-                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Phone Number *</label>
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">{t("op_phone_number")}</label>
                   <input
                     type="text"
-                    placeholder="Phone Number"
+                    placeholder={language === 'id' ? 'Nomor Telepon' : 'Phone Number'}
                     value={formData.phone_number}
                     onChange={(e) => handleFieldChange("phone_number", e.target.value)}
                     onBlur={() => handleBlur("phone_number")}
@@ -1184,10 +1271,10 @@ export default function DashboardOperationalPage() {
 
                 {/* Origin City */}
                 <div className="w-full">
-                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Origin City *</label>
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">{t("op_origin_city")}</label>
                   <input
                     type="text"
-                    placeholder="Origin City"
+                    placeholder={language === 'id' ? 'Kota Asal' : 'Origin City'}
                     value={formData.origin_city}
                     onChange={(e) => handleFieldChange("origin_city", e.target.value)}
                     onBlur={() => handleBlur("origin_city")}
@@ -1206,10 +1293,10 @@ export default function DashboardOperationalPage() {
 
                 {/* Destination City */}
                 <div className="w-full">
-                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Destination City *</label>
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">{t("op_destination_city")}</label>
                   <input
                     type="text"
-                    placeholder="Destination City"
+                    placeholder={language === 'id' ? 'Kota Tujuan' : 'Destination City'}
                     value={formData.destination_city}
                     onChange={(e) => handleFieldChange("destination_city", e.target.value)}
                     onBlur={() => handleBlur("destination_city")}
@@ -1228,10 +1315,10 @@ export default function DashboardOperationalPage() {
 
                 {/* Item Type */}
                 <div className="w-full">
-                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Item Type *</label>
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">{t("op_item_type")}</label>
                   <input
                     type="text"
-                    placeholder="Item Type"
+                    placeholder={language === 'id' ? 'Jenis Barang' : 'Item Type'}
                     value={formData.item_type}
                     onChange={(e) => handleFieldChange("item_type", e.target.value)}
                     onBlur={() => handleBlur("item_type")}
@@ -1250,10 +1337,10 @@ export default function DashboardOperationalPage() {
 
                 {/* Shipping Price */}
                 <div className="w-full">
-                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Shipping Price (Auto)</label>
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">{t("op_shipping_price")}</label>
                   <input
                     type="text"
-                    placeholder="Shipping Price"
+                    placeholder={language === 'id' ? 'Biaya Pengiriman' : 'Shipping Price'}
                     value={
                       formData.shipping_price
                         ? `Rp ${Number(formData.shipping_price).toLocaleString("id-ID")}`
@@ -1266,7 +1353,7 @@ export default function DashboardOperationalPage() {
 
                 {/* Shipping Type */}
                 <div className="w-full">
-                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Shipping Type *</label>
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">{t("op_shipping_type")}</label>
                   <select
                     value={formData.shipping_type}
                     onChange={(e) => handleFieldChange("shipping_type", e.target.value)}
@@ -1280,38 +1367,38 @@ export default function DashboardOperationalPage() {
 
                 {/* Flight Status */}
                 <div className="w-full">
-                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Flight Status *</label>
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">{t("op_flight_status")}</label>
                   <select
                     value={formData.flight_status}
                     onChange={(e) => handleFieldChange("flight_status", e.target.value)}
                     className="w-full h-[56px] px-4 border border-gray-300 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100/50 transition-all font-medium text-gray-700"
                   >
-                    <option value="Scheduled">Scheduled</option>
-                    <option value="Airborne">Airborne</option>
-                    <option value="Landed">Landed</option>
-                    <option value="Delayed">Delayed</option>
+                    <option value="Scheduled">{language === 'id' ? "Terjadwal" : "Scheduled"}</option>
+                    <option value="Airborne">{language === 'id' ? "Mengudara" : "Airborne"}</option>
+                    <option value="Landed">{language === 'id' ? "Mendarat" : "Landed"}</option>
+                    <option value="Delayed">{language === 'id' ? "Terlambat" : "Delayed"}</option>
                   </select>
                 </div>
 
                 {/* Status Operasional */}
                 <div className="w-full">
-                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Operational Status *</label>
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">{t("op_operational_status")}</label>
                   <select
                     value={formData.operational_status}
                     onChange={(e) => handleFieldChange("operational_status", e.target.value)}
                     className="w-full h-[56px] px-4 border border-gray-300 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100/50 transition-all font-medium text-gray-700"
                   >
-                    <option value="Pending">Pending</option>
-                    <option value="In progress">In progress</option>
-                    <option value="Completed">Completed</option>
+                    <option value="Pending">{language === 'id' ? "Tertunda" : "Pending"}</option>
+                    <option value="In progress">{language === 'id' ? "Sedang Diproses" : "In progress"}</option>
+                    <option value="Completed">{language === 'id' ? "Selesai" : "Completed"}</option>
                   </select>
                 </div>
 
                 {/* Description */}
                 <div className="col-span-2">
-                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">Item Description (Optional)</label>
+                  <label className="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400 mb-1.5 ml-1 block">{t("op_description")}</label>
                   <textarea
-                    placeholder="Item Description"
+                    placeholder={language === 'id' ? 'Deskripsi Barang' : 'Item Description'}
                     value={formData.description}
                     onChange={(e) => handleFieldChange("description", e.target.value)}
                     className="w-full p-4 border border-gray-300 rounded-xl min-h-[120px] outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100/50 transition-all"
@@ -1331,12 +1418,12 @@ export default function DashboardOperationalPage() {
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
-                        <span>Saving...</span>
+                        <span>{t("op_saving")}</span>
                       </>
                     ) : editingCargo ? (
-                      "Update Cargo"
+                      (language === 'id' ? "Perbarui Kargo" : "Update Cargo")
                     ) : (
-                      "Save New Cargo"
+                      (language === 'id' ? "Simpan Kargo Baru" : "Save New Cargo")
                     )}
                   </button>
 
@@ -1351,7 +1438,7 @@ export default function DashboardOperationalPage() {
                     }}
                     className="flex-1 h-[56px] border border-gray-300 hover:bg-gray-50 text-gray-700 font-bold rounded-xl transition-all"
                   >
-                    Cancel
+                    {t("op_cancel")}
                   </button>
                 </div>
               </form>
@@ -1363,12 +1450,12 @@ export default function DashboardOperationalPage() {
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="p-4 text-left">Manifest ID</th>
-                  <th className="p-4 text-left">Airline</th>
-                  <th className="p-4 text-left">Route</th>
-                  <th className="p-4 text-center">Weight</th>
+                  <th className="p-4 text-left">{language === 'id' ? "ID Manifes" : "Manifest ID"}</th>
+                  <th className="p-4 text-left">{language === 'id' ? "Maskapai" : "Airline"}</th>
+                  <th className="p-4 text-left">{language === 'id' ? "Rute" : "Route"}</th>
+                  <th className="p-4 text-center">{language === 'id' ? "Berat" : "Weight"}</th>
                   <th className="p-4 text-center">Status</th>
-                  <th className="p-4 text-center">Actions</th>
+                  <th className="p-4 text-center">{language === 'id' ? "Aksi" : "Actions"}</th>
                 </tr>
               </thead>
 
@@ -1394,7 +1481,14 @@ export default function DashboardOperationalPage() {
                             : "bg-blue-100 text-blue-700"
                           }`}
                       >
-                        {cargo.flight_status}
+                        {cargo.flight_status === "Landed"
+                          ? (language === 'id' ? "Mendarat" : "Landed")
+                          : cargo.flight_status === "Delayed"
+                            ? (language === 'id' ? "Terlambat" : "Delayed")
+                            : cargo.flight_status === "Airborne"
+                              ? (language === 'id' ? "Mengudara" : "Airborne")
+                              : (language === 'id' ? "Terjadwal" : "Scheduled")
+                        }
                       </span>
                     </td>
                     <td className="p-4 text-center space-x-4">
@@ -1406,7 +1500,7 @@ export default function DashboardOperationalPage() {
                         }}
                         className="text-blue-600 font-semibold hover:underline"
                       >
-                        Update
+                        {language === 'id' ? "Ubah" : "Update"}
                       </button>
                       <button
                         onClick={(e) => {
@@ -1415,7 +1509,7 @@ export default function DashboardOperationalPage() {
                         }}
                         className="text-red-600 font-semibold hover:underline"
                       >
-                        Delete
+                        {language === 'id' ? "Hapus" : "Delete"}
                       </button>
                     </td>
                   </tr>
@@ -1428,7 +1522,9 @@ export default function DashboardOperationalPage() {
           {totalPages > 1 && (
             <div className="p-6 border-t border-gray-100 flex items-center justify-between bg-gray-50/20 bg-white rounded-b-2xl border-x border-b border-gray-100 shadow-sm">
               <p className="text-[10px] font-black text-gray-400 uppercase tracking-wider">
-                Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, filteredList.length)} of {filteredList.length} cargo items
+                {language === 'id'
+                  ? `Menampilkan ${((currentPage - 1) * itemsPerPage) + 1} sampai ${Math.min(currentPage * itemsPerPage, filteredList.length)} dari ${filteredList.length} item kargo`
+                  : `Showing ${((currentPage - 1) * itemsPerPage) + 1} to ${Math.min(currentPage * itemsPerPage, filteredList.length)} of ${filteredList.length} cargo items`}
               </p>
               <div className="flex items-center gap-2">
                 <button
@@ -1436,7 +1532,7 @@ export default function DashboardOperationalPage() {
                   onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                   className="px-3 py-1.5 rounded-lg bg-[#0a2a66] text-white text-[10px] font-black uppercase disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 transition"
                 >
-                  ◀ Prev
+                  {language === 'id' ? "◀ Sblm" : "◀ Prev"}
                 </button>
 
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
@@ -1457,7 +1553,7 @@ export default function DashboardOperationalPage() {
                   onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                   className="px-3 py-1.5 rounded-lg bg-[#0a2a66] text-white text-[10px] font-black uppercase disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 transition"
                 >
-                  Next ▶
+                  {language === 'id' ? "Selanjut ▶" : "Next ▶"}
                 </button>
               </div>
             </div>
@@ -1479,13 +1575,19 @@ export default function DashboardOperationalPage() {
 
             <div className="space-y-2">
               <span className="text-[9px] font-black uppercase tracking-[0.2em] text-rose-600 bg-rose-50 px-3.5 py-1 rounded-full">
-                Confirm Delete
+                {language === 'id' ? "Konfirmasi Hapus" : "Confirm Delete"}
               </span>
               <h3 className="text-xl font-black text-[#0a2a66] uppercase tracking-tight mt-4">
-                Delete This Manifest?
+                {language === 'id' ? "Hapus Manifes Ini?" : "Delete This Manifest?"}
               </h3>
               <p className="text-xs text-gray-400 font-bold leading-relaxed px-4 uppercase">
-                Are you sure you want to delete the cargo with manifest ID <span className="text-rose-600 font-mono font-black select-all bg-rose-50 px-1.5 py-0.5 rounded">{deleteModal.manifestId}</span>? This action is permanent and cannot be undone.
+                {language === 'id'
+                  ? `Apakah Anda yakin ingin menghapus kargo dengan ID manifes `
+                  : `Are you sure you want to delete the cargo with manifest ID `}
+                <span className="text-rose-600 font-mono font-black select-all bg-rose-50 px-1.5 py-0.5 rounded">{deleteModal.manifestId}</span>
+                {language === 'id'
+                  ? `? Tindakan ini permanen dan tidak dapat dibatalkan.`
+                  : `? This action is permanent and cannot be undone.`}
               </p>
             </div>
 
@@ -1495,14 +1597,14 @@ export default function DashboardOperationalPage() {
                 onClick={() => setDeleteModal({ show: false, cargoId: null, manifestId: "" })}
                 className="flex-1 h-[48px] border border-gray-300 hover:bg-gray-50 text-gray-700 font-bold rounded-xl text-xs uppercase tracking-wider transition-all"
               >
-                Cancel
+                {language === 'id' ? "Batal" : "Cancel"}
               </button>
               <button
                 type="button"
                 onClick={confirmDelete}
                 className="flex-1 h-[48px] bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl text-xs uppercase tracking-wider transition-all shadow-md active:scale-95"
               >
-                Delete Cargo
+                {language === 'id' ? "Hapus Kargo" : "Delete Cargo"}
               </button>
             </div>
           </div>
@@ -1522,7 +1624,7 @@ export default function DashboardOperationalPage() {
             {/* Modal Header */}
             <div className="p-8 flex justify-between items-center bg-[#0a2a66] rounded-t-[2.5rem] text-white relative shrink-0">
               <div>
-                <p className="text-white/60 text-[9px] font-black uppercase tracking-[0.25em] mb-1">Cargo Detail</p>
+                <p className="text-white/60 text-[9px] font-black uppercase tracking-[0.25em] mb-1">{language === 'id' ? "Detail Kargo" : "Cargo Detail"}</p>
                 <h3 className="text-white font-black text-2xl tracking-tight select-all font-mono">{detailCargo.manifest_id}</h3>
               </div>
               <button
@@ -1538,18 +1640,26 @@ export default function DashboardOperationalPage() {
             <div className="p-8 space-y-6 overflow-y-auto">
               {/* Flight Info */}
               <div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3">Flight Information</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3">{language === 'id' ? "Informasi Penerbangan" : "Flight Information"}</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <DetailItem label="Airline" value={detailCargo.airline_name} />
-                  <DetailItem label="Flight Code" value={detailCargo.flight_code} />
-                  <DetailItem label="Route" value={detailCargo.route} />
-                  <DetailItem label="Date" value={detailCargo.date} />
-                  <DetailItem label="Scheduled Time" value={detailCargo.scheduled_time} />
-                  <DetailItem label="Actual Time" value={detailCargo.actual_time} />
-                  <DetailItem label="Gate" value={detailCargo.gate || "-"} />
+                  <DetailItem label={language === 'id' ? "Maskapai" : "Airline"} value={detailCargo.airline_name} />
+                  <DetailItem label={language === 'id' ? "Kode Penerbangan" : "Flight Code"} value={detailCargo.flight_code} />
+                  <DetailItem label={language === 'id' ? "Rute" : "Route"} value={detailCargo.route} />
+                  <DetailItem label={language === 'id' ? "Tanggal" : "Date"} value={detailCargo.date} />
+                  <DetailItem label={language === 'id' ? "Waktu Terjadwal" : "Scheduled Time"} value={detailCargo.scheduled_time} />
+                  <DetailItem label={language === 'id' ? "Waktu Aktual" : "Actual Time"} value={detailCargo.actual_time} />
+                  <DetailItem label={language === 'id' ? "Gerbang" : "Gate"} value={detailCargo.gate || "-"} />
                   <DetailItem
-                    label="Flight Status"
-                    value={detailCargo.flight_status}
+                    label={language === 'id' ? "Status Penerbangan" : "Flight Status"}
+                    value={
+                      detailCargo.flight_status === "Landed"
+                        ? (language === 'id' ? "Mendarat" : "Landed")
+                        : detailCargo.flight_status === "Delayed"
+                          ? (language === 'id' ? "Terlambat" : "Delayed")
+                          : detailCargo.flight_status === "Airborne"
+                            ? (language === 'id' ? "Mengudara" : "Airborne")
+                            : (language === 'id' ? "Terjadwal" : "Scheduled")
+                    }
                     badge
                     badgeColor={
                       detailCargo.flight_status === "Landed"
@@ -1566,26 +1676,26 @@ export default function DashboardOperationalPage() {
 
               {/* Sender & Receiver */}
               <div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3">Sender & Receiver</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3">{language === 'id' ? "Pengirim & Penerima" : "Sender & Receiver"}</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <DetailItem label="Sender Name" value={detailCargo.sender_name || "-"} />
-                  <DetailItem label="Receiver Name" value={detailCargo.receiver_name || "-"} />
-                  <DetailItem label="Phone Number" value={detailCargo.phone_number || "-"} />
-                  <DetailItem label="Origin City" value={detailCargo.origin_city || "-"} />
-                  <DetailItem label="Destination City" value={detailCargo.destination_city || "-"} />
+                  <DetailItem label={language === 'id' ? "Nama Pengirim" : "Sender Name"} value={detailCargo.sender_name || "-"} />
+                  <DetailItem label={language === 'id' ? "Nama Penerima" : "Receiver Name"} value={detailCargo.receiver_name || "-"} />
+                  <DetailItem label={language === 'id' ? "Nomor Telepon" : "Phone Number"} value={detailCargo.phone_number || "-"} />
+                  <DetailItem label={language === 'id' ? "Kota Asal" : "Origin City"} value={detailCargo.origin_city || "-"} />
+                  <DetailItem label={language === 'id' ? "Kota Tujuan" : "Destination City"} value={detailCargo.destination_city || "-"} />
                 </div>
               </div>
 
               {/* Cargo Info */}
               <div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3">Cargo Information</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3">{language === 'id' ? "Informasi Kargo" : "Cargo Information"}</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <DetailItem label="Item Type" value={detailCargo.item_type || "-"} />
-                  <DetailItem label="Weight" value={detailCargo.weight ? `${detailCargo.weight} kg` : "-"} />
-                  <DetailItem label="Quantity" value={detailCargo.items ? `${detailCargo.items} Pcs` : "-"} />
-                  <DetailItem label="Shipping Type" value={detailCargo.shipping_type || "-"} />
+                  <DetailItem label={language === 'id' ? "Jenis Barang" : "Item Type"} value={detailCargo.item_type || "-"} />
+                  <DetailItem label={language === 'id' ? "Berat" : "Weight"} value={detailCargo.weight ? `${detailCargo.weight} kg` : "-"} />
+                  <DetailItem label={language === 'id' ? "Jumlah" : "Quantity"} value={detailCargo.items ? `${detailCargo.items} Pcs` : "-"} />
+                  <DetailItem label={language === 'id' ? "Jenis Pengiriman" : "Shipping Type"} value={detailCargo.shipping_type || "-"} />
                   <DetailItem
-                    label="Shipping Price"
+                    label={language === 'id' ? "Biaya Pengiriman" : "Shipping Price"}
                     value={
                       detailCargo.shipping_price
                         ? `Rp ${Number(detailCargo.shipping_price).toLocaleString("id-ID")}`
@@ -1593,8 +1703,14 @@ export default function DashboardOperationalPage() {
                     }
                   />
                   <DetailItem
-                    label="Operational Status"
-                    value={detailCargo.operational_status || "-"}
+                    label={language === 'id' ? "Status Operasional" : "Operational Status"}
+                    value={
+                      detailCargo.operational_status === "Completed"
+                        ? (language === 'id' ? "Selesai" : "Completed")
+                        : detailCargo.operational_status === "In progress" || detailCargo.operational_status === "Processing"
+                          ? (language === 'id' ? "Sedang Diproses" : "In progress")
+                          : (language === 'id' ? "Tertunda" : "Pending")
+                    }
                     badge
                     badgeColor={
                       detailCargo.operational_status === "Completed"
@@ -1610,7 +1726,7 @@ export default function DashboardOperationalPage() {
               {/* Description */}
               {detailCargo.description && (
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Description</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">{language === 'id' ? "Deskripsi" : "Description"}</p>
                   <p className="text-xs text-gray-700 bg-gray-50 rounded-xl p-4 leading-relaxed whitespace-pre-wrap">{detailCargo.description}</p>
                 </div>
               )}
@@ -1625,7 +1741,7 @@ export default function DashboardOperationalPage() {
                 onClick={() => setDetailCargo(null)}
                 className="px-8 py-3 bg-[#0a2a66] hover:bg-[#124294] text-white font-bold rounded-xl text-xs uppercase tracking-wider transition-all shadow-md active:scale-95"
               >
-                Close Details
+                {language === 'id' ? "Tutup Detail" : "Close Details"}
               </button>
             </div>
           </div>

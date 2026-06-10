@@ -1,9 +1,11 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useLanguage } from "./LanguageContext";
 
 export default function NotFound() {
   const router = useRouter();
+  const { t } = useLanguage();
 
   return (
     <div className="flex min-h-screen bg-[#0f284f] items-center justify-center p-6 text-gray-800 font-sans relative overflow-hidden">
@@ -29,10 +31,10 @@ export default function NotFound() {
             Error Code 404
           </span>
           <h2 className="text-xl font-black text-gray-800 tracking-tight leading-none uppercase italic pt-3">
-            Halaman Tidak Ditemukan
+            {t("err_404_title")}
           </h2>
           <p className="text-xs text-gray-400 font-bold leading-relaxed px-2 mt-2 uppercase">
-            Halaman yang Anda tuju tidak tersedia atau Anda belum melakukan login ke dalam sistem.
+            {t("err_404_desc")}
           </p>
         </div>
 
@@ -42,7 +44,7 @@ export default function NotFound() {
             onClick={() => router.push("/login")}
             className="block w-full bg-[#0a2a66] hover:bg-[#071f4b] text-white font-bold py-3.5 rounded-xl text-xs transition-all shadow-md active:scale-95 uppercase tracking-wider cursor-pointer"
           >
-            Masuk / Kembali ke Dashboard
+            {t("err_404_btn")}
           </button>
         </div>
       </div>
