@@ -84,7 +84,7 @@ const translations: Record<Language, Record<string, string>> = {
     track_result_operational: "Operasional:",
     track_result_history: "Riwayat Pelacakan",
     track_result_no_history: "Belum ada riwayat tracking.",
-    track_err_card_title: "Pencarian Gagal / Error Handling",
+    track_err_card_title: "Pencarian Gagal",
     track_err_card_desc: "Manifest ID yang Anda masukkan tidak terdaftar dalam database kami. Silakan pastikan format yang diinput benar (Contoh: MNF-2026-001) atau hubungi support administrator maskapai.",
 
     // Contact Us Page
@@ -454,7 +454,7 @@ const translations: Record<Language, Record<string, string>> = {
     track_result_operational: "Operational:",
     track_result_history: "Tracking History",
     track_result_no_history: "No tracking history yet.",
-    track_err_card_title: "Search Failed / Error Handling",
+    track_err_card_title: "Search Failed",
     track_err_card_desc: "The Manifest ID you entered is not registered in our database. Please make sure the format entered is correct (Example: MNF-2026-001) or contact the airline support administrator.",
 
     // Contact Us Page
